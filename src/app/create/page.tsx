@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
 import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
 import { HandoffPanel } from "@/components/create/handoff-panel";
@@ -50,6 +50,15 @@ function isAnswerFilled(value: string | string[] | undefined) {
 	return typeof value === "string" && value.trim().length > 0;
 }
 
+const STORAGE_KEY = "tailor:wizard-state";
+
+type PersistedState = {
+	stage: Stage;
+	wantsAdvanced: boolean | null;
+	index: number;
+	answers: WizardAnswers;
+};
+
 function HomeLink() {
 	return (
 		<Link
@@ -70,6 +79,36 @@ export default function CreatePage() {
 	const [editSnapshot, setEditSnapshot] = useState<EditSnapshot | null>(null);
 	const [openGlossarySlug, setOpenGlossarySlug] = useState<string | null>(null);
 	const [confirmingRestart, setConfirmingRestart] = useState(false);
+	// 마운트 시 복원을 시도하기 전까지는 저장을 건너뜀 — 그렇지 않으면
+	// 복원 effect의 setState가 반영되기 전에 저장 effect가 먼저 실행돼
+	// 기본값으로 저장값을 덮어써버리는 경쟁 상태가 생김.
+	const [hasHydrated, setHasHydrated] = useState(false);
+
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem(STORAGE_KEY);
+			if (raw) {
+				const saved: PersistedState = JSON.parse(raw);
+				setStage(saved.stage);
+				setWantsAdvanced(saved.wantsAdvanced);
+				setIndex(saved.index);
+				setAnswers(saved.answers);
+			}
+		} catch {
+			// 손상된 저장값은 무시하고 기본 상태로 시작
+		}
+		setHasHydrated(true);
+	}, []);
+
+	useEffect(() => {
+		if (!hasHydrated) return;
+		try {
+			const toSave: PersistedState = { stage, wantsAdvanced, index, answers };
+			localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+		} catch {
+			// 저장 실패(용량 초과 등)는 진행에 영향 없으므로 무시
+		}
+	}, [hasHydrated, stage, wantsAdvanced, index, answers]);
 
 	const steps = buildSteps(wantsAdvanced);
 	const step = steps[index];
@@ -137,6 +176,11 @@ export default function CreatePage() {
 		setOpenGlossarySlug(null);
 		setConfirmingRestart(false);
 		goTo(0, -1);
+		try {
+			localStorage.removeItem(STORAGE_KEY);
+		} catch {
+			// 무시 — 다음 저장 시 어차피 덮어써짐
+		}
 	};
 
 	const setAnswer = (id: string, value: string | string[]) => {
