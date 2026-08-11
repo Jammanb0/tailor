@@ -1,13 +1,28 @@
 @import "tailwindcss";
 
 :root {
-	--background: #ffffff;
-	--foreground: #171717;
+	/* 무채색 배경 (크림색 X, 차가운 뉴트럴) */
+	--background: #fafafa;
+	--surface: #ffffff;
+	--foreground: #18181b;
+	--muted: #71717a;
+	--border: #e4e4e7;
+
+	/* 코랄 포인트 컬러 — 절제해서 한 곳에만 사용 */
+	--accent: #ff6b4a;
+	--accent-hover: #ff5533;
+	--accent-foreground: #ffffff;
 }
 
 @theme inline {
 	--color-background: var(--background);
+	--color-surface: var(--surface);
 	--color-foreground: var(--foreground);
+	--color-muted: var(--muted);
+	--color-border: var(--border);
+	--color-accent: var(--accent);
+	--color-accent-hover: var(--accent-hover);
+	--color-accent-foreground: var(--accent-foreground);
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
 }
@@ -15,12 +30,19 @@
 @media (prefers-color-scheme: dark) {
 	:root {
 		--background: #0a0a0a;
-		--foreground: #ededed;
+		--surface: #18181b;
+		--foreground: #fafafa;
+		--muted: #a1a1aa;
+		--border: #27272a;
+
+		--accent: #ff7a5c;
+		--accent-hover: #ff9276;
+		--accent-foreground: #18181b;
 	}
 }
 
 body {
 	background: var(--background);
 	color: var(--foreground);
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
