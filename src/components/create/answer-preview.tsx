@@ -44,7 +44,7 @@ function AnswerGroup({
 	return (
 		<div>
 			<h2 className="text-sm font-semibold text-muted">{title}</h2>
-			<div className="mt-2 flex flex-col divide-y divide-border rounded-2xl border border-border bg-surface">
+			<div className="mt-2 flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface">
 				{questions.map((question) => (
 					<button
 						key={question.id}
@@ -149,7 +149,7 @@ export function AnswerPreview({
 			) : (
 				onAddAdvanced && (
 					<div data-preview-item>
-						<div className="rounded-2xl border border-border bg-surface">
+						<div className="overflow-hidden rounded-2xl border border-border bg-surface">
 							<button
 								type="button"
 								onClick={onAddAdvanced}
@@ -184,6 +184,18 @@ export function AnswerPreview({
 			)}
 
 			<div data-preview-item className="flex items-center justify-between">
+				{!confirmingRestart ? (
+					<button
+						type="button"
+						onClick={onRequestRestart}
+						className="text-sm text-muted transition-colors hover:text-foreground"
+					>
+						처음부터 다시하기
+					</button>
+				) : (
+					<span />
+				)}
+
 				<button
 					type="button"
 					onClick={onGenerate}
@@ -192,16 +204,6 @@ export function AnswerPreview({
 				>
 					{isGenerating ? "만드는 중..." : "스킬 생성하기"}
 				</button>
-
-				{!confirmingRestart && (
-					<button
-						type="button"
-						onClick={onRequestRestart}
-						className="text-sm text-muted transition-colors hover:text-foreground"
-					>
-						처음부터 다시하기
-					</button>
-				)}
 			</div>
 
 			{confirmingRestart && (

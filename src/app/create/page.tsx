@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
+import { GeneratingScreen } from "@/components/create/generating-screen";
 import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
 import { HandoffPanel } from "@/components/create/handoff-panel";
 import { PathFork } from "@/components/create/path-fork";
@@ -25,7 +26,7 @@ import {
 	type WizardQuestion,
 } from "@/data/wizard-questions";
 
-type Stage = "fork" | "handoff" | "form" | "preview" | "result";
+type Stage = "fork" | "handoff" | "form" | "preview" | "generating" | "result";
 type Step = { kind: "question"; question: WizardQuestion } | { kind: "gate" };
 type EditSnapshot = {
 	questionId: string;
@@ -107,10 +108,13 @@ export default function CreatePage() {
 				const isFresh =
 					saved.version === STORAGE_VERSION &&
 					Date.now() - saved.savedAt < STORAGE_MAX_AGE_MS;
-				// 생성된 결과물 자체는 저장하지 않으므로, result 단계는
-				// preview로 되돌려서 답변은 살리고 다시 생성할 수 있게 함.
+				// 생성된 결과물 자체는 저장하지 않고, 생성 중이던 요청도
+				// 새로고침하면 끊기므로 두 단계 모두 preview로 되돌려서
+				// 답변은 살리고 다시 시도할 수 있게 함.
 				const restoredStage =
-					saved.stage === "result" ? "preview" : saved.stage;
+					saved.stage === "result" || saved.stage === "generating"
+						? "preview"
+						: saved.stage;
 				// fork/handoff는 아직 답변이 없는 진입 화면이라 복원할 진행
 				// 상황이 없음 — 여기서 복원하면 항상 fork를 건너뛰고 예전에
 				// 봤던 화면으로 직행하는 문제가 생기므로 제외.
@@ -239,6 +243,7 @@ export default function CreatePage() {
 	const handleGenerate = async () => {
 		setIsGenerating(true);
 		setGenerationError(null);
+		setStage("generating");
 		try {
 			const res = await fetch("/api/generate-skill", {
 				method: "POST",
@@ -260,6 +265,7 @@ export default function CreatePage() {
 					? error.message
 					: "알 수 없는 오류가 발생했어요.",
 			);
+			setStage("preview");
 		} finally {
 			setIsGenerating(false);
 		}
@@ -311,6 +317,15 @@ export default function CreatePage() {
 					isGenerating={isGenerating}
 					generationError={generationError}
 				/>
+			</main>
+		);
+	}
+
+	if (stage === "generating") {
+		return (
+			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+				<HomeLink />
+				<GeneratingScreen />
 			</main>
 		);
 	}

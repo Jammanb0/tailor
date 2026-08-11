@@ -32,9 +32,16 @@ export function SkillResult({
 	onEditAnswers,
 }: SkillResultProps) {
 	const isTeam = audience === "team";
-	const installPath = isTeam
-		? `해당 프로젝트의 .claude/skills/${result.suggestedFilename}/SKILL.md`
-		: `~/.claude/skills/${result.suggestedFilename}/SKILL.md`;
+	const rootLabel = isTeam
+		? "(작업 중인 프로젝트 폴더)"
+		: "~ (내 컴퓨터의 홈 폴더)";
+	const folderTree = [
+		`${rootLabel}/`,
+		"└─ .claude/",
+		"   └─ skills/",
+		`      └─ ${result.suggestedFilename}/`,
+		"         └─ SKILL.md  ← 다운로드한 내용을 여기에 저장하세요",
+	].join("\n");
 
 	return (
 		<div className="flex flex-col gap-5">
@@ -75,16 +82,27 @@ export function SkillResult({
 
 			<div className="rounded-2xl border border-border bg-surface px-5 py-4">
 				<h2 className="text-sm font-semibold text-muted">설치 방법</h2>
-				<p className="mt-1.5 select-text text-foreground text-sm">
-					다운로드한 파일을 아래 경로에{" "}
+				<p className="mt-1.5 select-text text-foreground text-sm leading-relaxed">
+					스킬은 SKILL.md라는 문서 하나예요. 보통{" "}
 					<code className="rounded bg-background px-1.5 py-0.5 text-xs">
-						SKILL.md
+						.claude
 					</code>
-					라는 이름으로 저장하세요.
+					라는 폴더를 만들고, 그 안에{" "}
+					<code className="rounded bg-background px-1.5 py-0.5 text-xs">
+						skills
+					</code>
+					라는 폴더를 하나 더 만들어서 스킬들을 모아둬요. Claude Code는 이
+					폴더를 자동으로 인식해서, 관련된 상황이 오면 알아서 이 스킬을 찾아
+					써요.
 				</p>
-				<code className="mt-2 block select-text rounded-xl bg-background px-3 py-2 text-xs">
-					{installPath}
-				</code>
+				<pre className="mt-3 select-text overflow-x-auto rounded-xl bg-background px-3 py-2 text-xs leading-relaxed">
+					{folderTree}
+				</pre>
+				<p className="mt-3 select-text text-foreground text-sm leading-relaxed">
+					{isTeam
+						? "팀과 공유하고 싶다고 답하셨으니, 지금 작업 중인 프로젝트의 최상위(루트) 폴더를 기준으로 위 구조를 만들어주세요. 프로젝트를 git으로 관리한다면 이 폴더도 함께 커밋돼서 팀원들도 똑같이 쓸 수 있어요."
+						: "개인용으로 쓰고 싶다고 답하셨으니, 특정 프로젝트가 아니라 내 컴퓨터의 홈 폴더를 기준으로 위 구조를 만들어주세요. 그러면 어떤 프로젝트에서 작업하든 이 스킬을 쓸 수 있어요."}
+				</p>
 			</div>
 
 			<div className="rounded-2xl border border-border bg-surface px-5 py-4">
