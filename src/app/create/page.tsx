@@ -99,6 +99,13 @@ export default function CreatePage() {
 	// 복원 effect의 setState가 반영되기 전에 저장 effect가 먼저 실행돼
 	// 기본값으로 저장값을 덮어써버리는 경쟁 상태가 생김.
 	const [hasHydrated, setHasHydrated] = useState(false);
+	// 저장된 답변을 발견했지만 아직 "이어서 할지" 묻지 않은 상태.
+	// 사용자가 고르기 전까지는 화면에 조용히 반영하지 않음 — 그렇지 않으면
+	// "스킬 만들기"를 다시 눌렀을 뿐인데 예전 답변으로 곧장 넘어가버려서
+	// 뭔가 잘못됐다고 느끼게 됨.
+	const [pendingRestore, setPendingRestore] = useState<PersistedState | null>(
+		null,
+	);
 
 	useEffect(() => {
 		try {
@@ -109,15 +116,14 @@ export default function CreatePage() {
 					saved.version === STORAGE_VERSION &&
 					Date.now() - saved.savedAt < STORAGE_MAX_AGE_MS;
 				// 생성된 결과물 자체는 저장하지 않고, 생성 중이던 요청도
-				// 새로고침하면 끊기므로 두 단계 모두 preview로 되돌려서
+				// 새로고침하면 끊기므로 두 단계 모두 preview로 취급해서
 				// 답변은 살리고 다시 시도할 수 있게 함.
-				const restoredStage =
+				const restoredStage: Stage =
 					saved.stage === "result" || saved.stage === "generating"
 						? "preview"
 						: saved.stage;
-				// fork/handoff는 아직 답변이 없는 진입 화면이라 복원할 진행
-				// 상황이 없음 — 여기서 복원하면 항상 fork를 건너뛰고 예전에
-				// 봤던 화면으로 직행하는 문제가 생기므로 제외.
+				// fork/handoff는 아직 답변이 없는 진입 화면이라 이어서 할
+				// 진행 상황이 없음.
 				const hasProgress =
 					restoredStage === "form" || restoredStage === "preview";
 				// 저장된 index가 지금 질문 구성 범위를 벗어나면(질문 추가/삭제 등)
@@ -127,10 +133,7 @@ export default function CreatePage() {
 					saved.index < buildSteps(saved.wantsAdvanced).length;
 
 				if (isFresh && hasProgress && inBounds) {
-					setStage(restoredStage);
-					setWantsAdvanced(saved.wantsAdvanced);
-					setIndex(saved.index);
-					setAnswers(saved.answers);
+					setPendingRestore({ ...saved, stage: restoredStage });
 				} else {
 					localStorage.removeItem(STORAGE_KEY);
 				}
@@ -145,7 +148,9 @@ export default function CreatePage() {
 	}, []);
 
 	useEffect(() => {
-		if (!hasHydrated) return;
+		// 복원 여부를 아직 안 물어본 상태에서 저장하면, 그 사이에 방금
+		// 읽은 저장값을 기본값(빈 답변)으로 덮어써버림.
+		if (!hasHydrated || pendingRestore) return;
 		try {
 			const toSave: PersistedState = {
 				version: STORAGE_VERSION,
@@ -159,7 +164,25 @@ export default function CreatePage() {
 		} catch {
 			// 저장 실패(용량 초과 등)는 진행에 영향 없으므로 무시
 		}
-	}, [hasHydrated, stage, wantsAdvanced, index, answers]);
+	}, [hasHydrated, pendingRestore, stage, wantsAdvanced, index, answers]);
+
+	const handleResume = () => {
+		if (!pendingRestore) return;
+		setStage(pendingRestore.stage);
+		setWantsAdvanced(pendingRestore.wantsAdvanced);
+		setIndex(pendingRestore.index);
+		setAnswers(pendingRestore.answers);
+		setPendingRestore(null);
+	};
+
+	const handleDiscardRestore = () => {
+		setPendingRestore(null);
+		try {
+			localStorage.removeItem(STORAGE_KEY);
+		} catch {
+			// 무시 — 다음 저장 시 어차피 덮어써짐
+		}
+	};
 
 	const steps = buildSteps(wantsAdvanced);
 	const step = steps[index];
@@ -275,10 +298,45 @@ export default function CreatePage() {
 		return (
 			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
 				<HomeLink />
-				<PathFork
-					onSelectWeb={() => setStage("form")}
-					onSelectHandoff={() => setStage("handoff")}
-				/>
+				{pendingRestore ? (
+					<div className="flex flex-col gap-4">
+						<div>
+							<h1 className="text-2xl font-semibold text-foreground">
+								이어서 만들던 스킬이 있어요
+							</h1>
+							<p className="mt-1.5 text-muted">
+								저장된 답변을 이어서 쓸까요, 아니면 새로 시작할까요?
+							</p>
+						</div>
+						<button
+							type="button"
+							onClick={handleResume}
+							className="flex w-full flex-col gap-1 rounded-2xl border border-accent bg-accent/10 px-6 py-5 text-left transition-colors hover:bg-accent/15"
+						>
+							<span className="font-semibold text-accent">이어서 하기</span>
+							<span className="text-sm text-muted">
+								답하던 질문부터 다시 시작해요
+							</span>
+						</button>
+						<button
+							type="button"
+							onClick={handleDiscardRestore}
+							className="flex w-full flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left transition-colors hover:border-accent"
+						>
+							<span className="font-semibold text-foreground">
+								새로 시작하기
+							</span>
+							<span className="text-sm text-muted">
+								저장된 답변을 지우고 처음부터 만들어요
+							</span>
+						</button>
+					</div>
+				) : (
+					<PathFork
+						onSelectWeb={() => setStage("form")}
+						onSelectHandoff={() => setStage("handoff")}
+					/>
+				)}
 			</main>
 		);
 	}
