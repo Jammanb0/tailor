@@ -51,8 +51,15 @@ function isAnswerFilled(value: string | string[] | undefined) {
 }
 
 const STORAGE_KEY = "tailor:wizard-state";
+// 질문 구성(문항 수/순서)이 바뀌면 옛 저장값의 index가 새 구성과
+// 어긋날 수 있으므로 반드시 올려서 옛 저장값을 무시하게 만들 것.
+const STORAGE_VERSION = 1;
+// 하루 넘게 방치된 답변은 상황이 바뀌었을 가능성이 커서 복원하지 않음.
+const STORAGE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 type PersistedState = {
+	version: number;
+	savedAt: number;
 	stage: Stage;
 	wantsAdvanced: boolean | null;
 	index: number;
@@ -89,13 +96,33 @@ export default function CreatePage() {
 			const raw = localStorage.getItem(STORAGE_KEY);
 			if (raw) {
 				const saved: PersistedState = JSON.parse(raw);
-				setStage(saved.stage);
-				setWantsAdvanced(saved.wantsAdvanced);
-				setIndex(saved.index);
-				setAnswers(saved.answers);
+				const isFresh =
+					saved.version === STORAGE_VERSION &&
+					Date.now() - saved.savedAt < STORAGE_MAX_AGE_MS;
+				// fork/handoff는 아직 답변이 없는 진입 화면이라 복원할 진행
+				// 상황이 없음 — 여기서 복원하면 항상 fork를 건너뛰고 예전에
+				// 봤던 화면으로 직행하는 문제가 생기므로 제외.
+				const hasProgress = saved.stage === "form" || saved.stage === "preview";
+				// 저장된 index가 지금 질문 구성 범위를 벗어나면(질문 추가/삭제 등)
+				// 복원하지 않음.
+				const inBounds =
+					saved.index >= 0 &&
+					saved.index < buildSteps(saved.wantsAdvanced).length;
+
+				if (isFresh && hasProgress && inBounds) {
+					setStage(saved.stage);
+					setWantsAdvanced(saved.wantsAdvanced);
+					setIndex(saved.index);
+					setAnswers(saved.answers);
+				} else {
+					localStorage.removeItem(STORAGE_KEY);
+				}
 			}
 		} catch {
 			// 손상된 저장값은 무시하고 기본 상태로 시작
+			try {
+				localStorage.removeItem(STORAGE_KEY);
+			} catch {}
 		}
 		setHasHydrated(true);
 	}, []);
@@ -103,7 +130,14 @@ export default function CreatePage() {
 	useEffect(() => {
 		if (!hasHydrated) return;
 		try {
-			const toSave: PersistedState = { stage, wantsAdvanced, index, answers };
+			const toSave: PersistedState = {
+				version: STORAGE_VERSION,
+				savedAt: Date.now(),
+				stage,
+				wantsAdvanced,
+				index,
+				answers,
+			};
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
 		} catch {
 			// 저장 실패(용량 초과 등)는 진행에 영향 없으므로 무시
