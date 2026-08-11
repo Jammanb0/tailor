@@ -7,7 +7,9 @@ import type { GlossaryTerm } from "@/data/glossary";
 
 export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
 	const [query, setQuery] = useState("");
+	const [openSlugs, setOpenSlugs] = useState<Set<string>>(new Set());
 	const wrapperRef = useRef<HTMLDivElement>(null);
+	const hasAppliedHashRef = useRef(false);
 
 	const filtered = useMemo(() => {
 		const q = query.trim().toLowerCase();
@@ -23,6 +25,35 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
 	// 반대쪽 칸의 카드 위치가 재배치되지 않게 함 (CSS columns의 재배치 문제 회피).
 	const leftColumn = filtered.filter((_, i) => i % 2 === 0);
 	const rightColumn = filtered.filter((_, i) => i % 2 === 1);
+
+	const toggleSlug = (slug: string) => {
+		setOpenSlugs((prev) => {
+			const next = new Set(prev);
+			if (next.has(slug)) {
+				next.delete(slug);
+			} else {
+				next.add(slug);
+			}
+			return next;
+		});
+	};
+
+	const collapseAll = () => setOpenSlugs(new Set());
+
+	// #slug로 들어오면 해당 용어 카드를 자동으로 펼치고 그 위치로 스크롤.
+	// 스킬 생성기 등 다른 화면에서 특정 용어로 바로 연결할 때 쓰기 위함.
+	useEffect(() => {
+		if (hasAppliedHashRef.current) return;
+		const slug = window.location.hash.replace("#", "");
+		if (!slug || !terms.some((t) => t.slug === slug)) return;
+		hasAppliedHashRef.current = true;
+		setOpenSlugs((prev) => new Set(prev).add(slug));
+		requestAnimationFrame(() => {
+			document
+				.getElementById(slug)
+				?.scrollIntoView({ behavior: "smooth", block: "center" });
+		});
+	}, [terms]);
 
 	useEffect(() => {
 		if (filtered.length === 0) return;
@@ -67,7 +98,23 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
 					</button>
 				)}
 			</div>
-			<div className="mt-6">
+			<div className="mt-3 flex items-center justify-between text-sm text-muted">
+				<span>
+					{query
+						? `총 ${terms.length}개 중 ${filtered.length}개`
+						: `총 ${terms.length}개`}
+				</span>
+				{openSlugs.size > 0 && (
+					<button
+						type="button"
+						onClick={collapseAll}
+						className="text-muted transition-colors hover:text-accent"
+					>
+						모두 닫기
+					</button>
+				)}
+			</div>
+			<div className="mt-4">
 				{filtered.length === 0 ? (
 					<div className="rounded-2xl border border-border bg-surface px-5 py-12 text-center text-muted">
 						일치하는 용어가 없어요. 다른 검색어로 찾아보세요.
@@ -76,15 +123,23 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
 					<div ref={wrapperRef} className="flex flex-col gap-3 sm:flex-row">
 						<div className="flex flex-1 flex-col gap-3">
 							{leftColumn.map((term) => (
-								<div key={term.slug} data-glossary-card>
-									<GlossaryCard {...term} />
+								<div key={term.slug} id={term.slug} data-glossary-card>
+									<GlossaryCard
+										{...term}
+										isOpen={openSlugs.has(term.slug)}
+										onToggle={() => toggleSlug(term.slug)}
+									/>
 								</div>
 							))}
 						</div>
 						<div className="flex flex-1 flex-col gap-3">
 							{rightColumn.map((term) => (
-								<div key={term.slug} data-glossary-card>
-									<GlossaryCard {...term} />
+								<div key={term.slug} id={term.slug} data-glossary-card>
+									<GlossaryCard
+										{...term}
+										isOpen={openSlugs.has(term.slug)}
+										onToggle={() => toggleSlug(term.slug)}
+									/>
 								</div>
 							))}
 						</div>

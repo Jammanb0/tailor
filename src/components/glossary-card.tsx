@@ -4,14 +4,20 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import type { GlossaryTerm } from "@/data/glossary";
 
+type GlossaryCardProps = GlossaryTerm & {
+	isOpen: boolean;
+	onToggle: () => void;
+};
+
 export function GlossaryCard({
 	term,
 	english,
 	acronymOf,
 	summary,
 	explanation,
-}: GlossaryTerm) {
-	const [isOpen, setIsOpen] = useState(false);
+	isOpen,
+	onToggle,
+}: GlossaryCardProps) {
 	const [height, setHeight] = useState(0);
 	const contentRef = useRef<HTMLDivElement>(null);
 	const subtitle = acronymOf ?? english;
@@ -25,10 +31,14 @@ export function GlossaryCard({
 	}, [isOpen]);
 
 	return (
-		<div className="rounded-2xl border border-border bg-surface">
+		<div
+			className={`rounded-2xl border bg-surface transition-colors ${
+				isOpen ? "border-accent/50" : "border-border"
+			}`}
+		>
 			<button
 				type="button"
-				onClick={() => setIsOpen((v) => !v)}
+				onClick={onToggle}
 				aria-expanded={isOpen}
 				className="flex w-full items-center justify-between gap-4 rounded-2xl px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 			>
@@ -46,7 +56,11 @@ export function GlossaryCard({
 				<motion.span
 					animate={{ rotate: isOpen ? 45 : 0 }}
 					transition={{ duration: 0.2 }}
-					className="shrink-0 text-xl text-accent"
+					className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-lg transition-colors duration-200 ${
+						isOpen
+							? "bg-accent text-accent-foreground"
+							: "bg-accent/10 text-accent"
+					}`}
 					aria-hidden
 				>
 					+
