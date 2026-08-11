@@ -62,13 +62,12 @@ export default function Home() {
 					>
 						용어 알아보기
 					</Link>
-					<span
-						aria-disabled
-						className="flex flex-col items-center justify-center gap-0.5 rounded-full bg-accent/40 px-6 py-3 text-center text-sm font-medium text-accent-foreground/70"
+					<Link
+						href="/create"
+						className="flex items-center justify-center rounded-full bg-accent px-6 py-3 text-center text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
 					>
 						스킬 만들기
-						<span className="text-xs font-normal">곧 만나요</span>
-					</span>
+					</Link>
 				</div>
 			</div>
 		</main>
