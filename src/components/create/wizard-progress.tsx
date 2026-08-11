@@ -47,17 +47,19 @@ export function WizardProgress({ current, total, label }: WizardProgressProps) {
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-label={label}
-				className="relative mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border"
+				className="relative mt-2 h-1.5 w-full"
 			>
-				<div
-					ref={fillRef}
-					className="absolute inset-y-0 left-0 w-0 rounded-full bg-accent"
-				/>
+				<div className="absolute inset-0 overflow-hidden rounded-full bg-border">
+					<div ref={fillRef} className="h-full w-0 rounded-full bg-accent" />
+				</div>
 				<span
 					ref={dotRef}
 					aria-hidden
-					className="-translate-y-1/2 absolute top-1/2 h-3 w-3 rounded-full bg-accent shadow-[0_0_0_3px_var(--surface)]"
-					style={{ left: `calc(${percent}% - 6px)` }}
+					className="-translate-y-1/2 absolute top-1/2 h-3.5 w-3.5 rounded-full border-2 border-accent bg-surface"
+					style={{
+						left: `calc(${percent}% - 7px)`,
+						boxShadow: "0 0 0 3px var(--background)",
+					}}
 				/>
 			</div>
 		</div>

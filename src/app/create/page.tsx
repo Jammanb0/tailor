@@ -115,9 +115,13 @@ export default function CreatePage() {
 				<AnswerPreview
 					answers={answers}
 					wantsAdvanced={wantsAdvanced === true}
-					onEdit={() => {
+					onSelectQuestion={(questionId) => {
+						const targetIndex = steps.findIndex(
+							(s) => s.kind === "question" && s.question.id === questionId,
+						);
+						if (targetIndex === -1) return;
 						setStage("form");
-						goTo(steps.length - 1, -1);
+						goTo(targetIndex, -1);
 					}}
 				/>
 			</main>
@@ -236,9 +240,11 @@ function QuestionStep({
 				{question.glossaryNote && question.glossarySlug && (
 					<Link
 						href={`/glossary#${question.glossarySlug}`}
+						target="_blank"
+						rel="noopener noreferrer"
 						className="mt-1.5 inline-block text-sm text-accent underline underline-offset-2"
 					>
-						{question.glossaryNote}
+						{question.glossaryNote} ↗
 					</Link>
 				)}
 			</div>
@@ -274,9 +280,11 @@ function QuestionStep({
 					{note.glossarySlug && (
 						<Link
 							href={`/glossary#${note.glossarySlug}`}
+							target="_blank"
+							rel="noopener noreferrer"
 							className="underline underline-offset-2"
 						>
-							자세히 보기
+							자세히 보기 ↗
 						</Link>
 					)}
 				</p>
