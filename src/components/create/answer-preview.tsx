@@ -80,6 +80,9 @@ type AnswerPreviewProps = {
 	onRequestRestart: () => void;
 	onCancelRestart: () => void;
 	onConfirmRestart: () => void;
+	onGenerate: () => void;
+	isGenerating: boolean;
+	generationError: string | null;
 };
 
 export function AnswerPreview({
@@ -91,6 +94,9 @@ export function AnswerPreview({
 	onRequestRestart,
 	onCancelRestart,
 	onConfirmRestart,
+	onGenerate,
+	isGenerating,
+	generationError,
 }: AnswerPreviewProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -168,22 +174,24 @@ export function AnswerPreview({
 				)
 			)}
 
-			<div
-				data-preview-item
-				className="rounded-2xl border border-dashed border-border bg-surface px-5 py-4 text-sm text-muted"
-			>
-				생성 파이프라인은 다음 단계에서 연동돼요. 지금은 답변을 모으는
-				화면까지만 준비돼 있어요.
-			</div>
+			{generationError && (
+				<div
+					data-preview-item
+					className="rounded-2xl border border-accent/40 bg-accent/5 px-5 py-4 text-sm text-accent"
+				>
+					{generationError}
+				</div>
+			)}
 
 			<div data-preview-item className="flex items-center justify-between">
-				<span
-					aria-disabled
-					className="flex w-fit items-center gap-1.5 rounded-full bg-accent/40 px-6 py-3 text-sm font-medium text-accent-foreground/70"
+				<button
+					type="button"
+					onClick={onGenerate}
+					disabled={isGenerating}
+					className="flex items-center gap-1.5 rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
 				>
-					스킬 생성하기
-					<span className="text-xs font-normal">곧 만나요</span>
-				</span>
+					{isGenerating ? "만드는 중..." : "스킬 생성하기"}
+				</button>
 
 				{!confirmingRestart && (
 					<button

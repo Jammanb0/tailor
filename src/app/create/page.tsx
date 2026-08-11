@@ -6,6 +6,10 @@ import { AnswerPreview } from "@/components/create/answer-preview";
 import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
 import { HandoffPanel } from "@/components/create/handoff-panel";
 import { PathFork } from "@/components/create/path-fork";
+import {
+	type GenerationResult,
+	SkillResult,
+} from "@/components/create/skill-result";
 import { StepTransition } from "@/components/create/step-transition";
 import {
 	CheckboxField,
@@ -21,7 +25,7 @@ import {
 	type WizardQuestion,
 } from "@/data/wizard-questions";
 
-type Stage = "fork" | "handoff" | "form" | "preview";
+type Stage = "fork" | "handoff" | "form" | "preview" | "result";
 type Step = { kind: "question"; question: WizardQuestion } | { kind: "gate" };
 type EditSnapshot = {
 	questionId: string;
@@ -86,6 +90,10 @@ export default function CreatePage() {
 	const [editSnapshot, setEditSnapshot] = useState<EditSnapshot | null>(null);
 	const [openGlossarySlug, setOpenGlossarySlug] = useState<string | null>(null);
 	const [confirmingRestart, setConfirmingRestart] = useState(false);
+	const [generationResult, setGenerationResult] =
+		useState<GenerationResult | null>(null);
+	const [isGenerating, setIsGenerating] = useState(false);
+	const [generationError, setGenerationError] = useState<string | null>(null);
 	// 마운트 시 복원을 시도하기 전까지는 저장을 건너뜀 — 그렇지 않으면
 	// 복원 effect의 setState가 반영되기 전에 저장 effect가 먼저 실행돼
 	// 기본값으로 저장값을 덮어써버리는 경쟁 상태가 생김.
@@ -99,10 +107,15 @@ export default function CreatePage() {
 				const isFresh =
 					saved.version === STORAGE_VERSION &&
 					Date.now() - saved.savedAt < STORAGE_MAX_AGE_MS;
+				// 생성된 결과물 자체는 저장하지 않으므로, result 단계는
+				// preview로 되돌려서 답변은 살리고 다시 생성할 수 있게 함.
+				const restoredStage =
+					saved.stage === "result" ? "preview" : saved.stage;
 				// fork/handoff는 아직 답변이 없는 진입 화면이라 복원할 진행
 				// 상황이 없음 — 여기서 복원하면 항상 fork를 건너뛰고 예전에
 				// 봤던 화면으로 직행하는 문제가 생기므로 제외.
-				const hasProgress = saved.stage === "form" || saved.stage === "preview";
+				const hasProgress =
+					restoredStage === "form" || restoredStage === "preview";
 				// 저장된 index가 지금 질문 구성 범위를 벗어나면(질문 추가/삭제 등)
 				// 복원하지 않음.
 				const inBounds =
@@ -110,7 +123,7 @@ export default function CreatePage() {
 					saved.index < buildSteps(saved.wantsAdvanced).length;
 
 				if (isFresh && hasProgress && inBounds) {
-					setStage(saved.stage);
+					setStage(restoredStage);
 					setWantsAdvanced(saved.wantsAdvanced);
 					setIndex(saved.index);
 					setAnswers(saved.answers);
@@ -209,6 +222,8 @@ export default function CreatePage() {
 		setEditSnapshot(null);
 		setOpenGlossarySlug(null);
 		setConfirmingRestart(false);
+		setGenerationResult(null);
+		setGenerationError(null);
 		goTo(0, -1);
 		try {
 			localStorage.removeItem(STORAGE_KEY);
@@ -219,6 +234,35 @@ export default function CreatePage() {
 
 	const setAnswer = (id: string, value: string | string[]) => {
 		setAnswers((prev) => ({ ...prev, [id]: value }));
+	};
+
+	const handleGenerate = async () => {
+		setIsGenerating(true);
+		setGenerationError(null);
+		try {
+			const res = await fetch("/api/generate-skill", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					answers,
+					wantsAdvanced: wantsAdvanced === true,
+				}),
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				throw new Error(data.error ?? "알 수 없는 오류가 발생했어요.");
+			}
+			setGenerationResult(data);
+			setStage("result");
+		} catch (error) {
+			setGenerationError(
+				error instanceof Error
+					? error.message
+					: "알 수 없는 오류가 발생했어요.",
+			);
+		} finally {
+			setIsGenerating(false);
+		}
 	};
 
 	if (stage === "fork") {
@@ -263,6 +307,24 @@ export default function CreatePage() {
 					onRequestRestart={() => setConfirmingRestart(true)}
 					onCancelRestart={() => setConfirmingRestart(false)}
 					onConfirmRestart={handleRestart}
+					onGenerate={handleGenerate}
+					isGenerating={isGenerating}
+					generationError={generationError}
+				/>
+			</main>
+		);
+	}
+
+	if (stage === "result" && generationResult) {
+		return (
+			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+				<HomeLink />
+				<SkillResult
+					result={generationResult}
+					audience={answers.audience}
+					isRegenerating={isGenerating}
+					onRegenerate={handleGenerate}
+					onEditAnswers={() => setStage("preview")}
 				/>
 			</main>
 		);
