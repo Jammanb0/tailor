@@ -26,12 +26,24 @@ import {
 	type WizardQuestion,
 } from "@/data/wizard-questions";
 
-type Stage = "fork" | "handoff" | "form" | "preview" | "generating" | "result";
+type Stage =
+	| "fork"
+	| "handoff"
+	| "form"
+	| "preview"
+	| "generating"
+	| "result"
+	| "refining";
 type Step = { kind: "question"; question: WizardQuestion } | { kind: "gate" };
 type EditSnapshot = {
 	questionId: string;
 	value: string | string[] | undefined;
 };
+type RefinementPayload = {
+	userFeedback: string;
+	answeredQuestions: { question: string; answer: string }[];
+};
+type RefineStep = { kind: "question"; question: string } | { kind: "feedback" };
 
 function buildSteps(wantsAdvanced: boolean | null): Step[] {
 	return [
@@ -53,6 +65,16 @@ function buildSteps(wantsAdvanced: boolean | null): Step[] {
 function isAnswerFilled(value: string | string[] | undefined) {
 	if (Array.isArray(value)) return value.length > 0;
 	return typeof value === "string" && value.trim().length > 0;
+}
+
+function buildRefineSteps(clarifyingQuestions: string[]): RefineStep[] {
+	return [
+		...clarifyingQuestions.map((question) => ({
+			kind: "question" as const,
+			question,
+		})),
+		{ kind: "feedback" as const },
+	];
 }
 
 const STORAGE_KEY = "tailor:wizard-state";
@@ -95,6 +117,12 @@ export default function CreatePage() {
 		useState<GenerationResult | null>(null);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [generationError, setGenerationError] = useState<string | null>(null);
+	const [refineIndex, setRefineIndex] = useState(0);
+	const [refineDirection, setRefineDirection] = useState(1);
+	const [refineAnswers, setRefineAnswers] = useState<Record<string, string>>(
+		{},
+	);
+	const [refineFeedback, setRefineFeedback] = useState("");
 	// 마운트 시 복원을 시도하기 전까지는 저장을 건너뜀 — 그렇지 않으면
 	// 복원 effect의 setState가 반영되기 전에 저장 effect가 먼저 실행돼
 	// 기본값으로 저장값을 덮어써버리는 경쟁 상태가 생김.
@@ -115,11 +143,13 @@ export default function CreatePage() {
 				const isFresh =
 					saved.version === STORAGE_VERSION &&
 					Date.now() - saved.savedAt < STORAGE_MAX_AGE_MS;
-				// 생성된 결과물 자체는 저장하지 않고, 생성 중이던 요청도
-				// 새로고침하면 끊기므로 두 단계 모두 preview로 취급해서
-				// 답변은 살리고 다시 시도할 수 있게 함.
+				// 생성된 결과물이나 2차 작업 진행 상태는 저장하지 않고,
+				// 생성 중이던 요청도 새로고침하면 끊기므로 세 단계 모두
+				// preview로 취급해서 답변은 살리고 다시 시도할 수 있게 함.
 				const restoredStage: Stage =
-					saved.stage === "result" || saved.stage === "generating"
+					saved.stage === "result" ||
+					saved.stage === "generating" ||
+					saved.stage === "refining"
 						? "preview"
 						: saved.stage;
 				// fork/handoff는 아직 답변이 없는 진입 화면이라 이어서 할
@@ -263,7 +293,44 @@ export default function CreatePage() {
 		setAnswers((prev) => ({ ...prev, [id]: value }));
 	};
 
-	const handleGenerate = async () => {
+	const handleStartRefine = () => {
+		setRefineIndex(0);
+		setRefineDirection(1);
+		setRefineAnswers({});
+		setRefineFeedback("");
+		setStage("refining");
+	};
+
+	const handleRefineBack = () => {
+		if (refineIndex === 0) {
+			setStage("result");
+			return;
+		}
+		setRefineDirection(-1);
+		setRefineIndex((i) => i - 1);
+	};
+
+	const handleRefineNext = (refineSteps: RefineStep[]) => {
+		if (refineIndex + 1 >= refineSteps.length) {
+			handleGenerate({
+				userFeedback: refineFeedback,
+				answeredQuestions: refineSteps
+					.filter((s) => s.kind === "question")
+					.map((s) => ({
+						question: s.question,
+						answer: refineAnswers[s.question] ?? "",
+					})),
+			});
+			return;
+		}
+		setRefineDirection(1);
+		setRefineIndex((i) => i + 1);
+	};
+
+	const handleGenerate = async (refinement?: RefinementPayload) => {
+		// 정제(2차 작업)는 항상 이미 결과가 있는 상태에서만 일어나므로,
+		// 실패해도 미리보기로 되돌리지 않고 결과 화면에 머물게 함.
+		const originStage = generationResult ? "result" : "preview";
 		setIsGenerating(true);
 		setGenerationError(null);
 		setStage("generating");
@@ -274,11 +341,23 @@ export default function CreatePage() {
 				body: JSON.stringify({
 					answers,
 					wantsAdvanced: wantsAdvanced === true,
+					refinement: refinement
+						? {
+								previousSkillMarkdown: generationResult?.skillMarkdown ?? "",
+								userFeedback: refinement.userFeedback,
+								answeredQuestions: refinement.answeredQuestions,
+							}
+						: undefined,
 				}),
 			});
-			const data = await res.json();
-			if (!res.ok) {
-				throw new Error(data.error ?? "알 수 없는 오류가 발생했어요.");
+			let data: (GenerationResult & { error?: string }) | null = null;
+			try {
+				data = await res.json();
+			} catch {
+				// 응답 본문이 비어있거나 손상된 경우 — 네트워크 문제 등
+			}
+			if (!res.ok || !data) {
+				throw new Error(data?.error ?? "알 수 없는 오류가 발생했어요.");
 			}
 			setGenerationResult(data);
 			setStage("result");
@@ -288,7 +367,7 @@ export default function CreatePage() {
 					? error.message
 					: "알 수 없는 오류가 발생했어요.",
 			);
-			setStage("preview");
+			setStage(originStage);
 		} finally {
 			setIsGenerating(false);
 		}
@@ -371,7 +450,7 @@ export default function CreatePage() {
 					onRequestRestart={() => setConfirmingRestart(true)}
 					onCancelRestart={() => setConfirmingRestart(false)}
 					onConfirmRestart={handleRestart}
-					onGenerate={handleGenerate}
+					onGenerate={() => handleGenerate()}
 					isGenerating={isGenerating}
 					generationError={generationError}
 				/>
@@ -396,9 +475,92 @@ export default function CreatePage() {
 					result={generationResult}
 					audience={answers.audience}
 					isRegenerating={isGenerating}
-					onRegenerate={handleGenerate}
+					generationError={generationError}
+					onRegenerate={() => handleGenerate()}
+					onStartRefine={handleStartRefine}
 					onEditAnswers={() => setStage("preview")}
 				/>
+			</main>
+		);
+	}
+
+	if (stage === "refining" && generationResult) {
+		const refineSteps = buildRefineSteps(generationResult.clarifyingQuestions);
+		const refineStep = refineSteps[refineIndex];
+		const isLastRefineStep = refineIndex + 1 >= refineSteps.length;
+
+		return (
+			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+				<HomeLink />
+				<div className="mb-8">
+					<WizardProgress
+						current={refineIndex + 1}
+						total={refineSteps.length}
+						label="2차 작업"
+					/>
+				</div>
+
+				<StepTransition
+					stepKey={`refine-${refineIndex}`}
+					direction={refineDirection}
+				>
+					{refineStep.kind === "question" ? (
+						<div className="flex flex-col gap-4">
+							<div>
+								<h1 className="text-xl font-semibold text-foreground">
+									{refineStep.question}
+								</h1>
+								<p className="mt-1.5 text-muted">
+									AI가 확인하고 싶은 부분이에요. 답하지 않고 넘어가도 돼요.
+								</p>
+							</div>
+							<TextareaField
+								value={refineAnswers[refineStep.question]}
+								onChange={(value) =>
+									setRefineAnswers((prev) => ({
+										...prev,
+										[refineStep.question]: value,
+									}))
+								}
+								placeholder="답변을 적어주세요 (선택)"
+							/>
+						</div>
+					) : (
+						<div className="flex flex-col gap-4">
+							<div>
+								<h1 className="text-xl font-semibold text-foreground">
+									이 부분은 이렇게 고쳐주세요
+								</h1>
+								<p className="mt-1.5 text-muted">
+									선택 사항이에요. 없으면 비워두고 마쳐도 괜찮아요.
+								</p>
+							</div>
+							<TextareaField
+								value={refineFeedback}
+								onChange={setRefineFeedback}
+								placeholder="예: 확인 없이 파일을 지우는 부분은 빼줘"
+							/>
+						</div>
+					)}
+				</StepTransition>
+
+				<div className="mt-6 flex justify-between">
+					<button
+						type="button"
+						onClick={handleRefineBack}
+						className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+					>
+						{refineIndex === 0 ? "취소" : "이전"}
+					</button>
+					<button
+						type="button"
+						onClick={() => handleRefineNext(refineSteps)}
+						disabled={isGenerating}
+						className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
+					>
+						{isLastRefineStep ? "수정 반영하기" : "다음"}
+					</button>
+				</div>
 			</main>
 		);
 	}

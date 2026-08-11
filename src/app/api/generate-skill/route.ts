@@ -10,6 +10,22 @@ import {
 
 export const runtime = "nodejs";
 
+const OUTPUT_FORMAT = `응답은 반드시 아래 형식만 출력하세요. 다른 설명은 붙이지 마세요.
+
+<skill_md>
+(frontmatter를 포함한 SKILL.md 전체 내용)
+</skill_md>
+<review>
+- (자체 점검하며 확인했거나 보완한 점을 짧게, 항목별로)
+</review>
+<questions>
+(사용자에게 되물으면 더 정확해질 부분이 있다면, 한 줄에 하나씩 질문을 적으세요.
+확신이 충분하다면 이 태그 안을 비워두세요. 최대 3개까지만 적으세요.)
+</questions>
+<filename>
+(name과 동일한 kebab-case 문자열, 확장자 없이)
+</filename>`;
+
 const SYSTEM_PROMPT = `당신은 완전 초심자가 Claude Code Skill(SKILL.md)을 스스로 만들 수 있도록 돕는 전문가입니다.
 
 SKILL.md는 아래 구조를 따르는 마크다운 파일입니다.
@@ -28,17 +44,25 @@ description: 이 스킬을 언제 사용해야 하는지 설명하는 한두 문
 2. 초안을 스스로 검토합니다 — description의 트리거 조건이 충분히 구체적인지, 절차가 실제로 실행 가능한지, 사용자가 "알아서 해도 된다"고 한 부분과 "확인이 필요하다"고 한 부분이 본문에 명확히 구분돼 있는지, 사용자가 명시한 금지 사항이 반영됐는지 확인합니다.
 3. 검토 결과를 반영해 다듬은 최종본을 작성합니다.
 
-응답은 반드시 아래 형식만 출력하세요. 다른 설명은 붙이지 마세요.
+${OUTPUT_FORMAT}`;
 
-<skill_md>
-(frontmatter를 포함한 SKILL.md 전체 내용)
-</skill_md>
-<review>
-- (자체 점검하며 확인했거나 보완한 점을 짧게, 항목별로)
-</review>
-<filename>
-(name과 동일한 kebab-case 문자열, 확장자 없이)
-</filename>`;
+const REFINE_SYSTEM_PROMPT = `당신은 완전 초심자가 Claude Code Skill(SKILL.md)을 스스로 만들 수 있도록 돕는 전문가입니다.
+
+이번 요청은 새로 만드는 게 아니라, 이미 만들어둔 SKILL.md 초안을 사용자 피드백에 맞춰 다듬는 작업입니다.
+
+작업 순서:
+1. 기존 초안, 사용자가 추가로 답한 질문, 사용자가 직접 남긴 피드백을 모두 확인합니다.
+2. 피드백을 반영해 초안을 고칩니다. 피드백과 관련 없는 부분은 임의로 바꾸지 않습니다.
+3. 고친 결과를 스스로 검토합니다 — description의 트리거 조건이 충분히 구체적인지, 절차가 실제로 실행 가능한지, "알아서 해도 된다"고 한 부분과 "확인이 필요하다"고 한 부분이 명확히 구분돼 있는지 확인합니다.
+
+${OUTPUT_FORMAT}`;
+
+type AnsweredQuestion = { question: string; answer: string };
+type Refinement = {
+	previousSkillMarkdown: string;
+	userFeedback: string;
+	answeredQuestions: AnsweredQuestion[];
+};
 
 function formatAnswersForPrompt(
 	answers: WizardAnswers,
@@ -69,9 +93,34 @@ function formatAnswersForPrompt(
 		.join("\n");
 }
 
+function formatRefinementForPrompt(refinement: Refinement) {
+	const qa = refinement.answeredQuestions
+		.filter((qa) => qa.answer.trim())
+		.map((qa) => `- ${qa.question}\n  ${qa.answer}`)
+		.join("\n");
+
+	return [
+		"기존 SKILL.md 초안:",
+		refinement.previousSkillMarkdown,
+		qa && `\nAI의 질문에 대한 사용자 답변:\n${qa}`,
+		refinement.userFeedback.trim() &&
+			`\n사용자가 직접 남긴 피드백:\n${refinement.userFeedback.trim()}`,
+	]
+		.filter(Boolean)
+		.join("\n");
+}
+
 function extractTag(text: string, tag: string): string | null {
 	const match = text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
 	return match ? match[1].trim() : null;
+}
+
+function extractListTag(text: string, tag: string): string[] {
+	const block = extractTag(text, tag) ?? "";
+	return block
+		.split("\n")
+		.map((line) => line.replace(/^[-*]\s*/, "").trim())
+		.filter(Boolean);
 }
 
 export async function POST(request: Request) {
@@ -83,7 +132,11 @@ export async function POST(request: Request) {
 		);
 	}
 
-	let body: { answers?: WizardAnswers; wantsAdvanced?: boolean };
+	let body: {
+		answers?: WizardAnswers;
+		wantsAdvanced?: boolean;
+		refinement?: Refinement;
+	};
 	try {
 		body = await request.json();
 	} catch {
@@ -95,6 +148,13 @@ export async function POST(request: Request) {
 
 	const answers = body.answers ?? {};
 	const wantsAdvanced = Boolean(body.wantsAdvanced);
+	// previousSkillMarkdown이 있는 요청만 진짜 정제 요청으로 취급 — 잘못
+	// 전달된 값(예: 이벤트 객체) 때문에 answeredQuestions가 없는 상태로
+	// 아래 로직을 타는 것을 방지.
+	const refinement =
+		body.refinement && Array.isArray(body.refinement.answeredQuestions)
+			? body.refinement
+			: undefined;
 
 	if (!answers.situation || !answers.costPreference || !answers.language) {
 		return NextResponse.json(
@@ -107,18 +167,17 @@ export async function POST(request: Request) {
 	const summary = formatAnswersForPrompt(answers, wantsAdvanced);
 	const client = new Anthropic({ apiKey });
 
+	const userContent = refinement
+		? `원래 사용자가 답한 내용:\n\n${summary}\n\n${formatRefinementForPrompt(refinement)}\n\n완성된 SKILL.md는 ${languageLabel}로 작성해주세요.`
+		: `사용자가 답한 내용:\n\n${summary}\n\n완성된 SKILL.md는 ${languageLabel}로 작성해주세요.`;
+
 	let text: string;
 	try {
 		const response = await client.messages.create({
 			model: "claude-sonnet-5",
 			max_tokens: 4096,
-			system: SYSTEM_PROMPT,
-			messages: [
-				{
-					role: "user",
-					content: `사용자가 답한 내용:\n\n${summary}\n\n완성된 SKILL.md는 ${languageLabel}로 작성해주세요.`,
-				},
-			],
+			system: refinement ? REFINE_SYSTEM_PROMPT : SYSTEM_PROMPT,
+			messages: [{ role: "user", content: userContent }],
 		});
 		text = response.content
 			.filter((block) => block.type === "text")
@@ -143,17 +202,14 @@ export async function POST(request: Request) {
 		);
 	}
 
-	const reviewBlock = extractTag(text, "review") ?? "";
-	const reviewNotes = reviewBlock
-		.split("\n")
-		.map((line) => line.replace(/^[-*]\s*/, "").trim())
-		.filter(Boolean);
-
+	const reviewNotes = extractListTag(text, "review");
+	const clarifyingQuestions = extractListTag(text, "questions");
 	const filename = extractTag(text, "filename")?.trim() || "my-skill";
 
 	return NextResponse.json({
 		skillMarkdown,
 		reviewNotes,
+		clarifyingQuestions,
 		suggestedFilename: filename,
 	});
 }

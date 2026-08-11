@@ -3,6 +3,7 @@
 export type GenerationResult = {
 	skillMarkdown: string;
 	reviewNotes: string[];
+	clarifyingQuestions: string[];
 	suggestedFilename: string;
 };
 
@@ -10,7 +11,9 @@ type SkillResultProps = {
 	result: GenerationResult;
 	audience: string | string[] | undefined;
 	isRegenerating: boolean;
+	generationError: string | null;
 	onRegenerate: () => void;
+	onStartRefine: () => void;
 	onEditAnswers: () => void;
 };
 
@@ -28,7 +31,9 @@ export function SkillResult({
 	result,
 	audience,
 	isRegenerating,
+	generationError,
 	onRegenerate,
+	onStartRefine,
 	onEditAnswers,
 }: SkillResultProps) {
 	const buildTree = (rootLabel: string) =>
@@ -157,6 +162,12 @@ export function SkillResult({
 				</ol>
 			</div>
 
+			{generationError && (
+				<div className="rounded-2xl border border-accent/40 bg-accent/5 px-5 py-4 text-accent text-sm">
+					{generationError}
+				</div>
+			)}
+
 			<div className="flex flex-wrap gap-3">
 				<button
 					type="button"
@@ -164,6 +175,13 @@ export function SkillResult({
 					className="rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
 				>
 					SKILL.md 다운로드
+				</button>
+				<button
+					type="button"
+					onClick={onStartRefine}
+					className="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+				>
+					2차 작업 진행
 				</button>
 				<button
 					type="button"
