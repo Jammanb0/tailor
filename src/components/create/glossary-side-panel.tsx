@@ -1,49 +1,46 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { glossaryTerms } from "@/data/glossary";
 
-type GlossaryPopoverProps = {
+type GlossarySidePanelProps = {
 	slug: string | null;
 	onClose: () => void;
 };
 
-export function GlossaryPopover({ slug, onClose }: GlossaryPopoverProps) {
+const PANEL_WIDTH = 380;
+
+export function GlossarySidePanel({ slug, onClose }: GlossarySidePanelProps) {
 	const term = slug ? glossaryTerms.find((t) => t.slug === slug) : undefined;
+	const isOpen = Boolean(term);
 
 	useEffect(() => {
-		if (!term) return;
+		if (!isOpen) return;
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") onClose();
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [term, onClose]);
+	}, [isOpen, onClose]);
 
 	return (
-		<AnimatePresence>
-			{term && (
-				<>
+		<aside
+			aria-hidden={!isOpen}
+			style={{ width: isOpen ? PANEL_WIDTH : 0 }}
+			className="h-screen shrink-0 overflow-hidden border-border border-l bg-surface transition-[width] duration-300 ease-out"
+		>
+			<div style={{ width: PANEL_WIDTH }} className="h-full">
+				{term && (
 					<motion.div
-						key="glossary-backdrop"
-						onClick={onClose}
-						className="fixed inset-0 z-40 bg-foreground/30"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						transition={{ duration: 0.2 }}
-					/>
-					<motion.div
-						key="glossary-panel"
+						key={term.slug}
+						initial={{ opacity: 0, x: 16 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.25, delay: 0.1 }}
 						role="dialog"
-						aria-modal="true"
+						aria-modal="false"
 						aria-label={term.term}
-						className="fixed inset-x-4 bottom-4 z-50 rounded-2xl border border-border bg-surface p-6 shadow-xl sm:inset-x-auto sm:top-1/2 sm:left-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2"
-						initial={{ opacity: 0, y: 24, scale: 0.96 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: 24, scale: 0.96 }}
-						transition={{ type: "spring", stiffness: 320, damping: 30 }}
+						className="flex h-full flex-col p-6"
 					>
 						<div className="flex items-start justify-between gap-4">
 							<span className="select-text">
@@ -72,8 +69,8 @@ export function GlossaryPopover({ slug, onClose }: GlossaryPopoverProps) {
 							{term.explanation}
 						</p>
 					</motion.div>
-				</>
-			)}
-		</AnimatePresence>
+				)}
+			</div>
+		</aside>
 	);
 }

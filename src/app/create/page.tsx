@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
-import { GlossaryPopover } from "@/components/create/glossary-popover";
+import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
 import { HandoffPanel } from "@/components/create/handoff-panel";
 import { PathFork } from "@/components/create/path-fork";
 import { StepTransition } from "@/components/create/step-transition";
@@ -22,6 +22,10 @@ import {
 
 type Stage = "fork" | "handoff" | "form" | "preview";
 type Step = { kind: "question"; question: WizardQuestion } | { kind: "gate" };
+type EditSnapshot = {
+	questionId: string;
+	value: string | string[] | undefined;
+};
 
 function buildSteps(wantsAdvanced: boolean | null): Step[] {
 	return [
@@ -51,7 +55,7 @@ export default function CreatePage() {
 	const [index, setIndex] = useState(0);
 	const [direction, setDirection] = useState(1);
 	const [answers, setAnswers] = useState<WizardAnswers>({});
-	const [editingSingleAnswer, setEditingSingleAnswer] = useState(false);
+	const [editSnapshot, setEditSnapshot] = useState<EditSnapshot | null>(null);
 	const [openGlossarySlug, setOpenGlossarySlug] = useState<string | null>(null);
 
 	const steps = buildSteps(wantsAdvanced);
@@ -63,8 +67,8 @@ export default function CreatePage() {
 	};
 
 	const handleNext = () => {
-		if (editingSingleAnswer) {
-			setEditingSingleAnswer(false);
+		if (editSnapshot) {
+			setEditSnapshot(null);
 			setStage("preview");
 			return;
 		}
@@ -76,8 +80,12 @@ export default function CreatePage() {
 	};
 
 	const handleBack = () => {
-		if (editingSingleAnswer) {
-			setEditingSingleAnswer(false);
+		if (editSnapshot) {
+			setAnswers((prev) => ({
+				...prev,
+				[editSnapshot.questionId]: editSnapshot.value,
+			}));
+			setEditSnapshot(null);
 			setStage("preview");
 			return;
 		}
@@ -101,13 +109,6 @@ export default function CreatePage() {
 	const setAnswer = (id: string, value: string | string[]) => {
 		setAnswers((prev) => ({ ...prev, [id]: value }));
 	};
-
-	const glossaryPopover = (
-		<GlossaryPopover
-			slug={openGlossarySlug}
-			onClose={() => setOpenGlossarySlug(null)}
-		/>
-	);
 
 	if (stage === "fork") {
 		return (
@@ -139,7 +140,7 @@ export default function CreatePage() {
 							(s) => s.kind === "question" && s.question.id === questionId,
 						);
 						if (targetIndex === -1) return;
-						setEditingSingleAnswer(true);
+						setEditSnapshot({ questionId, value: answers[questionId] });
 						setStage("form");
 						goTo(targetIndex, -1);
 					}}
@@ -157,84 +158,96 @@ export default function CreatePage() {
 				: "필수 질문";
 
 	return (
-		<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
-			{glossaryPopover}
+		<div className="flex min-h-screen overflow-x-hidden">
+			<div className="min-w-0 flex-1">
+				<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+					<div className="mb-8">
+						<WizardProgress
+							current={index + 1}
+							total={steps.length}
+							label={phaseLabel}
+						/>
+					</div>
 
-			<div className="mb-8">
-				<WizardProgress
-					current={index + 1}
-					total={steps.length}
-					label={phaseLabel}
-				/>
+					<StepTransition
+						stepKey={`${index}-${step.kind}`}
+						direction={direction}
+					>
+						{step.kind === "gate" ? (
+							<div className="flex flex-col gap-4">
+								<div>
+									<h1 className="text-2xl font-semibold text-foreground">
+										고급 질문에 답해서 더 정확하게 만들까요?
+									</h1>
+									<p className="mt-1.5 text-muted">
+										6개 질문이 더 있어요. 건너뛰어도 스킬은 만들어져요.
+									</p>
+								</div>
+								<button
+									type="button"
+									onClick={() => handleGateChoice(true)}
+									className="flex w-full flex-col gap-1 rounded-2xl border border-accent bg-accent/10 px-6 py-5 text-left transition-colors hover:bg-accent/15"
+								>
+									<span className="font-semibold text-accent">
+										고급 질문 계속하기
+									</span>
+									<span className="text-sm text-muted">
+										더 정확한 스킬을 원한다면 추천해요
+									</span>
+								</button>
+								<button
+									type="button"
+									onClick={() => handleGateChoice(false)}
+									className="flex w-full flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left transition-colors hover:border-accent"
+								>
+									<span className="font-semibold text-foreground">
+										이대로 완료
+									</span>
+									<span className="text-sm text-muted">
+										필수 질문 답변만으로 만들어요
+									</span>
+								</button>
+							</div>
+						) : (
+							<QuestionStep
+								question={step.question}
+								value={answers[step.question.id]}
+								onChange={(value) => setAnswer(step.question.id, value)}
+								onOpenGlossary={setOpenGlossarySlug}
+							/>
+						)}
+					</StepTransition>
+
+					{step.kind === "question" && (
+						<div className="mt-6 flex justify-between">
+							<button
+								type="button"
+								onClick={handleBack}
+								className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+							>
+								{editSnapshot ? "취소" : "이전"}
+							</button>
+							<button
+								type="button"
+								onClick={handleNext}
+								disabled={
+									step.question.required &&
+									!isAnswerFilled(answers[step.question.id])
+								}
+								className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+							>
+								{editSnapshot ? "저장하고 돌아가기" : "다음"}
+							</button>
+						</div>
+					)}
+				</main>
 			</div>
 
-			<StepTransition stepKey={`${index}-${step.kind}`} direction={direction}>
-				{step.kind === "gate" ? (
-					<div className="flex flex-col gap-4">
-						<div>
-							<h1 className="text-2xl font-semibold text-foreground">
-								고급 질문에 답해서 더 정확하게 만들까요?
-							</h1>
-							<p className="mt-1.5 text-muted">
-								6개 질문이 더 있어요. 건너뛰어도 스킬은 만들어져요.
-							</p>
-						</div>
-						<button
-							type="button"
-							onClick={() => handleGateChoice(true)}
-							className="flex w-full flex-col gap-1 rounded-2xl border border-accent bg-accent/10 px-6 py-5 text-left transition-colors hover:bg-accent/15"
-						>
-							<span className="font-semibold text-accent">
-								고급 질문 계속하기
-							</span>
-							<span className="text-sm text-muted">
-								더 정확한 스킬을 원한다면 추천해요
-							</span>
-						</button>
-						<button
-							type="button"
-							onClick={() => handleGateChoice(false)}
-							className="flex w-full flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left transition-colors hover:border-accent"
-						>
-							<span className="font-semibold text-foreground">이대로 완료</span>
-							<span className="text-sm text-muted">
-								필수 질문 답변만으로 만들어요
-							</span>
-						</button>
-					</div>
-				) : (
-					<QuestionStep
-						question={step.question}
-						value={answers[step.question.id]}
-						onChange={(value) => setAnswer(step.question.id, value)}
-						onOpenGlossary={setOpenGlossarySlug}
-					/>
-				)}
-			</StepTransition>
-
-			{step.kind === "question" && (
-				<div className="mt-6 flex justify-between">
-					<button
-						type="button"
-						onClick={handleBack}
-						className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
-					>
-						{editingSingleAnswer ? "취소" : "이전"}
-					</button>
-					<button
-						type="button"
-						onClick={handleNext}
-						disabled={
-							step.question.required &&
-							!isAnswerFilled(answers[step.question.id])
-						}
-						className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
-					>
-						{editingSingleAnswer ? "저장하고 돌아가기" : "다음"}
-					</button>
-				</div>
-			)}
-		</main>
+			<GlossarySidePanel
+				slug={openGlossarySlug}
+				onClose={() => setOpenGlossarySlug(null)}
+			/>
+		</div>
 	);
 }
 

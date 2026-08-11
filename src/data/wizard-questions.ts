@@ -45,7 +45,7 @@ export const requiredQuestions: WizardQuestion[] = [
 	{
 		id: "situation",
 		mode: "required",
-		title: "AI가 어떤 상황에서, 어떤 일을 해주면 좋겠어요?",
+		title: "지금 만들고자 하는 스킬은 어떤 상황에서, 어떤 일을 하나요?",
 		description:
 			"예: '깃허브 이슈가 올라오면 자동으로 라벨을 붙여줘'처럼, 상황과 할 일을 순서대로 자유롭게 적어주세요.",
 		type: "textarea",
@@ -55,7 +55,7 @@ export const requiredQuestions: WizardQuestion[] = [
 	{
 		id: "costPreference",
 		mode: "required",
-		title: "속도·품질·비용 중 뭘 더 중요하게 볼까요?",
+		title: "지금 만들고자 하는 스킬은 속도·품질·비용 중 뭘 더 중요하게 볼까요?",
 		type: "radio",
 		required: true,
 		options: [
@@ -75,7 +75,7 @@ export const requiredQuestions: WizardQuestion[] = [
 	{
 		id: "reference",
 		mode: "required",
-		title: "참고할 만한 예시가 있나요?",
+		title: "지금 만들고자 하는 스킬과 비슷한 예시가 있나요?",
 		description: "선택 사항이에요. 없으면 비워두고 넘어가도 괜찮아요.",
 		type: "textarea",
 		required: false,
@@ -99,7 +99,10 @@ export const advancedQuestions: WizardQuestion[] = [
 	{
 		id: "autonomy",
 		mode: "advanced",
-		title: "AI가 알아서 실행해도 되는 일인가요, 사람 확인이 필요한 일인가요?",
+		title:
+			"지금 만들고자 하는 스킬은, AI가 알아서 실행해도 되는 일인가요, 사람 확인이 필요한 일인가요?",
+		description:
+			"예를 들어 파일을 읽고 요약하는 건 AI가 알아서 해도 괜찮지만, 파일을 지우거나 배포하는 건 사람이 한 번 더 확인하는 게 안전해요.",
 		type: "radio",
 		required: true,
 		options: [
@@ -128,9 +131,9 @@ export const advancedQuestions: WizardQuestion[] = [
 	{
 		id: "variableInput",
 		mode: "advanced",
-		title: "할 때마다 챙겨야 할 내용이 달라지나요?",
+		title: "지금 만들고자 하는 스킬은, 쓸 때마다 다른 정보를 알려줘야 하나요?",
 		description:
-			"예를 들어 '이슈 123번을 정리해줘'처럼 매번 다른 이슈 번호를 알려줘야 하나요? 아니면 '아침마다 재고를 확인해줘'처럼 매번 같은 방식으로 하면 되나요?",
+			"스킬은 한 번 만들어두고 계속 재사용하는 매뉴얼이에요. 예를 들어 '이슈 123번을 정리해줘'처럼 쓸 때마다 이슈 번호가 달라진다면 '네', '아침마다 재고를 확인해줘'처럼 매번 똑같이 실행한다면 '아니요'를 골라주세요.",
 		type: "radio",
 		required: true,
 		options: [
@@ -150,7 +153,7 @@ export const advancedQuestions: WizardQuestion[] = [
 	{
 		id: "frequency",
 		mode: "advanced",
-		title: "얼마나 자주 하는 작업이에요?",
+		title: "지금 만들고자 하는 스킬은 얼마나 자주 쓸 것 같아요?",
 		type: "radio",
 		required: true,
 		options: [
@@ -170,7 +173,8 @@ export const advancedQuestions: WizardQuestion[] = [
 	{
 		id: "scope",
 		mode: "advanced",
-		title: "파일 읽기 / 수정 / 명령 실행 중 어디까지 필요해요?",
+		title:
+			"지금 만들고자 하는 스킬은 파일 읽기 / 수정 / 명령 실행 중 어디까지 필요해요?",
 		description: "해당하는 항목을 모두 선택해주세요.",
 		type: "checkbox",
 		required: true,
@@ -183,7 +187,7 @@ export const advancedQuestions: WizardQuestion[] = [
 	{
 		id: "audience",
 		mode: "advanced",
-		title: "개인용으로 쓸까요, 팀과 공유할까요?",
+		title: "지금 만들고자 하는 스킬은 개인용으로 쓸까요, 팀과 공유할까요?",
 		type: "radio",
 		required: true,
 		options: [
@@ -195,8 +199,9 @@ export const advancedQuestions: WizardQuestion[] = [
 	{
 		id: "constraints",
 		mode: "advanced",
-		title: "꼭 하지 않았으면 하는 것이 있나요?",
-		description: "선택 사항이에요.",
+		title: "지금 만들고자 하는 스킬이 꼭 하지 않았으면 하는 게 있나요?",
+		description:
+			"선택 사항이에요. 예: 'AI가 알아서 커밋하지 않게 해줘'처럼, 하지 않았으면 하는 행동이 있다면 적어주세요.",
 		type: "textarea",
 		required: false,
 		placeholder: "예: 커밋은 절대 하지 마",
