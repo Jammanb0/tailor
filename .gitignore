@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+*.local
+*.log
+
+# 에디터
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# 개인/로컬 전용 파일 (workspace CLAUDE.md 컨벤션)
+CLAUDE.md
+CLAUDE.local.md
+.claude/rules/
+.claude/plans/
+.claude/launch.json
