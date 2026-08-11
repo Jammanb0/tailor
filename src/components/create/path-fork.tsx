@@ -30,7 +30,7 @@ export function PathFork({ onSelectWeb, onSelectHandoff }: PathForkProps) {
 
 	return (
 		<div ref={containerRef} className="flex flex-col gap-4">
-			<div data-fork-item>
+			<div data-fork-item className="translate-y-3 opacity-0">
 				<h1 className="text-2xl font-semibold text-foreground">
 					어떻게 만들어드릴까요?
 				</h1>
@@ -43,7 +43,7 @@ export function PathFork({ onSelectWeb, onSelectHandoff }: PathForkProps) {
 				type="button"
 				data-fork-item
 				onClick={onSelectWeb}
-				className="group flex w-full flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left transition-colors hover:border-accent"
+				className="group flex w-full translate-y-3 flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left opacity-0 transition-colors hover:border-accent"
 			>
 				<span className="font-semibold text-foreground group-hover:text-accent">
 					이 사이트에서 바로 만들기
@@ -57,7 +57,7 @@ export function PathFork({ onSelectWeb, onSelectHandoff }: PathForkProps) {
 				type="button"
 				data-fork-item
 				onClick={onSelectHandoff}
-				className="group hidden w-full flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left transition-colors hover:border-accent sm:flex"
+				className="group hidden w-full translate-y-3 flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left opacity-0 transition-colors hover:border-accent sm:flex"
 			>
 				<span className="font-semibold text-foreground group-hover:text-accent">
 					내 Claude로 이어서 만들기

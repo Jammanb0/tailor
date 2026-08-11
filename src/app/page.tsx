@@ -43,15 +43,21 @@ export default function Home() {
 	return (
 		<main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center">
 			<div>
-				<h1 ref={titleRef} className="text-4xl font-semibold text-foreground">
+				<h1
+					ref={titleRef}
+					className="translate-y-3 text-4xl font-semibold text-foreground opacity-0"
+				>
 					Tailor
 				</h1>
 				<div
 					ref={stitchRef}
-					className="mx-auto mt-3 h-0 w-24 border-t-2 border-accent border-dashed"
+					className="mx-auto mt-3 h-0 w-24 origin-left scale-x-0 border-t-2 border-accent border-dashed"
 				/>
 			</div>
-			<div ref={restRef} className="flex flex-col items-center gap-6">
+			<div
+				ref={restRef}
+				className="flex translate-y-2 flex-col items-center gap-6 opacity-0"
+			>
 				<p className="text-muted">
 					처음이어도 괜찮아요. 나에게 맞는 Claude Code Skill을 만들어드려요.
 				</p>

@@ -123,7 +123,12 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
 					<div ref={wrapperRef} className="flex flex-col gap-3 sm:flex-row">
 						<div className="flex flex-1 flex-col gap-3">
 							{leftColumn.map((term) => (
-								<div key={term.slug} id={term.slug} data-glossary-card>
+								<div
+									key={term.slug}
+									id={term.slug}
+									data-glossary-card
+									className="translate-y-4 opacity-0"
+								>
 									<GlossaryCard
 										{...term}
 										isOpen={openSlugs.has(term.slug)}
@@ -134,7 +139,12 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
 						</div>
 						<div className="flex flex-1 flex-col gap-3">
 							{rightColumn.map((term) => (
-								<div key={term.slug} id={term.slug} data-glossary-card>
+								<div
+									key={term.slug}
+									id={term.slug}
+									data-glossary-card
+									className="translate-y-4 opacity-0"
+								>
 									<GlossaryCard
 										{...term}
 										isOpen={openSlugs.has(term.slug)}
