@@ -1,7 +1,7 @@
 "use client";
 
 import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import {
 	advancedQuestions,
 	languageQuestion,
@@ -60,7 +60,7 @@ function AnswerGroup({
 						</span>
 						<span
 							aria-hidden
-							className="shrink-0 text-sm text-muted transition-colors group-hover:text-accent"
+							className="shrink-0 text-sm text-accent transition-colors group-hover:text-accent-hover"
 						>
 							수정 →
 						</span>
@@ -94,7 +94,7 @@ export function AnswerPreview({
 }: AnswerPreviewProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const context = gsap.context(() => {
 			gsap.fromTo(
 				"[data-preview-item]",
@@ -142,19 +142,29 @@ export function AnswerPreview({
 				</div>
 			) : (
 				onAddAdvanced && (
-					<button
-						type="button"
-						onClick={onAddAdvanced}
-						data-preview-item
-						className="flex w-full flex-col gap-1 rounded-2xl border border-accent/40 border-dashed bg-accent/5 px-5 py-4 text-left transition-colors hover:border-accent hover:bg-accent/10"
-					>
-						<span className="font-medium text-accent">
-							고급 질문에는 아직 답하지 않았어요
-						</span>
-						<span className="text-sm text-muted">
-							답하면 더 정확한 스킬을 만들 수 있어요 · 고급 질문 답하기 →
-						</span>
-					</button>
+					<div data-preview-item>
+						<div className="rounded-2xl border border-border bg-surface">
+							<button
+								type="button"
+								onClick={onAddAdvanced}
+								className="group flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-accent/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+							>
+								<span>
+									<span className="block text-sm text-muted">고급 질문</span>
+									<span className="text-foreground">
+										지금 상태로도 만들 수 있어요. 원하면 고급 질문에 답해볼 수
+										있어요.
+									</span>
+								</span>
+								<span
+									aria-hidden
+									className="shrink-0 text-sm text-accent transition-colors group-hover:text-accent-hover"
+								>
+									답하기 →
+								</span>
+							</button>
+						</div>
+					</div>
 				)
 			)}
 

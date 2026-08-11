@@ -2,14 +2,14 @@
 
 import { gsap } from "gsap";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 export default function Home() {
 	const titleRef = useRef<HTMLHeadingElement>(null);
 	const stitchRef = useRef<HTMLDivElement>(null);
 	const restRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const context = gsap.context(() => {
 			gsap
 				.timeline()

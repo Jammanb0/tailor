@@ -1,7 +1,7 @@
 "use client";
 
 import { gsap } from "gsap";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { GlossaryCard } from "@/components/glossary-card";
 import type { GlossaryTerm } from "@/data/glossary";
 
@@ -55,7 +55,7 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
 		});
 	}, [terms]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (filtered.length === 0) return;
 		const cards = wrapperRef.current?.querySelectorAll("[data-glossary-card]");
 		if (!cards) return;

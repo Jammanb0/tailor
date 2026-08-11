@@ -1,7 +1,7 @@
 "use client";
 
 import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 type PathForkProps = {
 	onSelectWeb: () => void;
@@ -11,7 +11,7 @@ type PathForkProps = {
 export function PathFork({ onSelectWeb, onSelectHandoff }: PathForkProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const context = gsap.context(() => {
 			gsap.fromTo(
 				"[data-fork-item]",
