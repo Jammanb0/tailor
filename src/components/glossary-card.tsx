@@ -4,10 +4,17 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import type { GlossaryTerm } from "@/data/glossary";
 
-export function GlossaryCard({ term, summary, explanation }: GlossaryTerm) {
+export function GlossaryCard({
+	term,
+	english,
+	acronymOf,
+	summary,
+	explanation,
+}: GlossaryTerm) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [height, setHeight] = useState(0);
 	const contentRef = useRef<HTMLDivElement>(null);
+	const subtitle = acronymOf ?? english;
 
 	useEffect(() => {
 		if (isOpen && contentRef.current) {
@@ -26,7 +33,14 @@ export function GlossaryCard({ term, summary, explanation }: GlossaryTerm) {
 				className="flex w-full items-center justify-between gap-4 rounded-2xl px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 			>
 				<span>
-					<span className="block font-semibold text-foreground">{term}</span>
+					<span className="block font-semibold text-foreground">
+						{term}
+						{subtitle && (
+							<span className="ml-1.5 font-normal text-muted">
+								({subtitle})
+							</span>
+						)}
+					</span>
 					<span className="mt-0.5 block text-sm text-muted">{summary}</span>
 				</span>
 				<motion.span
