@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
 import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
@@ -49,6 +50,17 @@ function isAnswerFilled(value: string | string[] | undefined) {
 	return typeof value === "string" && value.trim().length > 0;
 }
 
+function HomeLink() {
+	return (
+		<Link
+			href="/"
+			className="fixed top-6 left-6 z-30 text-sm text-muted transition-colors hover:text-accent"
+		>
+			← 홈으로
+		</Link>
+	);
+}
+
 export default function CreatePage() {
 	const [stage, setStage] = useState<Stage>("fork");
 	const [wantsAdvanced, setWantsAdvanced] = useState<boolean | null>(null);
@@ -57,6 +69,7 @@ export default function CreatePage() {
 	const [answers, setAnswers] = useState<WizardAnswers>({});
 	const [editSnapshot, setEditSnapshot] = useState<EditSnapshot | null>(null);
 	const [openGlossarySlug, setOpenGlossarySlug] = useState<string | null>(null);
+	const [confirmingRestart, setConfirmingRestart] = useState(false);
 
 	const steps = buildSteps(wantsAdvanced);
 	const step = steps[index];
@@ -106,6 +119,26 @@ export default function CreatePage() {
 		setIndex(index + 1);
 	};
 
+	const handleAddAdvanced = () => {
+		const stepsWithAdvanced = buildSteps(true);
+		const targetIndex = stepsWithAdvanced.findIndex(
+			(s) => s.kind === "question" && s.question.id === advancedQuestions[0].id,
+		);
+		setWantsAdvanced(true);
+		setStage("form");
+		goTo(targetIndex, 1);
+	};
+
+	const handleRestart = () => {
+		setStage("fork");
+		setWantsAdvanced(null);
+		setAnswers({});
+		setEditSnapshot(null);
+		setOpenGlossarySlug(null);
+		setConfirmingRestart(false);
+		goTo(0, -1);
+	};
+
 	const setAnswer = (id: string, value: string | string[]) => {
 		setAnswers((prev) => ({ ...prev, [id]: value }));
 	};
@@ -113,6 +146,7 @@ export default function CreatePage() {
 	if (stage === "fork") {
 		return (
 			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+				<HomeLink />
 				<PathFork
 					onSelectWeb={() => setStage("form")}
 					onSelectHandoff={() => setStage("handoff")}
@@ -124,6 +158,7 @@ export default function CreatePage() {
 	if (stage === "handoff") {
 		return (
 			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+				<HomeLink />
 				<HandoffPanel onBack={() => setStage("fork")} />
 			</main>
 		);
@@ -132,6 +167,7 @@ export default function CreatePage() {
 	if (stage === "preview") {
 		return (
 			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+				<HomeLink />
 				<AnswerPreview
 					answers={answers}
 					wantsAdvanced={wantsAdvanced === true}
@@ -144,6 +180,11 @@ export default function CreatePage() {
 						setStage("form");
 						goTo(targetIndex, -1);
 					}}
+					onAddAdvanced={wantsAdvanced === true ? undefined : handleAddAdvanced}
+					confirmingRestart={confirmingRestart}
+					onRequestRestart={() => setConfirmingRestart(true)}
+					onCancelRestart={() => setConfirmingRestart(false)}
+					onConfirmRestart={handleRestart}
 				/>
 			</main>
 		);
@@ -159,6 +200,7 @@ export default function CreatePage() {
 
 	return (
 		<div className="flex min-h-screen overflow-x-hidden">
+			<HomeLink />
 			<div className="min-w-0 flex-1">
 				<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
 					<div className="mb-8">
@@ -204,7 +246,8 @@ export default function CreatePage() {
 										이대로 완료
 									</span>
 									<span className="text-sm text-muted">
-										필수 질문 답변만으로 만들어요
+										필수 질문 답변만으로 만들어요 (나중에 미리보기 화면에서 다시
+										추가할 수 있어요)
 									</span>
 								</button>
 							</div>

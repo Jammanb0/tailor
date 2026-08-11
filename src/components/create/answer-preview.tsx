@@ -75,12 +75,22 @@ type AnswerPreviewProps = {
 	answers: WizardAnswers;
 	wantsAdvanced: boolean;
 	onSelectQuestion: (questionId: string) => void;
+	onAddAdvanced?: () => void;
+	confirmingRestart: boolean;
+	onRequestRestart: () => void;
+	onCancelRestart: () => void;
+	onConfirmRestart: () => void;
 };
 
 export function AnswerPreview({
 	answers,
 	wantsAdvanced,
 	onSelectQuestion,
+	onAddAdvanced,
+	confirmingRestart,
+	onRequestRestart,
+	onCancelRestart,
+	onConfirmRestart,
 }: AnswerPreviewProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -121,7 +131,7 @@ export function AnswerPreview({
 				/>
 			</div>
 
-			{wantsAdvanced && (
+			{wantsAdvanced ? (
 				<div data-preview-item>
 					<AnswerGroup
 						title="고급 정보"
@@ -130,6 +140,22 @@ export function AnswerPreview({
 						onSelectQuestion={onSelectQuestion}
 					/>
 				</div>
+			) : (
+				onAddAdvanced && (
+					<button
+						type="button"
+						onClick={onAddAdvanced}
+						data-preview-item
+						className="flex w-full flex-col gap-1 rounded-2xl border border-accent/40 border-dashed bg-accent/5 px-5 py-4 text-left transition-colors hover:border-accent hover:bg-accent/10"
+					>
+						<span className="font-medium text-accent">
+							고급 질문에는 아직 답하지 않았어요
+						</span>
+						<span className="text-sm text-muted">
+							답하면 더 정확한 스킬을 만들 수 있어요 · 고급 질문 답하기 →
+						</span>
+					</button>
+				)
 			)}
 
 			<div
@@ -140,7 +166,7 @@ export function AnswerPreview({
 				화면까지만 준비돼 있어요.
 			</div>
 
-			<div data-preview-item>
+			<div data-preview-item className="flex items-center justify-between">
 				<span
 					aria-disabled
 					className="flex w-fit items-center gap-1.5 rounded-full bg-accent/40 px-6 py-3 text-sm font-medium text-accent-foreground/70"
@@ -148,7 +174,44 @@ export function AnswerPreview({
 					스킬 생성하기
 					<span className="text-xs font-normal">곧 만나요</span>
 				</span>
+
+				{!confirmingRestart && (
+					<button
+						type="button"
+						onClick={onRequestRestart}
+						className="text-sm text-muted transition-colors hover:text-foreground"
+					>
+						처음부터 다시하기
+					</button>
+				)}
 			</div>
+
+			{confirmingRestart && (
+				<div
+					data-preview-item
+					className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-5 py-4"
+				>
+					<span className="text-sm text-foreground">
+						정말 처음부터 다시 시작할까요? 지금까지 답변이 모두 사라져요.
+					</span>
+					<div className="flex shrink-0 gap-2">
+						<button
+							type="button"
+							onClick={onCancelRestart}
+							className="rounded-full px-4 py-2 text-sm font-medium text-muted transition-colors hover:text-foreground"
+						>
+							아니요
+						</button>
+						<button
+							type="button"
+							onClick={onConfirmRestart}
+							className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+						>
+							다시 시작
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
