@@ -128,21 +128,21 @@ export const advancedQuestions: WizardQuestion[] = [
 	{
 		id: "variableInput",
 		mode: "advanced",
-		title: "할 때마다 다루는 대상이 바뀌는 작업인가요?",
+		title: "할 때마다 챙겨야 할 내용이 달라지나요?",
 		description:
-			"예: '이슈 123번을 정리해줘'처럼 매번 다른 이슈 번호나 파일명을 알려줘야 하는 작업인지, '아침마다 재고를 확인해줘'처럼 항상 똑같은 대상을 다루는 작업인지 생각해보세요.",
+			"예를 들어 '이슈 123번을 정리해줘'처럼 매번 다른 이슈 번호를 알려줘야 하나요? 아니면 '아침마다 재고를 확인해줘'처럼 매번 같은 방식으로 하면 되나요?",
 		type: "radio",
 		required: true,
 		options: [
 			{
 				value: "yes",
 				label: "네, 매번 달라요",
-				hint: "예: 처리할 파일/이슈 번호가 매번 바뀌어요",
+				hint: "예: 이번엔 123번, 다음엔 456번처럼 그때그때 알려줘야 해요",
 			},
 			{
 				value: "no",
-				label: "아니요, 거의 똑같아요",
-				hint: "예: 항상 같은 파일, 같은 방식으로 해요",
+				label: "아니요, 항상 똑같아요",
+				hint: "예: 매번 같은 방식으로 반복해서 하면 돼요",
 			},
 			{ value: "sometimes", label: "가끔 달라요" },
 		],

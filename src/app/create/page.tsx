@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
+import { GlossaryPopover } from "@/components/create/glossary-popover";
 import { HandoffPanel } from "@/components/create/handoff-panel";
 import { PathFork } from "@/components/create/path-fork";
 import { StepTransition } from "@/components/create/step-transition";
@@ -51,6 +51,8 @@ export default function CreatePage() {
 	const [index, setIndex] = useState(0);
 	const [direction, setDirection] = useState(1);
 	const [answers, setAnswers] = useState<WizardAnswers>({});
+	const [editingSingleAnswer, setEditingSingleAnswer] = useState(false);
+	const [openGlossarySlug, setOpenGlossarySlug] = useState<string | null>(null);
 
 	const steps = buildSteps(wantsAdvanced);
 	const step = steps[index];
@@ -61,6 +63,11 @@ export default function CreatePage() {
 	};
 
 	const handleNext = () => {
+		if (editingSingleAnswer) {
+			setEditingSingleAnswer(false);
+			setStage("preview");
+			return;
+		}
 		if (index + 1 >= steps.length) {
 			setStage("preview");
 			return;
@@ -69,6 +76,11 @@ export default function CreatePage() {
 	};
 
 	const handleBack = () => {
+		if (editingSingleAnswer) {
+			setEditingSingleAnswer(false);
+			setStage("preview");
+			return;
+		}
 		if (index === 0) {
 			setStage("fork");
 			return;
@@ -89,6 +101,13 @@ export default function CreatePage() {
 	const setAnswer = (id: string, value: string | string[]) => {
 		setAnswers((prev) => ({ ...prev, [id]: value }));
 	};
+
+	const glossaryPopover = (
+		<GlossaryPopover
+			slug={openGlossarySlug}
+			onClose={() => setOpenGlossarySlug(null)}
+		/>
+	);
 
 	if (stage === "fork") {
 		return (
@@ -120,6 +139,7 @@ export default function CreatePage() {
 							(s) => s.kind === "question" && s.question.id === questionId,
 						);
 						if (targetIndex === -1) return;
+						setEditingSingleAnswer(true);
 						setStage("form");
 						goTo(targetIndex, -1);
 					}}
@@ -138,6 +158,8 @@ export default function CreatePage() {
 
 	return (
 		<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+			{glossaryPopover}
+
 			<div className="mb-8">
 				<WizardProgress
 					current={index + 1}
@@ -185,6 +207,7 @@ export default function CreatePage() {
 						question={step.question}
 						value={answers[step.question.id]}
 						onChange={(value) => setAnswer(step.question.id, value)}
+						onOpenGlossary={setOpenGlossarySlug}
 					/>
 				)}
 			</StepTransition>
@@ -196,7 +219,7 @@ export default function CreatePage() {
 						onClick={handleBack}
 						className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
 					>
-						이전
+						{editingSingleAnswer ? "취소" : "이전"}
 					</button>
 					<button
 						type="button"
@@ -207,7 +230,7 @@ export default function CreatePage() {
 						}
 						className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
 					>
-						다음
+						{editingSingleAnswer ? "저장하고 돌아가기" : "다음"}
 					</button>
 				</div>
 			)}
@@ -219,10 +242,12 @@ function QuestionStep({
 	question,
 	value,
 	onChange,
+	onOpenGlossary,
 }: {
 	question: WizardQuestion;
 	value: string | string[] | undefined;
 	onChange: (value: string | string[]) => void;
+	onOpenGlossary: (slug: string) => void;
 }) {
 	const activeNotes = question.notes?.filter(
 		(note) => note.whenValue === value,
@@ -238,14 +263,13 @@ function QuestionStep({
 					<p className="mt-1.5 text-muted">{question.description}</p>
 				)}
 				{question.glossaryNote && question.glossarySlug && (
-					<Link
-						href={`/glossary#${question.glossarySlug}`}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="mt-1.5 inline-block text-sm text-accent underline underline-offset-2"
+					<button
+						type="button"
+						onClick={() => onOpenGlossary(question.glossarySlug as string)}
+						className="mt-1.5 inline-block text-left text-sm text-accent underline underline-offset-2"
 					>
-						{question.glossaryNote} ↗
-					</Link>
+						{question.glossaryNote}
+					</button>
 				)}
 			</div>
 
@@ -278,14 +302,13 @@ function QuestionStep({
 				>
 					{note.message}{" "}
 					{note.glossarySlug && (
-						<Link
-							href={`/glossary#${note.glossarySlug}`}
-							target="_blank"
-							rel="noopener noreferrer"
+						<button
+							type="button"
+							onClick={() => onOpenGlossary(note.glossarySlug as string)}
 							className="underline underline-offset-2"
 						>
-							자세히 보기 ↗
-						</Link>
+							자세히 보기
+						</button>
 					)}
 				</p>
 			))}
