@@ -31,17 +31,22 @@ export function SkillResult({
 	onRegenerate,
 	onEditAnswers,
 }: SkillResultProps) {
-	const isTeam = audience === "team";
-	const rootLabel = isTeam
-		? "(작업 중인 프로젝트 폴더)"
-		: "~ (내 컴퓨터의 홈 폴더)";
-	const folderTree = [
-		`${rootLabel}/`,
-		"└─ .claude/",
-		"   └─ skills/",
-		`      └─ ${result.suggestedFilename}/`,
-		"         └─ SKILL.md  ← 다운로드한 내용을 여기에 저장하세요",
-	].join("\n");
+	const buildTree = (rootLabel: string) =>
+		[
+			`${rootLabel}/`,
+			"└─ .claude/",
+			"   └─ skills/",
+			`      └─ ${result.suggestedFilename}/`,
+			"         └─ SKILL.md",
+		].join("\n");
+	const personalTree = buildTree("~  (내 컴퓨터의 홈 폴더)");
+	const projectTree = buildTree("(작업 중인 프로젝트 폴더)");
+	const suggestion =
+		audience === "team"
+			? "팀 공유용으로 답하셨으니 오른쪽이 더 맞을 것 같아요."
+			: audience === "personal"
+				? "개인용으로 답하셨으니 왼쪽이 더 맞을 것 같아요."
+				: null;
 
 	return (
 		<div className="flex flex-col gap-5">
@@ -95,13 +100,44 @@ export function SkillResult({
 					폴더를 자동으로 인식해서, 관련된 상황이 오면 알아서 이 스킬을 찾아
 					써요.
 				</p>
-				<pre className="mt-3 select-text overflow-x-auto rounded-xl bg-background px-3 py-2 text-xs leading-relaxed">
-					{folderTree}
-				</pre>
-				<p className="mt-3 select-text text-foreground text-sm leading-relaxed">
-					{isTeam
-						? "팀과 공유하고 싶다고 답하셨으니, 지금 작업 중인 프로젝트의 최상위(루트) 폴더를 기준으로 위 구조를 만들어주세요. 프로젝트를 git으로 관리한다면 이 폴더도 함께 커밋돼서 팀원들도 똑같이 쓸 수 있어요."
-						: "개인용으로 쓰고 싶다고 답하셨으니, 특정 프로젝트가 아니라 내 컴퓨터의 홈 폴더를 기준으로 위 구조를 만들어주세요. 그러면 어떤 프로젝트에서 작업하든 이 스킬을 쓸 수 있어요."}
+
+				<p className="mt-3 select-text font-medium text-foreground text-sm">
+					어디에 둘지는 "이 스킬을 얼마나 넓게 쓸지"로 정하면 돼요. 어느 한쪽이
+					항상 정답인 건 아니에요.
+				</p>
+				<div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+					<div>
+						<p className="select-text text-foreground text-sm">
+							여러 프로젝트에서 계속 쓸 스킬이라면
+						</p>
+						<p className="mt-0.5 select-text text-muted text-xs">
+							내 컴퓨터의 홈 폴더 기준. 어떤 프로젝트에서 작업하든 항상 쓸 수
+							있어요.
+						</p>
+						<pre className="mt-2 select-text overflow-x-auto rounded-xl bg-background px-3 py-2 text-xs leading-relaxed">
+							{personalTree}
+						</pre>
+					</div>
+					<div>
+						<p className="select-text text-foreground text-sm">
+							이 프로젝트에서만 의미 있거나, 팀과 공유하고 싶다면
+						</p>
+						<p className="mt-0.5 select-text text-muted text-xs">
+							작업 중인 프로젝트 폴더 기준. git으로 커밋하면 팀원도 함께 쓰고,
+							다른 프로젝트에는 나타나지 않아요.
+						</p>
+						<pre className="mt-2 select-text overflow-x-auto rounded-xl bg-background px-3 py-2 text-xs leading-relaxed">
+							{projectTree}
+						</pre>
+					</div>
+				</div>
+				<p className="mt-3 select-text text-muted text-sm leading-relaxed">
+					다운로드한 파일을{" "}
+					<code className="rounded bg-background px-1.5 py-0.5 text-xs">
+						SKILL.md
+					</code>
+					라는 이름으로 위 경로에 저장하세요.
+					{suggestion && ` ${suggestion} 물론 직접 골라도 괜찮아요.`}
 				</p>
 			</div>
 
