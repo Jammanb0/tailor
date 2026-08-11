@@ -60,19 +60,19 @@ export function SkillResult({
 				</p>
 			</div>
 
-			<div>
+			<div className="rounded-2xl border border-border bg-surface px-5 py-4">
 				<h2 className="text-sm font-semibold text-muted">SKILL.md 미리보기</h2>
-				<pre className="mt-2 max-h-96 select-text overflow-auto whitespace-pre-wrap rounded-2xl border border-border bg-surface px-5 py-4 text-foreground/80 text-sm leading-relaxed">
+				<pre className="mt-2 max-h-96 select-text overflow-auto whitespace-pre-wrap text-foreground/80 text-sm leading-relaxed">
 					{result.skillMarkdown}
 				</pre>
 			</div>
 
 			{result.reviewNotes.length > 0 && (
-				<div>
+				<div className="rounded-2xl border border-border bg-surface px-5 py-4">
 					<h2 className="text-sm font-semibold text-muted">
 						AI가 스스로 점검한 내용
 					</h2>
-					<ul className="mt-2 flex flex-col gap-1.5 rounded-2xl border border-border bg-surface px-5 py-4 text-sm text-foreground/80">
+					<ul className="mt-2 flex flex-col gap-1.5 text-sm text-foreground/80">
 						{result.reviewNotes.map((note) => (
 							<li key={note} className="flex gap-2">
 								<span aria-hidden className="text-accent">
