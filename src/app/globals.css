@@ -45,4 +45,8 @@ body {
 	background: var(--background);
 	color: var(--foreground);
 	font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+	/* 빈 공간을 눌러도 텍스트 선택 커서가 뜨지 않게 함.
+	   실제로 복사가 필요한 본문 텍스트는 .select-text로 개별 재활성화. */
+	-webkit-user-select: none;
+	user-select: none;
 }

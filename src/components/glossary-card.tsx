@@ -32,7 +32,7 @@ export function GlossaryCard({
 				aria-expanded={isOpen}
 				className="flex w-full items-center justify-between gap-4 rounded-2xl px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 			>
-				<span>
+				<span className="select-text">
 					<span className="block font-semibold text-foreground">
 						{term}
 						{subtitle && (
@@ -57,7 +57,7 @@ export function GlossaryCard({
 				className="overflow-hidden"
 			>
 				<div ref={contentRef}>
-					<p className="px-5 pb-5 text-sm leading-relaxed text-foreground/80">
+					<p className="select-text px-5 pb-5 text-sm leading-relaxed text-foreground/80">
 						{explanation}
 					</p>
 				</div>
