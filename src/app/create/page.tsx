@@ -117,6 +117,7 @@ export default function CreatePage() {
 	const [generationResult, setGenerationResult] =
 		useState<GenerationResult | null>(null);
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [isRefinementGenerating, setIsRefinementGenerating] = useState(false);
 	const [generationError, setGenerationError] = useState<string | null>(null);
 	const [refineIndex, setRefineIndex] = useState(0);
 	const [refineDirection, setRefineDirection] = useState(1);
@@ -151,7 +152,7 @@ export default function CreatePage() {
 				const isFresh =
 					saved.version === STORAGE_VERSION &&
 					Date.now() - saved.savedAt < STORAGE_MAX_AGE_MS;
-				// 생성된 결과물이나 2차 작업 진행 상태는 저장하지 않고,
+				// 생성된 결과물이나 수정 요청 진행 상태는 저장하지 않고,
 				// 생성 중이던 요청도 새로고침하면 끊기므로 세 단계 모두
 				// preview로 취급해서 답변은 살리고 다시 시도할 수 있게 함.
 				const restoredStage: Stage =
@@ -348,10 +349,11 @@ export default function CreatePage() {
 	};
 
 	const handleGenerate = async (refinement?: RefinementPayload) => {
-		// 정제(2차 작업)는 항상 이미 결과가 있는 상태에서만 일어나므로,
+		// 정제(수정 요청)는 항상 이미 결과가 있는 상태에서만 일어나므로,
 		// 실패해도 미리보기로 되돌리지 않고 결과 화면에 머물게 함.
 		const originStage = generationResult ? "result" : "preview";
 		setIsGenerating(true);
+		setIsRefinementGenerating(Boolean(refinement));
 		setGenerationError(null);
 		setStage("generating");
 		try {
@@ -485,7 +487,7 @@ export default function CreatePage() {
 		return (
 			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
 				<HomeLink />
-				<GeneratingScreen />
+				<GeneratingScreen mode={isRefinementGenerating ? "refine" : "create"} />
 			</main>
 		);
 	}
@@ -513,6 +515,9 @@ export default function CreatePage() {
 							onRegenerate={() => handleGenerate()}
 							onStartRefine={handleStartRefine}
 							onEditAnswers={() => setStage("preview")}
+							onAddAdvanced={
+								wantsAdvanced === true ? undefined : handleAddAdvanced
+							}
 						/>
 					</main>
 				</div>
@@ -551,7 +556,7 @@ export default function CreatePage() {
 							<WizardProgress
 								current={refineIndex + 1}
 								total={refineSteps.length}
-								label="2차 작업"
+								label="수정 요청"
 							/>
 						</div>
 
@@ -566,7 +571,8 @@ export default function CreatePage() {
 											{refineStep.question}
 										</h1>
 										<p className="mt-1.5 text-muted">
-											AI가 확인하고 싶은 부분이에요. 답하지 않고 넘어가도 돼요.
+											수정 요청을 반영하기 전에, Tailor가 확인하고 싶은
+											부분이에요. 답하지 않고 넘어가도 돼요.
 										</p>
 									</div>
 									<TextareaField

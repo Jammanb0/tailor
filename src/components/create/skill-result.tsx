@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef, useState } from "react";
+
 export type GenerationResult = {
 	skillMarkdown: string;
 	reviewNotes: string[];
@@ -15,6 +17,7 @@ type SkillResultProps = {
 	onRegenerate: () => void;
 	onStartRefine: () => void;
 	onEditAnswers: () => void;
+	onAddAdvanced?: () => void;
 };
 
 function downloadSkillMarkdown(content: string) {
@@ -35,7 +38,21 @@ export function SkillResult({
 	onRegenerate,
 	onStartRefine,
 	onEditAnswers,
+	onAddAdvanced,
 }: SkillResultProps) {
+	const refineButtonRef = useRef<HTMLButtonElement>(null);
+	const [highlightRefine, setHighlightRefine] = useState(false);
+	const hasPendingQuestions = result.clarifyingQuestions.length > 0;
+
+	const jumpToRefineButton = () => {
+		refineButtonRef.current?.scrollIntoView({
+			behavior: "smooth",
+			block: "center",
+		});
+		setHighlightRefine(true);
+		setTimeout(() => setHighlightRefine(false), 1600);
+	};
+
 	const buildTree = (rootLabel: string) =>
 		[
 			`${rootLabel}/`,
@@ -67,9 +84,11 @@ export function SkillResult({
 
 			<div>
 				<h2 className="text-sm font-semibold text-muted">SKILL.md 미리보기</h2>
-				<pre className="mt-2 max-h-96 select-text overflow-auto whitespace-pre-wrap rounded-2xl border border-border bg-surface px-5 py-4 text-foreground/80 text-sm leading-relaxed">
-					{result.skillMarkdown}
-				</pre>
+				<div className="mt-2 max-h-96 overflow-hidden rounded-2xl border border-border bg-surface">
+					<pre className="my-4 max-h-[22rem] select-text overflow-y-auto whitespace-pre-wrap px-5 text-foreground/80 text-sm leading-relaxed">
+						{result.skillMarkdown}
+					</pre>
+				</div>
 			</div>
 
 			{result.reviewNotes.length > 0 && (
@@ -88,6 +107,21 @@ export function SkillResult({
 						))}
 					</ul>
 				</div>
+			)}
+
+			{hasPendingQuestions && (
+				<button
+					type="button"
+					onClick={jumpToRefineButton}
+					className="flex items-center justify-between gap-3 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 text-left transition-colors hover:border-accent"
+				>
+					<span className="text-sm text-foreground">
+						Tailor가 궁금한 점이 있어요 — 아래에서 답하면 더 정확해져요
+					</span>
+					<span aria-hidden className="shrink-0 text-accent">
+						↓
+					</span>
+				</button>
 			)}
 
 			<div>
@@ -170,36 +204,62 @@ export function SkillResult({
 				</div>
 			)}
 
-			<div className="grid grid-cols-2 gap-3">
-				<button
-					type="button"
-					onClick={onStartRefine}
-					className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
-				>
-					2차 수정 작업 진행
-				</button>
-				<button
-					type="button"
-					onClick={onRegenerate}
-					disabled={isRegenerating}
-					className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
-				>
-					{isRegenerating ? "다시 만드는 중..." : "다시 생성하기"}
-				</button>
-				<button
-					type="button"
-					onClick={onEditAnswers}
-					className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
-				>
-					답변 수정하기
-				</button>
-				<button
-					type="button"
-					onClick={() => downloadSkillMarkdown(result.skillMarkdown)}
-					className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
-				>
-					SKILL.md 다운로드
-				</button>
+			<div className="flex flex-col gap-3">
+				<div className="grid grid-cols-2 gap-3">
+					<button
+						type="button"
+						onClick={onRegenerate}
+						disabled={isRegenerating}
+						className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+					>
+						{isRegenerating ? "다시 만드는 중..." : "다시 생성하기"}
+					</button>
+					<button
+						type="button"
+						onClick={onEditAnswers}
+						className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+					>
+						답변 수정하기
+					</button>
+				</div>
+				{onAddAdvanced && (
+					<button
+						type="button"
+						onClick={onAddAdvanced}
+						className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+					>
+						고급 질문 추가로 답하고 다시 받아보기
+					</button>
+				)}
+				<div className="grid grid-cols-2 gap-3">
+					<button
+						type="button"
+						ref={refineButtonRef}
+						onClick={onStartRefine}
+						className={`relative w-full rounded-full border px-6 py-3 text-sm font-medium transition-all ${
+							hasPendingQuestions
+								? "border-accent bg-accent/5 text-accent hover:bg-accent/15"
+								: "border-border text-foreground hover:border-accent hover:text-accent"
+						} ${highlightRefine ? "ring-2 ring-accent ring-offset-2 ring-offset-background" : ""}`}
+					>
+						{hasPendingQuestions ? "질문 답하고 수정하기" : "수정 요청하기"}
+						{hasPendingQuestions && (
+							<span
+								aria-hidden
+								className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground"
+							>
+								{result.clarifyingQuestions.length}
+							</span>
+						)}
+					</button>
+					<button
+						type="button"
+						onClick={() => downloadSkillMarkdown(result.skillMarkdown)}
+						className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+					>
+						SKILL.md 다운로드
+					</button>
+				</div>
 			</div>
 		</div>
 	);
