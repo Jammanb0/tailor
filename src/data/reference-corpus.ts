@@ -48,6 +48,8 @@ export type ReferenceCategory = {
 	label: string;
 	/** 사용자 상황 텍스트와 매칭하기 위한 힌트 키워드 */
 	keywords: string[];
+	/** true면 키워드 매칭과 무관하게 모든 생성에 항상 주입(공통 기본) */
+	alwaysApply?: boolean;
 	sources: ReferenceSource[];
 	patterns: ReferencePattern[];
 };
@@ -228,9 +230,10 @@ export const referenceCategories: ReferenceCategory[] = [
 		],
 	},
 	{
-		id: "skill-authoring",
-		label: "스킬 작성",
+		id: "baseline",
+		label: "공통 기본 (모든 스킬)",
 		keywords: ["스킬", "skill", "skill.md", "에이전트"],
+		alwaysApply: true,
 		sources: [
 			{
 				id: "sp-writing-skills",
@@ -357,6 +360,64 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 		],
 	},
+	{
+		id: "voice",
+		label: "말투·보이스",
+		keywords: [
+			"말투",
+			"톤",
+			"tone",
+			"보이스",
+			"voice",
+			"페르소나",
+			"persona",
+			"문체",
+			"글쓰기",
+			"writing",
+		],
+		// TODO: "설명 방식(비유로 쉽게 설명)" 소스 추가 필요 — 현재는 말투/보이스 위주.
+		//   goal.md 갤러리 시드 스킬 #2("설명 말투 스타일")와 겹치므로 자체 스킬로도 커버 가능.
+		sources: [
+			{
+				id: "tone-of-voice",
+				name: "tone-of-voice (Claude Code skill)",
+				author: "entpnomad",
+				url: "https://github.com/entpnomad/tone-of-voice",
+				license: "MIT",
+				collectedAt: "2026-08-12",
+			},
+		],
+		patterns: [
+			{
+				id: "define-voice-profile",
+				summary: "말투를 먼저 '프로필'로 정의하고 일관 적용한다",
+				detail:
+					"정체성·핵심 신념·독자·보이스 특성(3~5개)·핵심 주제·선호/거부 어휘·금지 문구·채널별 규칙·예시 문단을 프로필로 정의하고, 그 기준으로 일관되게 쓴다.",
+				sourceIds: ["tone-of-voice"],
+			},
+			{
+				id: "banned-phrases",
+				summary: "쓰지 말 표현을 명시적으로 목록화해 제거한다",
+				detail:
+					"진부하거나 'AI스러운' 문구를 금지 목록으로 만들고, 선호 어휘 대 거부 어휘를 구분해 걸러낸다.",
+				sourceIds: ["tone-of-voice"],
+			},
+			{
+				id: "open-with-punch",
+				summary: "빌드업 없이 핵심으로 열고, 짧게 쓴다",
+				detail:
+					"숫자·대담한 주장·의외의 관점으로 시작한다. 짧은 문장, 짧은 문단, 여백을 둔다.",
+				sourceIds: ["tone-of-voice"],
+			},
+			{
+				id: "substance-over-performance",
+				summary: "태도가 아니라 근거로 뒷받침된 의견을 낸다",
+				detail:
+					"데이터·경험으로 뒷받침한다. 과시성 글쓰기·허수아비·아랫사람 깔보기·선언문식 수사를 금지하고, 모든 문장이 값을 하게 한다.",
+				sourceIds: ["tone-of-voice"],
+			},
+		],
+	},
 ];
 
 /**
@@ -365,8 +426,10 @@ export const referenceCategories: ReferenceCategory[] = [
  */
 export function matchCategories(situation: string): ReferenceCategory[] {
 	const text = situation.toLowerCase();
-	return referenceCategories.filter((category) =>
-		category.keywords.some((keyword) => text.includes(keyword.toLowerCase())),
+	return referenceCategories.filter(
+		(category) =>
+			category.alwaysApply ||
+			category.keywords.some((keyword) => text.includes(keyword.toLowerCase())),
 	);
 }
 
