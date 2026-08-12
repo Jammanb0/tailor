@@ -170,33 +170,33 @@ export function SkillResult({
 				</div>
 			)}
 
-			<div className="flex flex-wrap items-center gap-3">
+			<div className="grid grid-cols-2 gap-3">
 				<button
 					type="button"
 					onClick={onStartRefine}
-					className="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+					className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
 				>
-					2차 작업 진행
+					2차 수정 작업 진행
 				</button>
 				<button
 					type="button"
 					onClick={onRegenerate}
 					disabled={isRegenerating}
-					className="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+					className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
 				>
 					{isRegenerating ? "다시 만드는 중..." : "다시 생성하기"}
 				</button>
 				<button
 					type="button"
 					onClick={onEditAnswers}
-					className="rounded-full px-6 py-3 text-sm font-medium text-muted transition-colors hover:text-foreground"
+					className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
 				>
 					답변 수정하기
 				</button>
 				<button
 					type="button"
 					onClick={() => downloadSkillMarkdown(result.skillMarkdown)}
-					className="ml-auto rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+					className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
 				>
 					SKILL.md 다운로드
 				</button>
