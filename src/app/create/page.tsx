@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
+import { AnswersSidePanel } from "@/components/create/answers-side-panel";
 import { GeneratingScreen } from "@/components/create/generating-screen";
 import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
 import { HandoffPanel } from "@/components/create/handoff-panel";
@@ -123,6 +124,7 @@ export default function CreatePage() {
 		{},
 	);
 	const [refineFeedback, setRefineFeedback] = useState("");
+	const [showAnswersPanel, setShowAnswersPanel] = useState(false);
 	// 마운트 시 복원을 시도하기 전까지는 저장을 건너뜀 — 그렇지 않으면
 	// 복원 effect의 setState가 반영되기 전에 저장 effect가 먼저 실행돼
 	// 기본값으로 저장값을 덮어써버리는 경쟁 상태가 생김.
@@ -469,18 +471,37 @@ export default function CreatePage() {
 
 	if (stage === "result" && generationResult) {
 		return (
-			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+			<div className="flex min-h-screen overflow-x-hidden">
 				<HomeLink />
-				<SkillResult
-					result={generationResult}
-					audience={answers.audience}
-					isRegenerating={isGenerating}
-					generationError={generationError}
-					onRegenerate={() => handleGenerate()}
-					onStartRefine={handleStartRefine}
-					onEditAnswers={() => setStage("preview")}
+				<div className="min-w-0 flex-1">
+					<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+						<div className="mb-3 flex justify-end">
+							<button
+								type="button"
+								onClick={() => setShowAnswersPanel(true)}
+								className="text-sm text-muted transition-colors hover:text-accent"
+							>
+								이전 답변 보기
+							</button>
+						</div>
+						<SkillResult
+							result={generationResult}
+							audience={answers.audience}
+							isRegenerating={isGenerating}
+							generationError={generationError}
+							onRegenerate={() => handleGenerate()}
+							onStartRefine={handleStartRefine}
+							onEditAnswers={() => setStage("preview")}
+						/>
+					</main>
+				</div>
+				<AnswersSidePanel
+					isOpen={showAnswersPanel}
+					onClose={() => setShowAnswersPanel(false)}
+					answers={answers}
+					wantsAdvanced={wantsAdvanced === true}
 				/>
-			</main>
+			</div>
 		);
 	}
 
@@ -490,78 +511,99 @@ export default function CreatePage() {
 		const isLastRefineStep = refineIndex + 1 >= refineSteps.length;
 
 		return (
-			<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+			<div className="flex min-h-screen overflow-x-hidden">
 				<HomeLink />
-				<div className="mb-8">
-					<WizardProgress
-						current={refineIndex + 1}
-						total={refineSteps.length}
-						label="2차 작업"
-					/>
-				</div>
-
-				<StepTransition
-					stepKey={`refine-${refineIndex}`}
-					direction={refineDirection}
-				>
-					{refineStep.kind === "question" ? (
-						<div className="flex flex-col gap-4">
-							<div>
-								<h1 className="text-xl font-semibold text-foreground">
-									{refineStep.question}
-								</h1>
-								<p className="mt-1.5 text-muted">
-									AI가 확인하고 싶은 부분이에요. 답하지 않고 넘어가도 돼요.
-								</p>
-							</div>
-							<TextareaField
-								value={refineAnswers[refineStep.question]}
-								onChange={(value) =>
-									setRefineAnswers((prev) => ({
-										...prev,
-										[refineStep.question]: value,
-									}))
-								}
-								placeholder="답변을 적어주세요 (선택)"
+				<div className="min-w-0 flex-1">
+					<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+						<div className="mb-3 flex justify-end">
+							<button
+								type="button"
+								onClick={() => setShowAnswersPanel(true)}
+								className="text-sm text-muted transition-colors hover:text-accent"
+							>
+								이전 답변 보기
+							</button>
+						</div>
+						<div className="mb-8">
+							<WizardProgress
+								current={refineIndex + 1}
+								total={refineSteps.length}
+								label="2차 작업"
 							/>
 						</div>
-					) : (
-						<div className="flex flex-col gap-4">
-							<div>
-								<h1 className="text-xl font-semibold text-foreground">
-									이 부분은 이렇게 고쳐주세요
-								</h1>
-								<p className="mt-1.5 text-muted">
-									선택 사항이에요. 없으면 비워두고 마쳐도 괜찮아요.
-								</p>
-							</div>
-							<TextareaField
-								value={refineFeedback}
-								onChange={setRefineFeedback}
-								placeholder="예: 확인 없이 파일을 지우는 부분은 빼줘"
-							/>
-						</div>
-					)}
-				</StepTransition>
 
-				<div className="mt-6 flex justify-between">
-					<button
-						type="button"
-						onClick={handleRefineBack}
-						className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
-					>
-						{refineIndex === 0 ? "취소" : "이전"}
-					</button>
-					<button
-						type="button"
-						onClick={() => handleRefineNext(refineSteps)}
-						disabled={isGenerating}
-						className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
-					>
-						{isLastRefineStep ? "수정 반영하기" : "다음"}
-					</button>
+						<StepTransition
+							stepKey={`refine-${refineIndex}`}
+							direction={refineDirection}
+						>
+							{refineStep.kind === "question" ? (
+								<div className="flex flex-col gap-4">
+									<div>
+										<h1 className="text-xl font-semibold text-foreground">
+											{refineStep.question}
+										</h1>
+										<p className="mt-1.5 text-muted">
+											AI가 확인하고 싶은 부분이에요. 답하지 않고 넘어가도 돼요.
+										</p>
+									</div>
+									<TextareaField
+										value={refineAnswers[refineStep.question]}
+										onChange={(value) =>
+											setRefineAnswers((prev) => ({
+												...prev,
+												[refineStep.question]: value,
+											}))
+										}
+										placeholder="답변을 적어주세요 (선택)"
+									/>
+								</div>
+							) : (
+								<div className="flex flex-col gap-4">
+									<div>
+										<h1 className="text-xl font-semibold text-foreground">
+											이 부분은 이렇게 고쳐주세요
+										</h1>
+										<p className="mt-1.5 text-muted">
+											{generationResult.clarifyingQuestions.length === 0
+												? "AI가 이번엔 따로 확인하고 싶은 부분이 없었대요. 그래도 고치고 싶은 부분이 있으면 적어주세요."
+												: "선택 사항이에요. 없으면 비워두고 마쳐도 괜찮아요."}
+										</p>
+									</div>
+									<TextareaField
+										value={refineFeedback}
+										onChange={setRefineFeedback}
+										placeholder="예: 확인 없이 파일을 지우는 부분은 빼줘"
+									/>
+								</div>
+							)}
+						</StepTransition>
+
+						<div className="mt-6 flex justify-between">
+							<button
+								type="button"
+								onClick={handleRefineBack}
+								className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+							>
+								{refineIndex === 0 ? "취소" : "이전"}
+							</button>
+							<button
+								type="button"
+								onClick={() => handleRefineNext(refineSteps)}
+								disabled={isGenerating}
+								className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
+							>
+								{isLastRefineStep ? "수정 반영하기" : "다음"}
+							</button>
+						</div>
+					</main>
 				</div>
-			</main>
+				<AnswersSidePanel
+					isOpen={showAnswersPanel}
+					onClose={() => setShowAnswersPanel(false)}
+					answers={answers}
+					wantsAdvanced={wantsAdvanced === true}
+				/>
+			</div>
 		);
 	}
 
