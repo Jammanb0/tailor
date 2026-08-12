@@ -37,7 +37,10 @@ export type ReferenceSource = {
 	self?: boolean;
 };
 
-/** 행동 패턴이 SKILL.md 구조의 어느 자리에 들어가면 좋은지. */
+/**
+ * 행동 패턴이 SKILL.md 구조의 어느 자리에 들어가면 좋은지 — 정확한 배치가 아니라
+ * "느슨한 힌트"다. 최종 배치는 생성 AI가 판단한다.
+ */
 export type PatternRole =
 	| "trigger" // description / 언제 쓰는지
 	| "workflow-step" // 절차의 한 단계
@@ -683,34 +686,39 @@ export const referenceCategories: ReferenceCategory[] = [
 	},
 ];
 
+// 생성 시 코퍼스는 "전체를 정적으로" 프롬프트에 주입하고(정적 접두부라 캐시 가능),
+// 어떤 카테고리·아키타입·패턴을 참고할지는 생성 AI가 고른다. 키워드 하드필터는
+// 부분문자열 오매칭(ui→build)과 캐싱 모순 때문에 두지 않는다. keywords 필드는
+// AI에게 주는 힌트로만 남긴다.
+
 /**
- * 사용자 상황 텍스트에서 관련 카테고리를 1차로 골라낸다(키워드 매칭).
- * 최종적으로 어떤 패턴을 참고·인용할지는 생성 AI가 결정한다.
- * alwaysApply 카테고리(baseline)는 항상 포함된다.
+ * 전역 소스 조회. 소스는 카테고리 안에 들어있지만, 아키타입/패턴 출처를 카테고리
+ * 경계를 넘어 되찾아야 하므로 전 카테고리를 순회해 id로 찾는다.
  */
-export function matchCategories(situation: string): ReferenceCategory[] {
-	const text = situation.toLowerCase();
-	return referenceCategories.filter(
-		(category) =>
-			category.alwaysApply ||
-			category.keywords.some((keyword) => text.includes(keyword.toLowerCase())),
-	);
+export function getSourceById(id: string): ReferenceSource | undefined {
+	for (const category of referenceCategories) {
+		const found = category.sources.find((source) => source.id === id);
+		if (found) return found;
+	}
+	return undefined;
 }
 
-/** 패턴 id 목록 → 그 패턴들이 유래한 출처만 중복 없이 반환(결과 화면 출처 표기용). */
-export function sourcesForPatterns(
-	category: ReferenceCategory,
+/** AI가 보고한 "쓴 패턴 id" 평면 목록 → 그 패턴들의 출처만 중복 없이 반환. */
+export function sourcesForUsedPatterns(
 	usedPatternIds: string[],
 ): ReferenceSource[] {
-	const usedSourceIds = new Set<string>();
-	for (const pattern of category.patterns) {
-		if (usedPatternIds.includes(pattern.id)) {
-			for (const sourceId of pattern.sourceIds) {
-				usedSourceIds.add(sourceId);
+	const used = new Set(usedPatternIds);
+	const sourceIds = new Set<string>();
+	for (const category of referenceCategories) {
+		for (const pattern of category.patterns) {
+			if (used.has(pattern.id)) {
+				for (const sourceId of pattern.sourceIds) sourceIds.add(sourceId);
 			}
 		}
 	}
-	return category.sources.filter((source) => usedSourceIds.has(source.id));
+	return [...sourceIds]
+		.map((id) => getSourceById(id))
+		.filter((source): source is ReferenceSource => source !== undefined);
 }
 
 /** archetype id → 구조 원형(생성 프롬프트에 구조 골격을 주입할 때 사용). */
@@ -718,4 +726,31 @@ export function getArchetype(
 	id: SkillArchetype,
 ): StructureArchetype | undefined {
 	return structureArchetypes.find((archetype) => archetype.id === id);
+}
+
+/**
+ * 아키타입(구조 골격)이 참고한 출처. 결과 화면에서 "구조 골격 참고"는 "내용 패턴
+ * 참고"와 문구를 분리해 표기해야 오해가 없다(디자인 스킬이 규율형 골격을 썼다고
+ * TDD를 "내용 참고"로 오표기하지 않도록).
+ */
+export function sourcesForArchetype(id: SkillArchetype): ReferenceSource[] {
+	const archetype = getArchetype(id);
+	if (!archetype) return [];
+	return archetype.sourceIds
+		.map((sourceId) => getSourceById(sourceId))
+		.filter((source): source is ReferenceSource => source !== undefined);
+}
+
+// 개발 안전장치: 패턴 id는 전역에서 유일해야 한다(런타임에 AI가 평면 id 목록을
+// 보고하므로). 중복이면 출처 매핑이 조용히 깨지니 개발 중엔 바로 터뜨린다.
+if (process.env.NODE_ENV !== "production") {
+	const seenPatternIds = new Set<string>();
+	for (const category of referenceCategories) {
+		for (const pattern of category.patterns) {
+			if (seenPatternIds.has(pattern.id)) {
+				throw new Error(`reference-corpus: 중복 패턴 id "${pattern.id}"`);
+			}
+			seenPatternIds.add(pattern.id);
+		}
+	}
 }
