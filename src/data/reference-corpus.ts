@@ -418,6 +418,60 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 		],
 	},
+	{
+		id: "documentation",
+		label: "문서 작성",
+		keywords: [
+			"문서",
+			"docs",
+			"documentation",
+			"readme",
+			"스펙",
+			"spec",
+			"기술 문서",
+			"가이드",
+		],
+		sources: [
+			{
+				id: "anthropic-doc-coauthoring",
+				name: "doc-coauthoring (Anthropic skills)",
+				author: "Anthropic",
+				url: "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+				license: "Apache-2.0",
+				collectedAt: "2026-08-12",
+			},
+		],
+		patterns: [
+			{
+				id: "context-gathering-first",
+				summary: "쓰기 전에 배경·엣지케이스·트레이드오프를 질문으로 채운다",
+				detail:
+					"초기 질문·정보 덤프·후속 질문으로 지식 공백을 메운다. 모르는 게 가장 많은 섹션부터 시작한다.",
+				sourceIds: ["anthropic-doc-coauthoring"],
+			},
+			{
+				id: "section-by-section",
+				summary: "섹션 단위로 브레인스토밍→선별→초안→반복",
+				detail:
+					"섹션마다 5~20개 옵션을 브레인스토밍하고 선별해 초안을 쓴 뒤 피드백을 반영한다. 전체 재작성 대신 타깃 편집(str_replace)을 쓴다.",
+				sourceIds: ["anthropic-doc-coauthoring"],
+			},
+			{
+				id: "fresh-reader-test",
+				summary: "맥락 없는 새 인스턴스로 읽혀 맹점을 찾는다",
+				detail:
+					"저자는 알지만 독자는 모를 지점을, 맥락이 섞이지 않은 새 Claude로 문서를 읽혀 찾아낸다.",
+				sourceIds: ["anthropic-doc-coauthoring"],
+			},
+			{
+				id: "trim-filler",
+				summary: "군더더기를 덜어내며 마무리한다",
+				detail:
+					"세 번 반복해도 변화가 적으면 무엇을 뺄지 묻는다. 마무리에 전체 흐름·일관성·군더더기를 점검한다.",
+				sourceIds: ["anthropic-doc-coauthoring"],
+			},
+		],
+	},
 ];
 
 /**
