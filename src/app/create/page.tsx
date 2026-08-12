@@ -98,7 +98,7 @@ function HomeLink() {
 	return (
 		<Link
 			href="/"
-			className="mb-4 inline-block text-sm text-muted transition-colors hover:text-accent"
+			className="fixed top-6 left-6 z-30 text-sm text-muted transition-colors hover:text-accent"
 		>
 			← 홈으로
 		</Link>
@@ -124,6 +124,12 @@ export default function CreatePage() {
 		{},
 	);
 	const [refineFeedback, setRefineFeedback] = useState("");
+	const [refineHistory, setRefineHistory] = useState<
+		{ question: string; answer: string }[]
+	>([]);
+	const [refineFeedbackHistory, setRefineFeedbackHistory] = useState<string[]>(
+		[],
+	);
 	const [showAnswersPanel, setShowAnswersPanel] = useState(false);
 	// 마운트 시 복원을 시도하기 전까지는 저장을 건너뜀 — 그렇지 않으면
 	// 복원 effect의 setState가 반영되기 전에 저장 effect가 먼저 실행돼
@@ -283,6 +289,8 @@ export default function CreatePage() {
 		setConfirmingRestart(false);
 		setGenerationResult(null);
 		setGenerationError(null);
+		setRefineHistory([]);
+		setRefineFeedbackHistory([]);
 		goTo(0, -1);
 		try {
 			localStorage.removeItem(STORAGE_KEY);
@@ -314,14 +322,24 @@ export default function CreatePage() {
 
 	const handleRefineNext = (refineSteps: RefineStep[]) => {
 		if (refineIndex + 1 >= refineSteps.length) {
+			const answeredQuestions = refineSteps
+				.filter((s) => s.kind === "question")
+				.map((s) => ({
+					question: s.question,
+					answer: refineAnswers[s.question] ?? "",
+				}));
+			// "이전 답변 보기" 패널에서도 확인할 수 있도록 이번 회차에 답한
+			// 내용을 누적해둠 — 답이 있는 것만 남김.
+			setRefineHistory((prev) => [
+				...prev,
+				...answeredQuestions.filter((a) => a.answer.trim()),
+			]);
+			if (refineFeedback.trim()) {
+				setRefineFeedbackHistory((prev) => [...prev, refineFeedback.trim()]);
+			}
 			handleGenerate({
 				userFeedback: refineFeedback,
-				answeredQuestions: refineSteps
-					.filter((s) => s.kind === "question")
-					.map((s) => ({
-						question: s.question,
-						answer: refineAnswers[s.question] ?? "",
-					})),
+				answeredQuestions,
 			});
 			return;
 		}
@@ -474,7 +492,7 @@ export default function CreatePage() {
 
 	if (stage === "result" && generationResult) {
 		return (
-			<div className="flex min-h-screen overflow-x-hidden">
+			<div className="flex min-h-screen overflow-x-clip">
 				<div className="min-w-0 flex-1">
 					<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
 						<HomeLink />
@@ -503,6 +521,8 @@ export default function CreatePage() {
 					onClose={() => setShowAnswersPanel(false)}
 					answers={answers}
 					wantsAdvanced={wantsAdvanced === true}
+					refineHistory={refineHistory}
+					refineFeedbackHistory={refineFeedbackHistory}
 				/>
 			</div>
 		);
@@ -514,7 +534,7 @@ export default function CreatePage() {
 		const isLastRefineStep = refineIndex + 1 >= refineSteps.length;
 
 		return (
-			<div className="flex min-h-screen overflow-x-hidden">
+			<div className="flex min-h-screen overflow-x-clip">
 				<div className="min-w-0 flex-1">
 					<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
 						<HomeLink />
@@ -605,6 +625,8 @@ export default function CreatePage() {
 					onClose={() => setShowAnswersPanel(false)}
 					answers={answers}
 					wantsAdvanced={wantsAdvanced === true}
+					refineHistory={refineHistory}
+					refineFeedbackHistory={refineFeedbackHistory}
 				/>
 			</div>
 		);
@@ -619,7 +641,7 @@ export default function CreatePage() {
 				: "필수 질문";
 
 	return (
-		<div className="flex min-h-screen overflow-x-hidden">
+		<div className="flex min-h-screen overflow-x-clip">
 			<div className="min-w-0 flex-1">
 				<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
 					<HomeLink />
