@@ -92,7 +92,7 @@ export function AnswersSidePanel({
 			...questions.map((q) => `- ${q.title}\n  ${formatAnswer(q, answers)}`),
 		];
 		if (refineHistory.length > 0 || refineFeedbackHistory.length > 0) {
-			lines.push("", "2차 작업에서 답한 내용");
+			lines.push("", "수정 요청에서 답한 내용");
 			for (const entry of refineHistory) {
 				lines.push(`- ${entry.question}\n  ${entry.answer || "(입력 안 함)"}`);
 			}
@@ -137,7 +137,7 @@ export function AnswersSidePanel({
 
 				{(refineHistory.length > 0 || refineFeedbackHistory.length > 0) && (
 					<div className="mt-6 border-border border-t pt-4">
-						<h3 className="text-sm text-muted">2차 작업에서 답한 내용</h3>
+						<h3 className="text-sm text-muted">수정 요청에서 답한 내용</h3>
 						<dl className="mt-3 flex flex-col gap-4">
 							{refineHistory.map((entry) => (
 								<div key={entry.question}>
