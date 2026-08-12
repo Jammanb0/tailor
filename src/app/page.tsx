@@ -61,12 +61,18 @@ export default function Home() {
 				<p className="text-muted">
 					처음이어도 괜찮아요. 나에게 맞는 Claude Code Skill을 만들어드려요.
 				</p>
-				<div className="flex gap-3">
+				<div className="flex flex-wrap justify-center gap-3">
 					<Link
 						href="/glossary"
 						className="flex items-center justify-center rounded-full border border-border px-6 py-3 text-center text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
 					>
 						용어 알아보기
+					</Link>
+					<Link
+						href="/gallery"
+						className="flex items-center justify-center rounded-full border border-border px-6 py-3 text-center text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+					>
+						갤러리
 					</Link>
 					<Link
 						href="/create"
