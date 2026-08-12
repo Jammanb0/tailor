@@ -12,6 +12,11 @@
 	--accent: #ff6b4a;
 	--accent-hover: #ff5533;
 	--accent-foreground: #ffffff;
+
+	/* 사이드 패널(용어사전/이전 답변 보기)이 열렸을 때 그 폭만큼 값이
+	   바뀜 — 고정된 다크/라이트 토글이 패널과 함께 옆으로 밀려나도록
+	   패널을 여는 컴포넌트가 이 값을 직접 갱신함. */
+	--panel-offset: 0px;
 }
 
 @theme inline {
@@ -52,12 +57,6 @@
 	--accent: #ff7a5c;
 	--accent-hover: #ff9276;
 	--accent-foreground: #18181b;
-}
-
-html {
-	/* 세로 스크롤바가 생겼다 사라졌다 할 때 콘텐츠 폭이 바뀌어
-	   화면이 좌우로 흔들리는 것을 막음 — 스크롤바 자리를 항상 예약해둠. */
-	scrollbar-gutter: stable;
 }
 
 body {

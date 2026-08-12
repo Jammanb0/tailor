@@ -16,6 +16,16 @@ export function GlossarySidePanel({ slug, onClose }: GlossarySidePanelProps) {
 	const isOpen = Boolean(term);
 
 	useEffect(() => {
+		document.documentElement.style.setProperty(
+			"--panel-offset",
+			isOpen ? `${PANEL_WIDTH}px` : "0px",
+		);
+		return () => {
+			document.documentElement.style.setProperty("--panel-offset", "0px");
+		};
+	}, [isOpen]);
+
+	useEffect(() => {
 		if (!isOpen) return;
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") onClose();
@@ -28,7 +38,7 @@ export function GlossarySidePanel({ slug, onClose }: GlossarySidePanelProps) {
 		<aside
 			aria-hidden={!isOpen}
 			style={{ width: isOpen ? PANEL_WIDTH : 0 }}
-			className="sticky top-0 h-screen shrink-0 overflow-hidden border-border border-l bg-surface transition-[width] duration-300 ease-out"
+			className={`sticky top-0 h-screen shrink-0 overflow-hidden bg-surface transition-[width] duration-300 ease-out ${isOpen ? "border-border border-l" : ""}`}
 		>
 			<div style={{ width: PANEL_WIDTH }} className="h-full overflow-y-auto">
 				{term && (
@@ -40,7 +50,7 @@ export function GlossarySidePanel({ slug, onClose }: GlossarySidePanelProps) {
 						role="dialog"
 						aria-modal="false"
 						aria-label={term.term}
-						className="flex h-full flex-col p-6 pt-20"
+						className="flex h-full flex-col p-6"
 					>
 						<div className="flex items-start justify-between gap-4">
 							<span className="select-text">

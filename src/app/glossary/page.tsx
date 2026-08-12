@@ -16,16 +16,14 @@ export default function GlossaryPage() {
 			    layout.tsx의 body(flex flex-col)에서 flex 아이템의 auto 마진이
 			    "꽉 채우기" 대신 "내용 크기만큼만 차지"로 동작해서, 검색 결과가
 			    적을 때 페이지 전체 너비가 좁아져 보이는 버그가 있었음. */}
+			<Link
+				href="/"
+				className="fixed top-6 left-6 z-30 text-sm text-muted transition-colors hover:text-accent"
+			>
+				← 홈으로
+			</Link>
 			<div className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
-				<Link
-					href="/"
-					className="text-sm text-muted transition-colors hover:text-accent"
-				>
-					← 홈으로
-				</Link>
-				<h1 className="mt-4 text-3xl font-semibold text-foreground">
-					용어 사전
-				</h1>
+				<h1 className="text-3xl font-semibold text-foreground">용어 사전</h1>
 				<p className="mt-2 text-muted">
 					궁금한 용어를 눌러서 쉬운 설명을 확인해보세요.
 				</p>
