@@ -28,9 +28,9 @@ export function GlossarySidePanel({ slug, onClose }: GlossarySidePanelProps) {
 		<aside
 			aria-hidden={!isOpen}
 			style={{ width: isOpen ? PANEL_WIDTH : 0 }}
-			className="h-screen shrink-0 overflow-hidden border-border border-l bg-surface transition-[width] duration-300 ease-out"
+			className="sticky top-0 h-screen shrink-0 overflow-hidden border-border border-l bg-surface transition-[width] duration-300 ease-out"
 		>
-			<div style={{ width: PANEL_WIDTH }} className="h-full">
+			<div style={{ width: PANEL_WIDTH }} className="h-full overflow-y-auto">
 				{term && (
 					<motion.div
 						key={term.slug}
@@ -40,7 +40,7 @@ export function GlossarySidePanel({ slug, onClose }: GlossarySidePanelProps) {
 						role="dialog"
 						aria-modal="false"
 						aria-label={term.term}
-						className="flex h-full flex-col p-6"
+						className="flex h-full flex-col p-6 pt-20"
 					>
 						<div className="flex items-start justify-between gap-4">
 							<span className="select-text">
