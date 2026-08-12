@@ -1,6 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import {
+	type ReferenceSource,
+	referenceCategories,
+	type SkillArchetype,
+	sourcesForArchetype,
+	sourcesForUsedPatterns,
+	structureArchetypes,
+} from "@/data/reference-corpus";
+import {
 	advancedQuestions,
 	languageQuestion,
 	requiredQuestions,
@@ -32,7 +40,13 @@ const OUTPUT_FORMAT = `응답은 반드시 아래 형식만 출력하세요. 다
 </questions>
 <filename>
 (name과 동일한 kebab-case 문자열, 확장자 없이)
-</filename>`;
+</filename>
+<archetype>
+(채택한 문서 구조 골격 id 하나: discipline | workflow | reference | explanation)
+</archetype>
+<used_patterns>
+(실제로 참고·반영한 패턴 id를 한 줄에 하나씩. 참고 안 했으면 비워둠)
+</used_patterns>`;
 
 const SYSTEM_PROMPT = `당신은 완전 초심자가 Claude Code Skill(SKILL.md)을 스스로 만들 수 있도록 돕는 전문가입니다.
 
@@ -131,6 +145,48 @@ function extractListTag(text: string, tag: string): string[] {
 		.filter(Boolean);
 }
 
+// 참고 코퍼스를 프롬프트용 텍스트로 렌더한다(정적 — 매 요청 동일해 캐싱 가능).
+function buildCorpusSection(): string {
+	const archetypes = structureArchetypes
+		.map(
+			(a) =>
+				`### ${a.id} — ${a.label}\n언제: ${a.whenToUse}\n골격:\n${a.sectionFlow}`,
+		)
+		.join("\n\n");
+	const categories = referenceCategories
+		.map((c) => {
+			const patterns = c.patterns
+				.map((p) => `- [${p.id}] (${p.role ?? "-"}) ${p.summary}: ${p.detail}`)
+				.join("\n");
+			return `## ${c.label}${c.alwaysApply ? " (공통·항상 적용)" : ""}\n${patterns}`;
+		})
+		.join("\n\n");
+	return `참고 자료 — 아래는 공개 스킬(및 Tailor 자체)에서 정리한 "좋은 패턴"과 문서 구조 골격입니다.
+사용자 상황에 맞는 것을 스스로 골라 흡수해 스킬을 만들되, 여기 없는 내용도 필요하면 채우세요.
+대상은 완전 초심자입니다. 작업이 단순하면 구조도 단순하게 — 불필요하게 길거나 과한 섹션을
+넣지 말고 필요한 만큼만 쓰세요. 규율형 골격은 지켜야 할 원칙이 핵심인 스킬에만 쓰세요.
+반드시 지킬 것: 실제로 참고·반영한 패턴의 [id]와 채택한 구조 골격 id 하나를 출력 형식의
+<used_patterns>·<archetype>에 보고하세요. 참고하지 않은 건 보고하지 마세요(정직).
+
+# 문서 구조 골격 (하나 선택)
+${archetypes}
+
+# 좋은 패턴 (카테고리별)
+${categories}`;
+}
+
+const CORPUS_SECTION = buildCorpusSection();
+
+function toLiteSource(source: ReferenceSource) {
+	return {
+		name: source.name,
+		author: source.author,
+		url: source.url,
+		license: source.license,
+		self: source.self ?? false,
+	};
+}
+
 export async function POST(request: Request) {
 	const apiKey = process.env.ANTHROPIC_API_KEY;
 	if (!apiKey) {
@@ -183,8 +239,18 @@ export async function POST(request: Request) {
 	try {
 		const response = await client.messages.create({
 			model: "claude-sonnet-5",
-			max_tokens: 4096,
-			system: refinement ? REFINE_SYSTEM_PROMPT : SYSTEM_PROMPT,
+			max_tokens: 8192,
+			system: [
+				{
+					type: "text",
+					text: CORPUS_SECTION,
+					cache_control: { type: "ephemeral" },
+				},
+				{
+					type: "text",
+					text: refinement ? REFINE_SYSTEM_PROMPT : SYSTEM_PROMPT,
+				},
+			],
 			messages: [{ role: "user", content: userContent }],
 		});
 		text = response.content
@@ -214,10 +280,21 @@ export async function POST(request: Request) {
 	const clarifyingQuestions = extractListTag(text, "questions");
 	const filename = extractTag(text, "filename")?.trim() || "my-skill";
 
+	// 이번 생성에 AI가 실제로 참고했다고 보고한 것만 출처로 표기(정직).
+	const archetypeId = extractTag(text, "archetype")?.trim();
+	const usedPatternIds = extractListTag(text, "used_patterns");
+	const referencedSources =
+		sourcesForUsedPatterns(usedPatternIds).map(toLiteSource);
+	const structureSources = archetypeId
+		? sourcesForArchetype(archetypeId as SkillArchetype).map(toLiteSource)
+		: [];
+
 	return NextResponse.json({
 		skillMarkdown,
 		reviewNotes,
 		clarifyingQuestions,
 		suggestedFilename: filename,
+		referencedSources,
+		structureSources,
 	});
 }

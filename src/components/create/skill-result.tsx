@@ -2,11 +2,21 @@
 
 import { useRef, useState } from "react";
 
+export type ReferencedSource = {
+	name: string;
+	author: string;
+	url: string;
+	license: string;
+	self?: boolean;
+};
+
 export type GenerationResult = {
 	skillMarkdown: string;
 	reviewNotes: string[];
 	clarifyingQuestions: string[];
 	suggestedFilename: string;
+	referencedSources?: ReferencedSource[];
+	structureSources?: ReferencedSource[];
 };
 
 type SkillResultProps = {
@@ -28,6 +38,83 @@ function downloadSkillMarkdown(content: string) {
 	a.download = "SKILL.md";
 	a.click();
 	URL.revokeObjectURL(url);
+}
+
+function SourceRow({ source }: { source: ReferencedSource }) {
+	return (
+		<li className="flex flex-wrap items-center gap-x-2 gap-y-1">
+			{source.self && (
+				<span className="rounded-full bg-accent/15 px-2 py-0.5 font-semibold text-accent text-xs">
+					Tailor-made
+				</span>
+			)}
+			{source.url && !source.self ? (
+				<a
+					href={source.url}
+					target="_blank"
+					rel="noreferrer"
+					className="font-medium text-foreground underline underline-offset-2 hover:text-accent"
+				>
+					{source.name}
+				</a>
+			) : (
+				<span className="font-medium text-foreground">{source.name}</span>
+			)}
+			<span className="text-muted text-xs">
+				{source.self
+					? "우리가 만든 방식"
+					: `${source.author} · ${source.license}`}
+			</span>
+		</li>
+	);
+}
+
+function SourcesSection({
+	referencedSources,
+	structureSources,
+}: {
+	referencedSources?: ReferencedSource[];
+	structureSources?: ReferencedSource[];
+}) {
+	const hasPattern = (referencedSources?.length ?? 0) > 0;
+	const hasStructure = (structureSources?.length ?? 0) > 0;
+	if (!hasPattern && !hasStructure) return null;
+
+	return (
+		<div>
+			<h2 className="text-sm font-semibold text-muted">참고한 자료</h2>
+			<div className="mt-2 flex flex-col gap-4 rounded-2xl border border-border bg-surface px-5 py-4 text-sm">
+				{hasPattern && (
+					<div>
+						<p className="text-foreground/80">
+							이 스킬을 만들 때 아래 스킬들에서 정리한 패턴을 참고했어요.
+						</p>
+						<ul className="mt-2 flex flex-col gap-1.5">
+							{referencedSources?.map((source) => (
+								<SourceRow key={source.name} source={source} />
+							))}
+						</ul>
+					</div>
+				)}
+				{hasStructure && (
+					<div>
+						<p className="text-foreground/80">
+							문서 구조(형식)는 아래 스킬을 참고했어요.
+						</p>
+						<ul className="mt-2 flex flex-col gap-1.5">
+							{structureSources?.map((source) => (
+								<SourceRow key={source.name} source={source} />
+							))}
+						</ul>
+					</div>
+				)}
+				<p className="text-muted text-xs">
+					* 원문을 그대로 가져온 게 아니라, 공개 스킬에서 정리한 좋은 패턴을
+					참고했다는 뜻이에요.
+				</p>
+			</div>
+		</div>
+	);
 }
 
 export function SkillResult({
@@ -108,6 +195,11 @@ export function SkillResult({
 					</ul>
 				</div>
 			)}
+
+			<SourcesSection
+				referencedSources={result.referencedSources}
+				structureSources={result.structureSources}
+			/>
 
 			{hasPendingQuestions && (
 				<button
