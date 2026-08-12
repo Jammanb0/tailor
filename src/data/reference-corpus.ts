@@ -33,6 +33,8 @@ export type ReferenceSource = {
 	license: string;
 	/** 수집 시점 (YYYY-MM-DD) — "언제 받아왔는지" 표기용 */
 	collectedAt: string;
+	/** true면 Tailor 자체 제작 출처(결과 화면은 외부 링크 대신 "Tailor 자체 제작"으로 표시). */
+	self?: boolean;
 };
 
 /** 행동 패턴이 SKILL.md 구조의 어느 자리에 들어가면 좋은지. */
@@ -58,7 +60,11 @@ export type ReferencePattern = {
 };
 
 /** 스킬 "타입" — 타입마다 좋은 문서 구조가 다르다(writing-skills: form matches failure). */
-export type SkillArchetype = "discipline" | "workflow" | "reference";
+export type SkillArchetype =
+	| "discipline"
+	| "workflow"
+	| "reference"
+	| "explanation";
 
 /** 스킬 타입별 문서 골격. 실제로 그 구조를 보인 스킬에서 추출한다. */
 export type StructureArchetype = {
@@ -151,6 +157,21 @@ export const structureArchetypes: StructureArchetype[] = [
 			"anthropic-frontend-design",
 			"tone-of-voice",
 		],
+	},
+	{
+		id: "explanation",
+		label: "설명형 (개념을 쉽게 설명)",
+		whenToUse:
+			"어떤 개념·라이브러리·도구가 무엇인지 초보에게 쉽게 설명하는 스킬 (예: '이 라이브러리 뭔지 초보한테 설명해줘'). 초심자의 흔한 첫 스킬 형태.",
+		sectionFlow: [
+			"--- name / description('Use when …') ---",
+			"# 제목",
+			"## 한 줄 요약 — 개념을 쉬운 말 한 줄로",
+			"## 비유 — 일상의 구체적 장면에 빗대기",
+			"## 풀이 — 어떻게 동작/사용하는지, 왜 필요한지",
+			"## (용어) — 전문용어는 마지막에 괄호로 곁들이기",
+		].join("\n"),
+		sourceIds: ["tailor-glossary"],
 	},
 ];
 
@@ -595,6 +616,68 @@ export const referenceCategories: ReferenceCategory[] = [
 					"세 번 반복해도 변화가 적으면 무엇을 뺄지 묻는다. 마무리에 전체 흐름·일관성·군더더기를 점검한다.",
 				role: "verification",
 				sourceIds: ["anthropic-doc-coauthoring"],
+			},
+		],
+	},
+	{
+		id: "explanation",
+		label: "설명형 (쉽게 설명)",
+		keywords: [
+			"설명",
+			"쉽게",
+			"비유",
+			"초보",
+			"입문",
+			"explain",
+			"eli5",
+			"뭔지",
+			"개념",
+		],
+		// 출처=Tailor 자체(용어사전 방식). 외부 clean-라이선스 설명 스킬을 못 찾아,
+		// 이미 제품이 실천 중인 접근을 정리함(제품 정체성과 일치, 라이선스 문제 없음).
+		sources: [
+			{
+				id: "tailor-glossary",
+				name: "Tailor 용어사전 방식 (자체)",
+				author: "Tailor",
+				url: "",
+				license: "자체 (프로젝트 내부)",
+				collectedAt: "2026-08-12",
+				self: true,
+			},
+		],
+		patterns: [
+			{
+				id: "everyday-analogy",
+				summary: "추상 개념을 일상의 구체적 장면에 빗댄다",
+				detail:
+					"카페·알바생·메모처럼 누구나 아는 일상 상황으로 치환해 설명한다. (예: '스크립트 = 알바생에게 남긴 할 일 메모')",
+				role: "output-rule",
+				sourceIds: ["tailor-glossary"],
+			},
+			{
+				id: "plain-words-first",
+				summary: "전문용어를 먼저 꺼내지 않는다",
+				detail:
+					"쉬운 말로 먼저 풀고, 전문용어는 필요할 때 뒤에 괄호로 곁들인다. 용어로 시작해 겁주지 않는다.",
+				role: "constraint",
+				sourceIds: ["tailor-glossary"],
+			},
+			{
+				id: "summary-then-detail",
+				summary: "한 줄 요약 먼저, 그다음 풀이",
+				detail:
+					"짧은 한 줄로 감을 준 뒤 자세히 풀이한다. 처음부터 길게 늘어놓지 않는다.",
+				role: "output-rule",
+				sourceIds: ["tailor-glossary"],
+			},
+			{
+				id: "include-why",
+				summary: "무엇이 좋은지·왜 쓰는지를 곁들인다",
+				detail:
+					"개념이 왜 필요한지, 쓰면 무엇이 편해지는지를 함께 알려준다. (예: '한 번 써두면 매번 사람이 시키지 않아도 알아서 처리')",
+				role: "workflow-step",
+				sourceIds: ["tailor-glossary"],
 			},
 		],
 	},
