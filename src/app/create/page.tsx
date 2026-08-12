@@ -98,7 +98,7 @@ function HomeLink() {
 	return (
 		<Link
 			href="/"
-			className="fixed top-6 left-6 z-30 text-sm text-muted transition-colors hover:text-accent"
+			className="mb-4 inline-block text-sm text-muted transition-colors hover:text-accent"
 		>
 			← 홈으로
 		</Link>
@@ -455,6 +455,9 @@ export default function CreatePage() {
 					onGenerate={() => handleGenerate()}
 					isGenerating={isGenerating}
 					generationError={generationError}
+					onReturnToResult={
+						generationResult ? () => setStage("result") : undefined
+					}
 				/>
 			</main>
 		);
@@ -472,9 +475,9 @@ export default function CreatePage() {
 	if (stage === "result" && generationResult) {
 		return (
 			<div className="flex min-h-screen overflow-x-hidden">
-				<HomeLink />
 				<div className="min-w-0 flex-1">
 					<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+						<HomeLink />
 						<div className="mb-3 flex justify-end">
 							<button
 								type="button"
@@ -512,9 +515,9 @@ export default function CreatePage() {
 
 		return (
 			<div className="flex min-h-screen overflow-x-hidden">
-				<HomeLink />
 				<div className="min-w-0 flex-1">
 					<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+						<HomeLink />
 						<div className="mb-3 flex justify-end">
 							<button
 								type="button"
@@ -617,9 +620,9 @@ export default function CreatePage() {
 
 	return (
 		<div className="flex min-h-screen overflow-x-hidden">
-			<HomeLink />
 			<div className="min-w-0 flex-1">
 				<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+					<HomeLink />
 					<div className="mb-8">
 						<WizardProgress
 							current={index + 1}

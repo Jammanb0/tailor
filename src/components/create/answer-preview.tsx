@@ -83,6 +83,7 @@ type AnswerPreviewProps = {
 	onGenerate: () => void;
 	isGenerating: boolean;
 	generationError: string | null;
+	onReturnToResult?: () => void;
 };
 
 export function AnswerPreview({
@@ -97,6 +98,7 @@ export function AnswerPreview({
 	onGenerate,
 	isGenerating,
 	generationError,
+	onReturnToResult,
 }: AnswerPreviewProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -184,17 +186,26 @@ export function AnswerPreview({
 			)}
 
 			<div data-preview-item className="flex items-center justify-between">
-				{!confirmingRestart ? (
-					<button
-						type="button"
-						onClick={onRequestRestart}
-						className="text-sm text-muted transition-colors hover:text-foreground"
-					>
-						처음부터 다시하기
-					</button>
-				) : (
-					<span />
-				)}
+				<div className="flex items-center gap-4">
+					{onReturnToResult && (
+						<button
+							type="button"
+							onClick={onReturnToResult}
+							className="text-sm text-muted transition-colors hover:text-accent"
+						>
+							결과로 돌아가기
+						</button>
+					)}
+					{!confirmingRestart && (
+						<button
+							type="button"
+							onClick={onRequestRestart}
+							className="text-sm text-muted transition-colors hover:text-foreground"
+						>
+							처음부터 다시하기
+						</button>
+					)}
+				</div>
 
 				<button
 					type="button"
