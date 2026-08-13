@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 			? body.refinement
 			: undefined;
 
-	if (!answers.situation || !answers.costPreference || !answers.language) {
+	if (!answers.situation || !answers.language) {
 		return NextResponse.json(
 			{ error: "필수 질문에 답하지 않은 항목이 있어요." },
 			{ status: 400 },

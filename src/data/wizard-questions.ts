@@ -52,26 +52,12 @@ export const requiredQuestions: WizardQuestion[] = [
 		required: true,
 		placeholder: "예: 새 이슈가 등록되면, 내용을 읽고 알맞은 라벨을 붙여줘",
 	},
-	{
-		id: "costPreference",
-		mode: "required",
-		title: "지금 만들고자 하는 스킬은 속도·품질·비용 중 뭘 더 중요하게 볼까요?",
-		type: "radio",
-		required: true,
-		options: [
-			{ value: "economy", label: "절약형", hint: "비용을 최대한 아껴요" },
-			{
-				value: "balanced",
-				label: "균형형",
-				hint: "적당한 비용에 무난한 품질",
-			},
-			{
-				value: "performance",
-				label: "고성능형",
-				hint: "비용보다 품질을 우선해요",
-			},
-		],
-	},
+	// costPreference(절약형/균형형/고성능형) 질문은 제거했다.
+	// 무엇의 비용인지가 모호해서 — 사용자는 "만들어진 스킬을 실행할 때의 비용"으로
+	// 읽고 모델은 "SKILL.md 문서의 분량"으로 읽었다 — 결과물에 일관된 영향을
+	// 주지 못했고, 오히려 "절약형이므로 길게 늘어놓지 않고" 같은 문장이 완성된
+	// SKILL.md 본문에 새어 나갔다. Tailor 밖에서는 의미가 없는 말이다.
+	// 근거: docs/experiments/2026-08-13-generation-quality.md
 	{
 		id: "reference",
 		mode: "required",
