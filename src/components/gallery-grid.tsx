@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { CardToggleIcon } from "@/components/card-toggle-icon";
 import type { GallerySkill } from "@/data/gallery";
 
 function downloadSkillMarkdown(content: string) {
@@ -24,33 +25,34 @@ function GalleryCard({
 }) {
 	return (
 		<div
-			className={`relative rounded-2xl border bg-surface transition-colors ${
+			className={`rounded-2xl border bg-surface transition-colors ${
 				isOpen ? "border-accent/50" : "border-border hover:border-accent/50"
 			}`}
 		>
-			{skill.self && (
-				<span className="absolute top-4 right-4 rounded-full bg-accent/15 px-2 py-0.5 font-semibold text-accent text-xs">
-					Tailor-made
-				</span>
-			)}
 			<button
 				type="button"
 				onClick={onToggle}
 				aria-expanded={isOpen}
-				className="flex w-full flex-col gap-1 px-5 py-4 text-left"
+				className="flex w-full items-start justify-between gap-3 px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 			>
-				<span className="pr-24 font-semibold text-foreground">
-					{skill.name}
+				<span className="flex min-w-0 flex-col gap-1">
+					{skill.self && (
+						<span className="w-fit rounded-full bg-accent/15 px-2 py-0.5 font-semibold text-accent text-xs">
+							Tailor-made
+						</span>
+					)}
+					<span className="font-semibold text-foreground">{skill.name}</span>
+					<span className="text-muted text-xs">{skill.category}</span>
+					<span className="text-foreground/80 text-sm">
+						{skill.description}
+					</span>
+					<span className="text-muted text-xs">
+						{skill.self
+							? "Tailor가 직접 만든 방식"
+							: `${skill.author} · ${skill.license}`}
+					</span>
 				</span>
-				<span className="text-muted text-xs">{skill.category}</span>
-				<span className="mt-1 text-foreground/80 text-sm">
-					{skill.description}
-				</span>
-				<span className="mt-1 text-muted text-xs">
-					{skill.self
-						? "Tailor가 직접 만든 방식"
-						: `${skill.author} · ${skill.license}`}
-				</span>
+				<CardToggleIcon isOpen={isOpen} />
 			</button>
 
 			{isOpen && (

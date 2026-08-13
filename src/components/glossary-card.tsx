@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { CardToggleIcon } from "@/components/card-toggle-icon";
 import type { GlossaryTerm } from "@/data/glossary";
 
 type GlossaryCardProps = GlossaryTerm & {
@@ -53,18 +53,7 @@ export function GlossaryCard({
 					</span>
 					<span className="mt-0.5 block text-sm text-muted">{summary}</span>
 				</span>
-				<motion.span
-					animate={{ rotate: isOpen ? 45 : 0 }}
-					transition={{ duration: 0.2 }}
-					className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-lg transition-colors duration-200 ${
-						isOpen
-							? "bg-accent text-accent-foreground"
-							: "bg-accent/10 text-accent"
-					}`}
-					aria-hidden
-				>
-					+
-				</motion.span>
+				<CardToggleIcon isOpen={isOpen} />
 			</button>
 			<div
 				style={{ height, transition: "height 300ms ease-in-out" }}
