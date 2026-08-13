@@ -105,7 +105,7 @@ export const structureArchetypes: StructureArchetype[] = [
 		id: "discipline",
 		label: "규율형 (지켜야 할 원칙)",
 		whenToUse:
-			"지켜야 할 원칙·규율이 핵심이고, AI가 '이번만 건너뛰자'며 합리화하기 쉬운 스킬 (예: 테스트 먼저, 완료 전 검증, 근본원인 우선).",
+			"지켜야 할 원칙·규율이 핵심이고, AI가 '이번만 건너뛰자'며 합리화하기 쉬운 스킬 (예: 테스트 먼저, 완료 전 검증, 근본원인 우선). 단순 조회·설명·정해진 순서 실행에는 쓰지 마세요 — 그런 작업에 이 골격을 붙이면 불필요하게 무겁고 훈계조인 문서가 됩니다.",
 		sectionFlow: [
 			"--- name(kebab-case) / description('Use when …' 트리거 중심) ---",
 			"# 제목",
