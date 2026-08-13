@@ -19,6 +19,7 @@ import {
 	TextareaField,
 } from "@/components/create/wizard-fields";
 import { WizardProgress } from "@/components/create/wizard-progress";
+import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import {
 	advancedQuestions,
 	languageQuestion,
@@ -529,6 +530,7 @@ export default function CreatePage() {
 					refineHistory={refineHistory}
 					refineFeedbackHistory={refineFeedbackHistory}
 				/>
+				<ScrollToTopButton />
 			</div>
 		);
 	}
@@ -634,6 +636,7 @@ export default function CreatePage() {
 					refineHistory={refineHistory}
 					refineFeedbackHistory={refineFeedbackHistory}
 				/>
+				<ScrollToTopButton />
 			</div>
 		);
 	}

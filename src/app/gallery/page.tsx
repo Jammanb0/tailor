@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GalleryGrid } from "@/components/gallery-grid";
+import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import { gallerySkills } from "@/data/gallery";
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function GalleryPage() {
 					<GalleryGrid skills={gallerySkills} />
 				</div>
 			</div>
+			<ScrollToTopButton />
 		</main>
 	);
 }

@@ -23,7 +23,11 @@ function GalleryCard({
 	onToggle: () => void;
 }) {
 	return (
-		<div className="relative rounded-2xl border border-border bg-surface transition-colors hover:border-accent/50">
+		<div
+			className={`relative rounded-2xl border bg-surface transition-colors ${
+				isOpen ? "border-accent/50" : "border-border hover:border-accent/50"
+			}`}
+		>
 			{skill.self && (
 				<span className="absolute top-4 right-4 rounded-full bg-accent/15 px-2 py-0.5 font-semibold text-accent text-xs">
 					Tailor-made
@@ -97,9 +101,10 @@ function GalleryCard({
 
 export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 	const [query, setQuery] = useState("");
+	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
-	const filtered = useMemo(() => {
+	const byQuery = useMemo(() => {
 		const q = query.trim().toLowerCase();
 		if (!q) return skills;
 		return skills.filter((skill) =>
@@ -108,6 +113,25 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 				.some((field) => field.toLowerCase().includes(q)),
 		);
 	}, [skills, query]);
+
+	// 검색 결과에 실제로 존재하는 카테고리만 칩으로 보여줌(검색과 함께 좁혀짐).
+	const categories = useMemo(() => {
+		const seen: string[] = [];
+		for (const skill of byQuery) {
+			if (!seen.includes(skill.category)) seen.push(skill.category);
+		}
+		return seen;
+	}, [byQuery]);
+
+	// 선택한 카테고리가 현재 검색 결과에 없으면 전체로 취급.
+	const activeCategory =
+		selectedCategory && categories.includes(selectedCategory)
+			? selectedCategory
+			: null;
+
+	const filtered = activeCategory
+		? byQuery.filter((skill) => skill.category === activeCategory)
+		: byQuery;
 
 	// 한쪽 카드가 펼쳐져도 반대쪽 칸이 재배치되지 않도록 두 칸으로 미리 나눔.
 	const leftColumn = filtered.filter((_, i) => i % 2 === 0);
@@ -122,6 +146,8 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 		});
 	};
 
+	const collapseAll = () => setOpenIds(new Set());
+
 	const renderCard = (skill: GallerySkill) => (
 		<GalleryCard
 			key={skill.id}
@@ -130,6 +156,8 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 			onToggle={() => toggle(skill.id)}
 		/>
 	);
+
+	const hasFilter = query.trim().length > 0 || activeCategory !== null;
 
 	return (
 		<div>
@@ -152,11 +180,41 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 					</button>
 				)}
 			</div>
-			<p className="mt-3 text-muted text-sm">
-				{query
-					? `총 ${skills.length}개 중 ${filtered.length}개`
-					: `총 ${skills.length}개`}
-			</p>
+
+			{categories.length > 1 && (
+				<div className="mt-3 flex flex-wrap gap-2">
+					<CategoryChip
+						label="전체"
+						active={activeCategory === null}
+						onClick={() => setSelectedCategory(null)}
+					/>
+					{categories.map((category) => (
+						<CategoryChip
+							key={category}
+							label={category}
+							active={activeCategory === category}
+							onClick={() => setSelectedCategory(category)}
+						/>
+					))}
+				</div>
+			)}
+
+			<div className="mt-3 flex items-center justify-between text-muted text-sm">
+				<span>
+					{hasFilter
+						? `총 ${skills.length}개 중 ${filtered.length}개`
+						: `총 ${skills.length}개`}
+				</span>
+				{openIds.size > 0 && (
+					<button
+						type="button"
+						onClick={collapseAll}
+						className="text-muted transition-colors hover:text-accent"
+					>
+						모두 닫기
+					</button>
+				)}
+			</div>
 
 			<div className="mt-4">
 				{filtered.length === 0 ? (
@@ -175,5 +233,29 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 				)}
 			</div>
 		</div>
+	);
+}
+
+function CategoryChip({
+	label,
+	active,
+	onClick,
+}: {
+	label: string;
+	active: boolean;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+				active
+					? "border-accent bg-accent/10 text-accent"
+					: "border-border text-muted hover:border-accent hover:text-accent"
+			}`}
+		>
+			{label}
+		</button>
 	);
 }
