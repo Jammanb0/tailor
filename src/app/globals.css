@@ -59,6 +59,13 @@
 	--accent-foreground: #18181b;
 }
 
+html {
+	/* 스크롤바가 나타났다 사라질 때 콘텐츠가 옆으로 밀리는 것을 막기 위해
+	   스크롤바 자리를 항상 예약해 둠(검색 필터로 결과가 줄어 스크롤바가
+	   사라지는 경우 등). 사이드 패널 여닫기와도 무관하게 폭이 고정됨. */
+	scrollbar-gutter: stable;
+}
+
 body {
 	background: var(--background);
 	color: var(--foreground);
