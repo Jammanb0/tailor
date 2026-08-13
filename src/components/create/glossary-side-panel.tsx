@@ -16,12 +16,16 @@ export function GlossarySidePanel({ slug, onClose }: GlossarySidePanelProps) {
 	const isOpen = Boolean(term);
 
 	useEffect(() => {
-		document.documentElement.style.setProperty(
+		const root = document.documentElement;
+		root.style.setProperty(
 			"--panel-offset",
 			isOpen ? `${PANEL_WIDTH}px` : "0px",
 		);
+		if (isOpen) root.setAttribute("data-panel-open", "");
+		else root.removeAttribute("data-panel-open");
 		return () => {
-			document.documentElement.style.setProperty("--panel-offset", "0px");
+			root.style.setProperty("--panel-offset", "0px");
+			root.removeAttribute("data-panel-open");
 		};
 	}, [isOpen]);
 

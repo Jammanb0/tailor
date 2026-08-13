@@ -66,6 +66,13 @@ html {
 	scrollbar-gutter: stable;
 }
 
+/* 사이드 패널(--surface)이 열렸을 때, 예약된 스크롤바 자리(html 배경)만 색이
+   달라 보이지 않도록 그 배경을 패널과 같은 surface로 맞춤. 패널 컴포넌트가
+   data-panel-open을 토글함(닫히면 기본값으로 돌아가 페이지 배경과 동일). */
+html[data-panel-open] {
+	background: var(--surface);
+}
+
 body {
 	background: var(--background);
 	color: var(--foreground);
