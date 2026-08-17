@@ -1,0 +1,283 @@
+[
+  {
+    "docId": "doc-01",
+    "observedArchetype": "discipline",
+    "archetypeNote": "Overview에 굵은 글씨로 핵심 원칙 한 줄, When to Use, 단계별 절차 + 좋은예/나쁜예 쌍, Verification Checklist까지 discipline 원형의 전형적 섹션을 모두 갖춤. 애매한 점 없음.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "사용자가 \"커밋해줘\", \"커밋하고 푸시해줘\" 등 커밋 관련 요청을 할 때, 또는 git add나 git commit 명령을 실행하려는 모든 상황에서 트리거됩니다.",
+        "note": "구체적 트리거 문구를 예시로 나열함"
+      },
+      {
+        "id": "verify-before-done",
+        "evidence": "스테이징된 diff 전체를 실제로 읽었다 (파일 개수만 보고 넘어가지 않았다)",
+        "note": "완료(커밋)를 진행하기 전 실제로 확인했는지를 체크리스트로 강제"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "form-matches-failure",
+        "why": "'나쁜 예 (하지 말아야 할 판단)' 하나는 있지만, 패턴이 요구하는 합리화 표나 별도 Red Flags 목록 형태는 아님"
+      }
+    ]
+  },
+  {
+    "docId": "doc-02",
+    "observedArchetype": "discipline",
+    "archetypeNote": "doc-01과 동일한 구조(Overview 원칙, When to Use, 절차, Good/Bad, Verification Checklist). discipline 원형에 부합.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "Use when 사용자가 git commit을 실행하려 하거나, \"커밋해줘\", \"커밋 준비해줘\", \"변경사항 저장해줘\"라고 요청할 때.",
+        "note": "'Use when'으로 시작하며 트리거 문구를 구체적으로 나열"
+      },
+      {
+        "id": "verify-before-done",
+        "evidence": "git diff --cached로 실제 diff 내용을 읽었는가 (파일명만 보지 않았는가)",
+        "note": "완료 전 실제 확인 여부를 체크리스트로 요구"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "form-matches-failure",
+        "why": "Good/Bad 예시 쌍은 있으나 합리화 표·Red Flags 목록 형태는 없음"
+      }
+    ]
+  },
+  {
+    "docId": "doc-03",
+    "observedArchetype": "discipline",
+    "archetypeNote": "Overview 원칙, When to Use(예외 없음 강조), 단계별 절차, Good/Bad, '하지 말아야 할 것' 목록, 완료 전 체크리스트 — discipline 원형에 가장 근접.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "git commit을 실행하기 전에 항상 사용. 코드 변경사항에 API 키, 비밀번호, 토큰, 시크릿 등 민감 정보가 포함되어 있는지 커밋 전에 반드시 확인해야 할 때 사용합니다.",
+        "note": "트리거 상황 중심 서술"
+      },
+      {
+        "id": "verify-before-done",
+        "evidence": "git diff --staged (또는 git diff)로 변경사항을 실제로 읽었는가",
+        "note": "완료 전 실제 확인 여부를 체크리스트로 요구"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "form-matches-failure",
+        "why": "'하지 말아야 할 것' 목록에 '코드가 짧으니까 대충 봐도 되겠지' 같은 합리화 예시가 있어 합리화 표에 근접하지만, 표 형식이나 명시적 Red Flags 섹션은 아님"
+      }
+    ]
+  },
+  {
+    "docId": "doc-04",
+    "observedArchetype": "workflow",
+    "archetypeNote": "번호 있는 4단계(Stages)마다 통과 조건(게이트)이 있고, '완료 전 확인' 체크리스트로 마무리 — workflow 원형과 정확히 일치.",
+    "reflectedPatterns": [
+      {
+        "id": "verify-before-done",
+        "evidence": "\"통과했을 것 같다\"는 추측이 아니라 실제 로그를 눈으로 확인하세요.",
+        "note": "패턴이 금지하는 'should/probably' 류 표현을 문서가 그대로 지적하며 금지"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "trigger-first-description",
+        "why": "description이 트리거 문구(\"PR 올려줘\" 등)를 담고 있지만 동시에 '테스트 실행 → 린트 확인 → ... 순서로 진행한다'는 워크플로 요약도 그대로 들어있어, 패턴이 지양하라는 '워크플로 요약' 형태를 겸함"
+      }
+    ]
+  },
+  {
+    "docId": "doc-05",
+    "observedArchetype": "workflow",
+    "archetypeNote": "doc-04와 동일 구조: 4단계 Stages(게이트 포함) + 완료 전 확인. workflow 원형.",
+    "reflectedPatterns": [
+      {
+        "id": "verify-before-done",
+        "evidence": "명령을 실제로 실행하고 출력과 종료 코드를 직접 확인합니다. \"통과했을 것 같다\"고 추측하지 않습니다.",
+        "note": "실행 증거 확인을 명시적으로 요구"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "trigger-first-description",
+        "why": "트리거 문구는 있으나 description 자체에 4단계 워크플로 요약이 포함되어 있음"
+      }
+    ]
+  },
+  {
+    "docId": "doc-06",
+    "observedArchetype": "workflow",
+    "archetypeNote": "doc-04/05와 동일 구조. workflow 원형에 부합.",
+    "reflectedPatterns": [
+      {
+        "id": "verify-before-done",
+        "evidence": "\"테스트를 실행했다\"고 말하기 전에 실제로 명령을 실행하고 출력과 종료 코드를 확인하세요. 실행하지 않고 통과했다고 가정하면 안 됩니다.",
+        "note": "verify-before-done 패턴의 핵심 문구('should/추측 금지')와 거의 일치"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "trigger-first-description",
+        "why": "트리거 문구는 있으나 description에 절차 요약이 함께 포함됨"
+      }
+    ]
+  },
+  {
+    "docId": "doc-07",
+    "observedArchetype": "reference",
+    "archetypeNote": "Overview, 후보 파일 목록(옵션 나열), 조회 절차, 값이 없을 때(제약), 확인 체크리스트로 구성 — reference 원형에 근접하나, 'Apply(승인 후 전체 적용)' 단계는 없음(이 스킬은 적용이 아니라 조회만 함). 그 점에서 애매함.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "\"색상 토큰 뭐 있어?\", \"이 간격 값 뭐 써야 해?\", \"primary 색상 코드가 뭐야?\" 같은 질문에 답할 때, 또는 코드에 색상·간격 값을 넣기 전에 정해진 토큰이 있는지 확인할 때 사용.",
+        "note": "구체적 사용자 발화 예시로 트리거를 서술"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "verify-before-done",
+        "why": "'실제 토큰 파일을 열어서 확인했는가 (기억이나 추측이 아닌가)'라는 체크리스트가 있지만, 이는 명령 실행/종료코드 확인이 아니라 파일 조회 맥락이라 패턴의 원래 취지(완료 주장 전 명령 실행 검증)와는 결이 다름"
+      }
+    ]
+  },
+  {
+    "docId": "doc-08",
+    "observedArchetype": "reference",
+    "archetypeNote": "doc-07과 동일한 구조적 애매함: 옵션(토큰 후보) 나열과 제약(지어내지 않기)은 있지만 '승인 후 전체 적용' 단계는 없음.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "\"이 색상 값 뭐야\", \"간격 토큰 뭐 써야 해\", \"spacing-md가 몇 px야\" 같은 질문에 답할 때, 그리고 코드에 색상/간격 값을 하드코딩하려 할 때 기존 토큰이 있는지 먼저 확인할 때 사용하세요.",
+        "note": "구체적 질문 예시 중심 서술"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "verify-before-done",
+        "why": "'절대 값을 추측하거나 지어내지 않습니다'는 검증 정신과 통하지만 명령 실행 기반 검증 패턴과는 맥락이 다름"
+      }
+    ]
+  },
+  {
+    "docId": "doc-09",
+    "observedArchetype": "reference",
+    "archetypeNote": "doc-07/08과 동일. '## 제약' 섹션이 명시적으로 존재해 Constraints 섹션과 정확히 일치하는 점은 reference 원형에 더 가깝게 만듦.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "\"이 색 이름이 뭐지\", \"간격 값 뭐 써야 하지\", \"토큰 목록 보여줘\" 같은 요청에 반응해, 정의된 토큰 파일에서 정확한 값을 찾아 알려준다.",
+        "note": "질문 예시 중심 트리거 서술"
+      }
+    ],
+    "borderline": [
+      {
+        "id": "verify-before-done",
+        "why": "'토큰 파일에 없는 값은 지어내지 않는다'는 제약이 검증 정신과 겹치지만, 명령 실행/증거 확인이라는 원래 패턴 맥락과는 다름"
+      }
+    ]
+  },
+  {
+    "docId": "doc-10",
+    "observedArchetype": "explanation",
+    "archetypeNote": "설명 순서가 '한 줄 요약 → 비유 → 왜 필요한지 → 예제 → (용어)'로 카탈로그의 explanation 원형과 정확히 일치.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "\"이거 뭐예요?\", \"이 라이브러리 왜 써요?\", \"처음 보는 건데 설명해줘\" 같은 요청, 또는 코드에 낯선 import나 패키지가 등장했을 때 씁니다.",
+        "note": "구체적 발화 예시 중심"
+      },
+      {
+        "id": "everyday-analogy",
+        "evidence": "누구나 아는 일상 상황(카페, 편의점, 알바생, 택배, 메모 등)에 빗대어 설명한다.",
+        "note": "카탈로그 예시 어휘(카페·알바생·메모)와 거의 동일"
+      },
+      {
+        "id": "plain-words-first",
+        "evidence": "이 단계에서 전문용어(예: \"HTTP 클라이언트 라이브러리\")를 절대 먼저 꺼내지 않는다.",
+        "note": ""
+      },
+      {
+        "id": "summary-then-detail",
+        "evidence": "어려운 정의 대신, 딱 한 문장으로 \"이게 뭐 하는 물건인지\" 감을 준다.",
+        "note": ""
+      },
+      {
+        "id": "include-why",
+        "evidence": "비유 다음엔 반드시 \"이걸 안 쓰면 뭐가 불편한지\" 또는 \"쓰면 뭐가 편해지는지\"를 짧게 덧붙인다. 그냥 개념 설명으로 끝내지 않는다.",
+        "note": ""
+      }
+    ],
+    "borderline": [
+      {
+        "id": "form-matches-failure",
+        "why": "출력 형태(설명 순서) 문제를 레시피 형식(1~5단계)으로 다뤄 패턴 취지와는 통하지만, 이 패턴 자체가 '구조 원형 선택'에 관한 것이라 직접 인용으로 반영 여부를 판정하기 애매함"
+      }
+    ]
+  },
+  {
+    "docId": "doc-11",
+    "observedArchetype": "explanation",
+    "archetypeNote": "doc-10과 동일 구조(요약→비유→왜필요한지→예제→용어) + 완료 체크. explanation 원형에 부합.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "사용자가 처음 보는 라이브러리, 프레임워크, 도구 이름을 언급하거나 \"이게 뭐예요?\", \"이거 왜 쓰는 거예요?\"처럼 생소한 기술 개념을 물어볼 때 사용.",
+        "note": ""
+      },
+      {
+        "id": "everyday-analogy",
+        "evidence": "누구나 아는 일상적인 상황(카페, 편의점, 알바생, 택배, 메모 등)에 빗대어 \"왜 이게 필요한지\", \"이게 없으면 뭐가 불편한지\"를 설명합니다.",
+        "note": ""
+      },
+      {
+        "id": "plain-words-first",
+        "evidence": "전문용어나 영어 약어로 설명을 시작하지 않습니다.",
+        "note": ""
+      },
+      {
+        "id": "summary-then-detail",
+        "evidence": "전문용어 없이, 이 라이브러리가 \"한마디로 뭘 해주는 것\"인지 쉬운 말로 한 문장으로 말합니다.",
+        "note": ""
+      },
+      {
+        "id": "include-why",
+        "evidence": "비유로 감을 잡은 뒤, \"이게 왜 좋은지\", \"안 쓰면 뭐가 번거로운지\"를 한두 문장으로 명확히 짚어줍니다.",
+        "note": ""
+      }
+    ],
+    "borderline": []
+  },
+  {
+    "docId": "doc-12",
+    "observedArchetype": "explanation",
+    "archetypeNote": "doc-10/11과 동일한 5단계 설명 순서 + 주의할 점. explanation 원형에 부합.",
+    "reflectedPatterns": [
+      {
+        "id": "trigger-first-description",
+        "evidence": "\"이거 뭐예요?\", \"이 라이브러리 왜 써요?\", \"처음 보는 건데 설명해주세요\" 같은 요청이 있을 때, 어려운 전문용어 없이 쉬운 비유로 먼저 설명하고 짧은 예제를 보여줍니다.",
+        "note": ""
+      },
+      {
+        "id": "everyday-analogy",
+        "evidence": "전문용어를 쓰지 않고, 누구나 아는 일상 상황에 빗대어 설명합니다.",
+        "note": ""
+      },
+      {
+        "id": "plain-words-first",
+        "evidence": "설명 시작부터 전문용어나 정의를 나열하지 않습니다.",
+        "note": ""
+      },
+      {
+        "id": "summary-then-detail",
+        "evidence": "전문용어 없이, 이 라이브러리(또는 개념)가 \"한마디로 뭐 하는 놈인지\"를 쉬운 말 한 문장으로 먼저 말합니다.",
+        "note": ""
+      },
+      {
+        "id": "include-why",
+        "evidence": "이걸 안 쓰면 뭐가 불편하고, 쓰면 뭐가 편해지는지 짧게 덧붙입니다.",
+        "note": ""
+      }
+    ],
+    "borderline": []
+  }
+]

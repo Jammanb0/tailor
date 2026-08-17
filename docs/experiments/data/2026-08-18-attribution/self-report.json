@@ -1,0 +1,189 @@
+[
+  {
+    "docId": "doc-01",
+    "situationId": "01-discipline",
+    "run": 1,
+    "expectedArchetype": "discipline",
+    "reportedArchetype": "discipline",
+    "reportedPatterns": [
+      "form-matches-failure",
+      "verify-before-done",
+      "trigger-first-description",
+      "skills-are-reusable-techniques"
+    ],
+    "unknownPatternIds": [],
+    "chars": 2213,
+    "error": null
+  },
+  {
+    "docId": "doc-02",
+    "situationId": "01-discipline",
+    "run": 2,
+    "expectedArchetype": "discipline",
+    "reportedArchetype": "discipline",
+    "reportedPatterns": [
+      "verify-before-done",
+      "form-matches-failure",
+      "trigger-first-description"
+    ],
+    "unknownPatternIds": [],
+    "chars": 2032,
+    "error": null
+  },
+  {
+    "docId": "doc-03",
+    "situationId": "01-discipline",
+    "run": 3,
+    "expectedArchetype": "discipline",
+    "reportedArchetype": "discipline",
+    "reportedPatterns": [
+      "verify-before-done",
+      "form-matches-failure",
+      "trigger-first-description"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1868,
+    "error": null
+  },
+  {
+    "docId": "doc-04",
+    "situationId": "02-workflow",
+    "run": 1,
+    "expectedArchetype": "workflow",
+    "reportedArchetype": "workflow",
+    "reportedPatterns": [
+      "trigger-first-description",
+      "verify-before-done",
+      "bite-sized-tasks"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1558,
+    "error": null
+  },
+  {
+    "docId": "doc-05",
+    "situationId": "02-workflow",
+    "run": 2,
+    "expectedArchetype": "workflow",
+    "reportedArchetype": "workflow",
+    "reportedPatterns": [
+      "trigger-first-description",
+      "verify-before-done",
+      "bite-sized-tasks",
+      "form-matches-failure"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1477,
+    "error": null
+  },
+  {
+    "docId": "doc-06",
+    "situationId": "02-workflow",
+    "run": 3,
+    "expectedArchetype": "workflow",
+    "reportedArchetype": "workflow",
+    "reportedPatterns": [
+      "trigger-first-description",
+      "verify-before-done",
+      "bite-sized-tasks"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1589,
+    "error": null
+  },
+  {
+    "docId": "doc-07",
+    "situationId": "03-reference",
+    "run": 1,
+    "expectedArchetype": "reference",
+    "reportedArchetype": "reference",
+    "reportedPatterns": [
+      "trigger-first-description",
+      "form-matches-failure"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1300,
+    "error": null
+  },
+  {
+    "docId": "doc-08",
+    "situationId": "03-reference",
+    "run": 2,
+    "expectedArchetype": "reference",
+    "reportedArchetype": "reference",
+    "reportedPatterns": [
+      "trigger-first-description",
+      "form-matches-failure",
+      "show-options-then-apply"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1423,
+    "error": null
+  },
+  {
+    "docId": "doc-09",
+    "situationId": "03-reference",
+    "run": 3,
+    "expectedArchetype": "reference",
+    "reportedArchetype": "reference",
+    "reportedPatterns": [
+      "trigger-first-description",
+      "form-matches-failure",
+      "show-options-then-apply"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1596,
+    "error": null
+  },
+  {
+    "docId": "doc-10",
+    "situationId": "04-explanation",
+    "run": 1,
+    "expectedArchetype": "explanation",
+    "reportedArchetype": "explanation",
+    "reportedPatterns": [
+      "everyday-analogy",
+      "plain-words-first",
+      "summary-then-detail",
+      "include-why",
+      "trigger-first-description"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1642,
+    "error": null
+  },
+  {
+    "docId": "doc-11",
+    "situationId": "04-explanation",
+    "run": 2,
+    "expectedArchetype": "explanation",
+    "reportedArchetype": "explanation",
+    "reportedPatterns": [
+      "everyday-analogy",
+      "plain-words-first",
+      "summary-then-detail",
+      "include-why",
+      "trigger-first-description"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1473,
+    "error": null
+  },
+  {
+    "docId": "doc-12",
+    "situationId": "04-explanation",
+    "run": 3,
+    "expectedArchetype": "explanation",
+    "reportedArchetype": "explanation",
+    "reportedPatterns": [
+      "everyday-analogy",
+      "plain-words-first",
+      "summary-then-detail",
+      "include-why",
+      "trigger-first-description"
+    ],
+    "unknownPatternIds": [],
+    "chars": 1327,
+    "error": null
+  }
+]
