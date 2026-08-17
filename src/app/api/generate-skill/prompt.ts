@@ -22,7 +22,14 @@ export type Refinement = {
 	answeredQuestions: AnsweredQuestion[];
 };
 
-const OUTPUT_FORMAT = `응답은 반드시 아래 형식만 출력하세요. 다른 설명은 붙이지 마세요.
+const INSUFFICIENT_INPUT_RULE = `사용자가 답한 내용이 너무 부실해서 의미 있는 SKILL.md를 도저히 쓸 수 없다면,
+지어내지 말고 <skill_md>를 비운 채 무엇이 더 필요한지를 <questions>에 적으세요.
+단 이건 예외적인 경우입니다 — 웬만하면 주어진 내용으로 만들고, 더 정확해질
+여지만 있는 정도라면 완성본을 낸 뒤 <questions>로 물으세요.`;
+
+const OUTPUT_FORMAT = `${INSUFFICIENT_INPUT_RULE}
+
+응답은 반드시 아래 형식만 출력하세요. 다른 설명은 붙이지 마세요.
 
 <skill_md>과 <filename>은 사용자가 요청한 SKILL.md 언어를 따르세요. <review>와
 <questions>는 이 사이트의 화면 언어인 한국어로, SKILL.md 언어와 무관하게
@@ -129,18 +136,41 @@ export function formatRefinementForPrompt(refinement: Refinement) {
 		.join("\n");
 }
 
+// 직전 시도에서 모델이 "정보가 부족하다"며 되물은 것에 대한 사용자 답변.
+// 정제(refinement)와는 다르다 — 그쪽은 이미 초안이 있고 이쪽은 아직 없다.
+export function formatClarificationsForPrompt(
+	clarifications: AnsweredQuestion[],
+) {
+	const qa = clarifications
+		.filter((item) => item.answer.trim())
+		.map((item) => `- ${item.question}\n  ${item.answer.trim()}`)
+		.join("\n");
+	if (!qa) return "";
+	return `직전 시도에서 정보가 부족하다며 되물었고, 사용자가 이렇게 답했습니다:\n${qa}`;
+}
+
 // 사용자 메시지 본문. 신규 생성과 정제 요청이 같은 형태를 공유한다.
 export function buildUserContent(
 	answers: WizardAnswers,
 	wantsAdvanced: boolean,
 	refinement?: Refinement,
+	clarifications?: AnsweredQuestion[],
 ) {
 	const languageLabel = answers.language === "en" ? "영어" : "한국어";
 	const summary = formatAnswersForPrompt(answers, wantsAdvanced);
+	const clarificationBlock = clarifications?.length
+		? formatClarificationsForPrompt(clarifications)
+		: "";
 
-	return refinement
-		? `원래 사용자가 답한 내용:\n\n${summary}\n\n${formatRefinementForPrompt(refinement)}\n\n완성된 SKILL.md는 ${languageLabel}로 작성해주세요.`
-		: `사용자가 답한 내용:\n\n${summary}\n\n완성된 SKILL.md는 ${languageLabel}로 작성해주세요.`;
+	return [
+		refinement ? "원래 사용자가 답한 내용:" : "사용자가 답한 내용:",
+		`\n${summary}`,
+		clarificationBlock && `\n${clarificationBlock}`,
+		refinement && `\n${formatRefinementForPrompt(refinement)}`,
+		`\n완성된 SKILL.md는 ${languageLabel}로 작성해주세요.`,
+	]
+		.filter(Boolean)
+		.join("\n");
 }
 
 export function extractTag(text: string, tag: string): string | null {

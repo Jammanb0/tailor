@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
 import { AnswersSidePanel } from "@/components/create/answers-side-panel";
+import {
+	type FollowUpResult,
+	FollowUpWizard,
+} from "@/components/create/follow-up-wizard";
 import { GeneratingScreen } from "@/components/create/generating-screen";
 import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
 import { HandoffPanel } from "@/components/create/handoff-panel";
@@ -35,7 +39,8 @@ type Stage =
 	| "preview"
 	| "generating"
 	| "result"
-	| "refining";
+	| "refining"
+	| "clarifying";
 type Step = { kind: "question"; question: WizardQuestion } | { kind: "gate" };
 type EditSnapshot = {
 	questionId: string;
@@ -45,7 +50,14 @@ type RefinementPayload = {
 	userFeedback: string;
 	answeredQuestions: { question: string; answer: string }[];
 };
-type RefineStep = { kind: "question"; question: string } | { kind: "feedback" };
+// 모델이 정보 부족으로 생성을 거부하고 되물어온 상태.
+type PendingClarification = {
+	questions: string[];
+	reviewNotes: string[];
+	// 이 되물음이 "수정 요청" 도중에 나온 것인지 — 그렇다면 기존 초안이
+	// 살아 있으므로 답변을 정제 요청에 합쳐 다시 보낸다.
+	originRefinement: RefinementPayload | null;
+};
 
 function buildSteps(wantsAdvanced: boolean | null): Step[] {
 	return [
@@ -67,16 +79,6 @@ function buildSteps(wantsAdvanced: boolean | null): Step[] {
 function isAnswerFilled(value: string | string[] | undefined) {
 	if (Array.isArray(value)) return value.length > 0;
 	return typeof value === "string" && value.trim().length > 0;
-}
-
-function buildRefineSteps(clarifyingQuestions: string[]): RefineStep[] {
-	return [
-		...clarifyingQuestions.map((question) => ({
-			kind: "question" as const,
-			question,
-		})),
-		{ kind: "feedback" as const },
-	];
 }
 
 const STORAGE_KEY = "tailor:wizard-state";
@@ -120,12 +122,12 @@ export default function CreatePage() {
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isRefinementGenerating, setIsRefinementGenerating] = useState(false);
 	const [generationError, setGenerationError] = useState<string | null>(null);
-	const [refineIndex, setRefineIndex] = useState(0);
-	const [refineDirection, setRefineDirection] = useState(1);
-	const [refineAnswers, setRefineAnswers] = useState<Record<string, string>>(
-		{},
-	);
-	const [refineFeedback, setRefineFeedback] = useState("");
+	const [pendingClarification, setPendingClarification] =
+		useState<PendingClarification | null>(null);
+	// 정보 부족 되물음에 대한 답변(회차 누적) — 이후 모든 생성 요청에 함께 실린다.
+	const [clarifications, setClarifications] = useState<
+		{ question: string; answer: string }[]
+	>([]);
 	const [refineHistory, setRefineHistory] = useState<
 		{ question: string; answer: string }[]
 	>([]);
@@ -159,7 +161,8 @@ export default function CreatePage() {
 				const restoredStage: Stage =
 					saved.stage === "result" ||
 					saved.stage === "generating" ||
-					saved.stage === "refining"
+					saved.stage === "refining" ||
+					saved.stage === "clarifying"
 						? "preview"
 						: saved.stage;
 				// fork/handoff는 아직 답변이 없는 진입 화면이라 이어서 할
@@ -291,6 +294,8 @@ export default function CreatePage() {
 		setConfirmingRestart(false);
 		setGenerationResult(null);
 		setGenerationError(null);
+		setPendingClarification(null);
+		setClarifications([]);
 		setRefineHistory([]);
 		setRefineFeedbackHistory([]);
 		goTo(0, -1);
@@ -306,53 +311,60 @@ export default function CreatePage() {
 	};
 
 	const handleStartRefine = () => {
-		setRefineIndex(0);
-		setRefineDirection(1);
-		setRefineAnswers({});
-		setRefineFeedback("");
 		setStage("refining");
 	};
 
-	const handleRefineBack = () => {
-		if (refineIndex === 0) {
-			setStage("result");
-			return;
+	const handleRefineSubmit = (result: FollowUpResult) => {
+		// "이전 답변 보기" 패널에서도 확인할 수 있도록 이번 회차에 답한
+		// 내용을 누적해둠 — 답이 있는 것만 남김.
+		setRefineHistory((prev) => [
+			...prev,
+			...result.answeredQuestions.filter((a) => a.answer.trim()),
+		]);
+		if (result.feedback.trim()) {
+			setRefineFeedbackHistory((prev) => [...prev, result.feedback.trim()]);
 		}
-		setRefineDirection(-1);
-		setRefineIndex((i) => i - 1);
+		handleGenerate({
+			refinement: {
+				userFeedback: result.feedback,
+				answeredQuestions: result.answeredQuestions,
+			},
+		});
 	};
 
-	const handleRefineNext = (refineSteps: RefineStep[]) => {
-		if (refineIndex + 1 >= refineSteps.length) {
-			const answeredQuestions = refineSteps
-				.filter((s) => s.kind === "question")
-				.map((s) => ({
-					question: s.question,
-					answer: refineAnswers[s.question] ?? "",
-				}));
-			// "이전 답변 보기" 패널에서도 확인할 수 있도록 이번 회차에 답한
-			// 내용을 누적해둠 — 답이 있는 것만 남김.
-			setRefineHistory((prev) => [
-				...prev,
-				...answeredQuestions.filter((a) => a.answer.trim()),
-			]);
-			if (refineFeedback.trim()) {
-				setRefineFeedbackHistory((prev) => [...prev, refineFeedback.trim()]);
-			}
+	// 정보 부족 되물음에 답한 뒤 다시 생성. 되물음이 수정 요청 도중에
+	// 나왔다면 답변을 그 정제 요청에 합쳐 보내 기존 초안을 잃지 않게 한다.
+	const handleClarifySubmit = (result: FollowUpResult) => {
+		const answered = result.answeredQuestions.filter((a) => a.answer.trim());
+		const origin = pendingClarification?.originRefinement ?? null;
+		setPendingClarification(null);
+
+		if (origin) {
+			setRefineHistory((prev) => [...prev, ...answered]);
 			handleGenerate({
-				userFeedback: refineFeedback,
-				answeredQuestions,
+				refinement: {
+					...origin,
+					answeredQuestions: [...origin.answeredQuestions, ...answered],
+				},
 			});
 			return;
 		}
-		setRefineDirection(1);
-		setRefineIndex((i) => i + 1);
+
+		const merged = [...clarifications, ...answered];
+		setClarifications(merged);
+		handleGenerate({ clarifications: merged });
 	};
 
-	const handleGenerate = async (refinement?: RefinementPayload) => {
+	const handleGenerate = async (options?: {
+		refinement?: RefinementPayload;
+		clarifications?: { question: string; answer: string }[];
+	}) => {
+		const refinement = options?.refinement;
 		// 정제(수정 요청)는 항상 이미 결과가 있는 상태에서만 일어나므로,
 		// 실패해도 미리보기로 되돌리지 않고 결과 화면에 머물게 함.
 		const originStage = generationResult ? "result" : "preview";
+		// setState는 비동기라 방금 합친 값을 인자로 직접 받는다.
+		const sentClarifications = options?.clarifications ?? clarifications;
 		setIsGenerating(true);
 		setIsRefinementGenerating(Boolean(refinement));
 		setGenerationError(null);
@@ -364,6 +376,9 @@ export default function CreatePage() {
 				body: JSON.stringify({
 					answers,
 					wantsAdvanced: wantsAdvanced === true,
+					clarifications: sentClarifications.length
+						? sentClarifications
+						: undefined,
 					refinement: refinement
 						? {
 								previousSkillMarkdown: generationResult?.skillMarkdown ?? "",
@@ -373,7 +388,14 @@ export default function CreatePage() {
 						: undefined,
 				}),
 			});
-			let data: (GenerationResult & { error?: string }) | null = null;
+			let data:
+				| (Partial<GenerationResult> & {
+						error?: string;
+						needsMoreInfo?: boolean;
+						clarifyingQuestions?: string[];
+						reviewNotes?: string[];
+				  })
+				| null = null;
 			try {
 				data = await res.json();
 			} catch {
@@ -382,7 +404,20 @@ export default function CreatePage() {
 			if (!res.ok || !data) {
 				throw new Error(data?.error ?? "알 수 없는 오류가 발생했어요.");
 			}
-			setGenerationResult(data);
+			// 모델이 정보가 부족하다며 되물어온 경우 — 실패가 아니라 요구다.
+			if (data.needsMoreInfo && data.clarifyingQuestions?.length) {
+				setPendingClarification({
+					questions: data.clarifyingQuestions,
+					reviewNotes: data.reviewNotes ?? [],
+					originRefinement: refinement ?? null,
+				});
+				setStage("clarifying");
+				return;
+			}
+			if (!data.skillMarkdown) {
+				throw new Error("생성 결과를 이해할 수 없었어요. 다시 시도해주세요.");
+			}
+			setGenerationResult(data as GenerationResult);
 			setStage("result");
 		} catch (error) {
 			setGenerationError(
@@ -535,10 +570,8 @@ export default function CreatePage() {
 		);
 	}
 
-	if (stage === "refining" && generationResult) {
-		const refineSteps = buildRefineSteps(generationResult.clarifyingQuestions);
-		const refineStep = refineSteps[refineIndex];
-		const isLastRefineStep = refineIndex + 1 >= refineSteps.length;
+	if (stage === "clarifying" && pendingClarification) {
+		const isDuringRefine = Boolean(pendingClarification.originRefinement);
 
 		return (
 			<div className="flex min-h-screen overflow-x-clip">
@@ -554,78 +587,89 @@ export default function CreatePage() {
 								이전 답변 보기
 							</button>
 						</div>
-						<div className="mb-8">
-							<WizardProgress
-								current={refineIndex + 1}
-								total={refineSteps.length}
-								label="수정 요청"
-							/>
-						</div>
 
-						<StepTransition
-							stepKey={`refine-${refineIndex}`}
-							direction={refineDirection}
-						>
-							{refineStep.kind === "question" ? (
-								<div className="flex flex-col gap-4">
-									<div>
-										<h1 className="text-xl font-semibold text-foreground">
-											{refineStep.question}
-										</h1>
-										<p className="mt-1.5 text-muted">
-											수정 요청을 반영하기 전에, Tailor가 확인하고 싶은
-											부분이에요. 답하지 않고 넘어가도 돼요.
-										</p>
-									</div>
-									<TextareaField
-										value={refineAnswers[refineStep.question]}
-										onChange={(value) =>
-											setRefineAnswers((prev) => ({
-												...prev,
-												[refineStep.question]: value,
-											}))
-										}
-										placeholder="답변을 적어주세요 (선택)"
-									/>
-								</div>
-							) : (
-								<div className="flex flex-col gap-4">
-									<div>
-										<h1 className="text-xl font-semibold text-foreground">
-											이 부분은 이렇게 고쳐주세요
-										</h1>
-										<p className="mt-1.5 text-muted">
-											{generationResult.clarifyingQuestions.length === 0
-												? "AI가 이번엔 따로 확인하고 싶은 부분이 없었대요. 그래도 고치고 싶은 부분이 있으면 적어주세요."
-												: "선택 사항이에요. 없으면 비워두고 마쳐도 괜찮아요."}
-										</p>
-									</div>
-									<TextareaField
-										value={refineFeedback}
-										onChange={setRefineFeedback}
-										placeholder="예: 확인 없이 파일을 지우는 부분은 빼줘"
-									/>
-								</div>
+						<div className="mb-8 rounded-2xl border border-border bg-surface px-5 py-4">
+							<p className="font-semibold text-foreground">
+								이대로는 스킬을 만들 수 없어요
+							</p>
+							<p className="mt-1.5 text-sm text-muted">
+								지금 답변만으로는 Tailor가 내용을 지어내야 해서, 쓸 수 없는
+								스킬이 나와요. 아래 {pendingClarification.questions.length}개
+								질문에 답해주시면 바로 만들어드릴게요.
+							</p>
+							{pendingClarification.reviewNotes.length > 0 && (
+								<ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm text-muted">
+									{pendingClarification.reviewNotes.map((note) => (
+										<li key={note}>{note}</li>
+									))}
+								</ul>
 							)}
-						</StepTransition>
+						</div>
 
-						<div className="mt-6 flex justify-between">
+						<FollowUpWizard
+							questions={pendingClarification.questions}
+							progressLabel="추가 질문"
+							questionDescription="이 답변이 없으면 스킬을 만들 수 없어요. 아는 만큼만 적어도 괜찮아요."
+							requireAnswers
+							includeFeedbackStep={false}
+							submitLabel="이 내용으로 만들기"
+							cancelLabel={isDuringRefine ? "그대로 두기" : "답변 고치기"}
+							isSubmitting={isGenerating}
+							onCancel={() => {
+								setPendingClarification(null);
+								setStage(isDuringRefine ? "result" : "preview");
+							}}
+							onSubmit={handleClarifySubmit}
+						/>
+					</main>
+				</div>
+				<AnswersSidePanel
+					isOpen={showAnswersPanel}
+					onClose={() => setShowAnswersPanel(false)}
+					answers={answers}
+					wantsAdvanced={wantsAdvanced === true}
+					refineHistory={refineHistory}
+					refineFeedbackHistory={refineFeedbackHistory}
+				/>
+				<ScrollToTopButton />
+			</div>
+		);
+	}
+
+	if (stage === "refining" && generationResult) {
+		return (
+			<div className="flex min-h-screen overflow-x-clip">
+				<div className="min-w-0 flex-1">
+					<main className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-16">
+						<HomeLink />
+						<div className="mb-3 flex justify-end">
 							<button
 								type="button"
-								onClick={handleRefineBack}
-								className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+								onClick={() => setShowAnswersPanel(true)}
+								className="text-sm text-muted transition-colors hover:text-accent"
 							>
-								{refineIndex === 0 ? "취소" : "이전"}
-							</button>
-							<button
-								type="button"
-								onClick={() => handleRefineNext(refineSteps)}
-								disabled={isGenerating}
-								className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
-							>
-								{isLastRefineStep ? "수정 반영하기" : "다음"}
+								이전 답변 보기
 							</button>
 						</div>
+						<FollowUpWizard
+							questions={generationResult.clarifyingQuestions}
+							progressLabel="수정 요청"
+							questionDescription="수정 요청을 반영하기 전에, Tailor가 확인하고 싶은 부분이에요. 답하지 않고 넘어가도 돼요."
+							requireAnswers={false}
+							includeFeedbackStep
+							feedbackHeading="이 부분은 이렇게 고쳐주세요"
+							feedbackDescription={
+								generationResult.clarifyingQuestions.length === 0
+									? "AI가 이번엔 따로 확인하고 싶은 부분이 없었대요. 그래도 고치고 싶은 부분이 있으면 적어주세요."
+									: "선택 사항이에요. 없으면 비워두고 마쳐도 괜찮아요."
+							}
+							feedbackPlaceholder="예: 확인 없이 파일을 지우는 부분은 빼줘"
+							submitLabel="수정 반영하기"
+							cancelLabel="취소"
+							isSubmitting={isGenerating}
+							onCancel={() => setStage("result")}
+							onSubmit={handleRefineSubmit}
+						/>
 					</main>
 				</div>
 				<AnswersSidePanel

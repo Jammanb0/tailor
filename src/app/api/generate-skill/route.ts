@@ -8,6 +8,7 @@ import {
 } from "@/data/reference-corpus";
 import type { WizardAnswers } from "@/data/wizard-questions";
 import {
+	type AnsweredQuestion,
 	buildUserContent,
 	CORPUS_SECTION,
 	extractArchetypeId,
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
 		answers?: WizardAnswers;
 		wantsAdvanced?: boolean;
 		refinement?: Refinement;
+		clarifications?: AnsweredQuestion[];
 	};
 	try {
 		body = await request.json();
@@ -74,8 +76,22 @@ export async function POST(request: Request) {
 		);
 	}
 
+	// 모델이 "정보가 부족하다"며 되물은 것에 대한 사용자 답변(누적).
+	const clarifications = Array.isArray(body.clarifications)
+		? body.clarifications.filter(
+				(item) =>
+					typeof item?.question === "string" &&
+					typeof item?.answer === "string",
+			)
+		: undefined;
+
 	const client = new Anthropic({ apiKey });
-	const userContent = buildUserContent(answers, wantsAdvanced, refinement);
+	const userContent = buildUserContent(
+		answers,
+		wantsAdvanced,
+		refinement,
+		clarifications,
+	);
 
 	let text: string;
 	try {
@@ -113,7 +129,21 @@ export async function POST(request: Request) {
 	}
 
 	const skillMarkdown = extractTag(text, "skill_md");
+	const reviewNotes = extractListTag(text, "review");
+	const clarifyingQuestions = extractListTag(text, "questions");
+
 	if (!skillMarkdown) {
+		// 입력이 부실하면 모델은 <skill_md>를 비우고 <questions>로 되묻는다.
+		// 이건 실패가 아니라 정당한 요구다 — 에러로 뭉개면 모델이 만든 되물음이
+		// 그대로 버려지고 사용자는 같은 입력으로 재시도하는 것 말고 할 게 없다.
+		if (clarifyingQuestions.length > 0) {
+			return NextResponse.json({
+				needsMoreInfo: true,
+				clarifyingQuestions,
+				reviewNotes,
+			});
+		}
+		// 되물음조차 없으면 진짜 형식 파손이다.
 		console.error("skill generation response missing <skill_md>", text);
 		return NextResponse.json(
 			{ error: "생성 결과를 이해할 수 없었어요. 다시 시도해주세요." },
@@ -121,8 +151,6 @@ export async function POST(request: Request) {
 		);
 	}
 
-	const reviewNotes = extractListTag(text, "review");
-	const clarifyingQuestions = extractListTag(text, "questions");
 	const filename = extractTag(text, "filename")?.trim() || "my-skill";
 
 	// 이번 생성에 AI가 실제로 참고했다고 보고한 것만 출처로 표기(정직).
