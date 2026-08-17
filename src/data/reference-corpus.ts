@@ -48,6 +48,24 @@ export type PatternRole =
 	| "output-rule" // 결과물의 형태
 	| "verification"; // 끝단 검증
 
+/**
+ * 패턴이 어디에 작용하는가 — 출처 표기의 검증 가능성을 가른다.
+ *
+ * - "artifact": 완성된 SKILL.md 본문에 드러난다. 문서에서 근거 구절을 짚을 수
+ *   있으므로 "이 패턴을 참고했다"는 표기를 제3자가 검증할 수 있다.
+ * - "process": 문서를 *어떤 형태로 쓸지* 결정하는 규칙이라 완성된 문서 안에는
+ *   흔적이 남지 않는다. 실제로 적용됐더라도 문서만 보고는 확인할 방법이 없다.
+ *
+ * 2026-08-18 출처 정직성 실험에서 나온 구분이다. 당시 거짓 크레딧 16건 중 8건이
+ * process 패턴이었는데, 모델이 거짓 보고를 한 게 아니라(구조 골격 선택은 12/12
+ * 정확했다) 애초에 문서로 검증할 수 없는 항목을 검증 대상에 섞어 놓은 탓이었다.
+ * 근거: docs/experiments/2026-08-18-attribution-honesty.md
+ *
+ * 생략하면 "artifact"로 취급한다 — 대다수가 그쪽이고, 새 패턴을 추가할 때
+ * 조용히 크레딧에서 빠지는 것보다 조용히 포함되는 편이 낫다.
+ */
+export type PatternKind = "artifact" | "process";
+
 /** 오프라인으로 정리한 "좋은 행동 패턴" 한 항목. 출처를 항목 단위로 태그한다. */
 export type ReferencePattern = {
 	/** 안정적 참조 키 (kebab-case) — AI가 사용한 패턴을 되짚을 때 사용 */
@@ -58,6 +76,8 @@ export type ReferencePattern = {
 	detail: string;
 	/** 이 패턴이 구조의 어느 자리에 들어가면 좋은지 */
 	role?: PatternRole;
+	/** 결과물에 드러나는가(artifact) / 작성 과정에만 작용하는가(process). 기본 artifact. */
+	kind?: PatternKind;
 	/** 이 패턴이 유래한 ReferenceSource.id 목록 (신뢰성의 핵심) */
 	sourceIds: string[];
 };
@@ -390,6 +410,8 @@ export const referenceCategories: ReferenceCategory[] = [
 				detail:
 					"규칙 위반엔 금지문, 출력 형태 문제엔 레시피/예시를 쓴다. 규율형 스킬엔 합리화 표와 red flag 목록을 넣는다. 이 원칙이 곧 어떤 구조 원형(규율형/절차형/참조형)을 쓸지 결정한다.",
 				role: "constraint",
+				// 어떤 골격을 쓸지 고르는 규칙이라 완성된 문서에는 흔적이 남지 않는다.
+				kind: "process",
 				sourceIds: ["sp-writing-skills"],
 			},
 			{
@@ -398,6 +420,9 @@ export const referenceCategories: ReferenceCategory[] = [
 				detail:
 					"한 번의 문제 해결 이야기가 아니라 반복해서 쓸 기법의 참고 자료로 만든다. 일회성 작업은 스킬로 만들지 않는다.",
 				role: "constraint",
+				// "무엇을 스킬로 만들 것인가"에 대한 메타 규칙 — 결과물에 문장으로
+				// 드러나지 않는다.
+				kind: "process",
 				sourceIds: ["sp-writing-skills"],
 			},
 		],
@@ -703,7 +728,29 @@ export function getSourceById(id: string): ReferenceSource | undefined {
 	return undefined;
 }
 
-/** AI가 보고한 "쓴 패턴 id" 평면 목록 → 그 패턴들의 출처만 중복 없이 반환. */
+/** 패턴 id → 패턴. 전 카테고리를 순회한다(id는 전역 유일). */
+export function getPatternById(id: string): ReferencePattern | undefined {
+	for (const category of referenceCategories) {
+		const found = category.patterns.find((pattern) => pattern.id === id);
+		if (found) return found;
+	}
+	return undefined;
+}
+
+/** 보고된 id 중 결과물에서 검증할 수 없는 process 패턴만 골라낸다. */
+export function processPatternIds(usedPatternIds: string[]): string[] {
+	return usedPatternIds.filter((id) => getPatternById(id)?.kind === "process");
+}
+
+/**
+ * AI가 보고한 "쓴 패턴 id" 평면 목록 → 그 패턴들의 출처만 중복 없이 반환.
+ *
+ * process 패턴은 제외한다. 실제로 적용됐더라도 완성된 문서에서 확인할 방법이
+ * 없어서, 크레딧을 걸면 사용자가 검증할 수 없는 표기가 화면에 남는다. 표기하는
+ * 것은 전부 근거를 짚을 수 있어야 한다는 게 이 프로젝트의 출처 정책이다.
+ * (실무상 손실도 거의 없다 — process 패턴의 출처인 sp-writing-skills는
+ * trigger-first-description으로 어차피 대부분의 생성에서 크레딧된다.)
+ */
 export function sourcesForUsedPatterns(
 	usedPatternIds: string[],
 ): ReferenceSource[] {
@@ -711,6 +758,7 @@ export function sourcesForUsedPatterns(
 	const sourceIds = new Set<string>();
 	for (const category of referenceCategories) {
 		for (const pattern of category.patterns) {
+			if (pattern.kind === "process") continue;
 			if (used.has(pattern.id)) {
 				for (const sourceId of pattern.sourceIds) sourceIds.add(sourceId);
 			}

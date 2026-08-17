@@ -25,6 +25,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import {
+	processPatternIds,
 	referenceCategories,
 	structureArchetypes,
 } from "@/data/reference-corpus";
@@ -201,6 +202,9 @@ async function runOne(
 			unknownPatternIds: usedPatterns.filter(
 				(id) => !VALID_PATTERN_IDS.has(id),
 			),
+			// process 패턴은 완성된 문서에서 검증할 수 없다. 채점에 섞으면 정밀도가
+			// 구조적으로 깎이므로(2026-08-18 실험) 분리해서 기록한다.
+			processPatterns: processPatternIds(usedPatterns),
 			reviewCount: review.length,
 			questionCount: questions.length,
 			reviewKorean: review.every(hasHangul),
