@@ -1,10 +1,14 @@
 // 생성 품질 평가 하네스 (개발 전용, 프로덕션 경로 아님).
 //
-// POST /api/eval-ab  { "experiment": "model" | "effort", "runs": 3 }
+// POST /api/eval-ab  { "experiment": "model" | "effort" | "attribution", "runs": 3 }
 //
 // - model : Haiku 4.5 vs Sonnet 5. Haiku는 effort를 지원하지 않으므로
 //           Sonnet도 low로 맞춰 비교한다.
 // - effort: Sonnet 5 안에서 low / medium / high 비교.
+// - attribution: 설정 비교가 아니라 "지금 앱 설정"의 출처 표기 기준선 측정.
+//   모델이 보고한 used_patterns가 결과물에 실제로 반영됐는지는 이 라우트가
+//   판정하지 않는다 — 결과물과 보고 id를 분리 저장해 별도 채점자가 블라인드로
+//   판정한다(실험 설계자가 품질까지 채점하면 자문자답이 된다).
 //
 // 설계 원칙
 // 1. 한 번에 변수 하나만 바꾼다. 나머지 답변은 baseAnswers()로 전부 고정한다.
@@ -63,6 +67,14 @@ const EFFORT_CONFIGS: GenConfig[] = [
 const MODEL_CONFIGS: GenConfig[] = [
 	{ id: "sonnet-low", model: SONNET, effort: "low" },
 	{ id: "haiku", model: HAIKU, effort: null },
+];
+
+// 실험 3(출처 정직성): 설정을 비교하는 실험이 아니라 "지금 앱이 내는 결과"의
+// 기준선을 재는 실험이므로, 반드시 generate-skill/route.ts와 동일한 조건이어야
+// 한다 — 모델 sonnet-5, thinking 끔, effort 파라미터를 아예 넘기지 않음.
+// (max_tokens만 하네스 공통값을 쓰는데, 상한일 뿐이라 결과에 영향이 없다.)
+const ATTRIBUTION_CONFIGS: GenConfig[] = [
+	{ id: "app-default", model: SONNET, effort: null },
 ];
 
 // 4개 구조 골격을 각각 유도하도록 설계한 시나리오.
@@ -218,7 +230,12 @@ export async function POST(request: Request) {
 	}
 
 	const client = new Anthropic({ apiKey });
-	const configs = experiment === "model" ? MODEL_CONFIGS : EFFORT_CONFIGS;
+	const configs =
+		experiment === "model"
+			? MODEL_CONFIGS
+			: experiment === "attribution"
+				? ATTRIBUTION_CONFIGS
+				: EFFORT_CONFIGS;
 	const results = [];
 
 	// 워밍업: 첫 호출은 TLS 핸드셰이크·캐시 생성 비용을 혼자 떠안으므로 버린다.
