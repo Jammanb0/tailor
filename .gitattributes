@@ -1,0 +1,3 @@
+# 코퍼스 렌더 기준 파일은 바이트 단위로 대조한다.
+# git이 줄바꿈을 CRLF로 바꾸면 대조가 항상 실패하므로 변환 대상에서 제외한다.
+tools/corpus-section.golden.txt -text

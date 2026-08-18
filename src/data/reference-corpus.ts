@@ -66,6 +66,48 @@ export type PatternRole =
  */
 export type PatternKind = "artifact" | "process";
 
+/**
+ * 구체 예시 한 개. 극성(좋은 예/나쁜 예)을 반드시 밝힌다.
+ *
+ * 극성을 선택 항목으로 두면 안 되는 이유: 나쁜 예로 적은 값(`#F4F1EA` 같은)이
+ * 표시 없이 목록에 섞이면 모델이 권장값으로 읽는다. 예시는 값 자체보다
+ * "이건 하지 말라는 쪽인가"가 먼저 전달돼야 쓸모가 있다.
+ */
+export type PatternExample = {
+	polarity: "good" | "bad";
+	text: string;
+};
+
+/**
+ * 값을 고르는 닫힌 선택지 한 개.
+ *
+ * `character`(성격 서술)가 필수인 이유: 값만 있으면 사용자 상황에 맞는지 판단할
+ * 방법이 없다. `#1B2A41`만 적힌 것과 `#1B2A41 — 깊은 남색, 차분하고 신뢰감`이
+ * 적힌 것은 참고 자료로서 완전히 다르다.
+ */
+export type PatternOption = {
+	/** 실제 값 (예: "#1B2A41", "세리프") */
+	value: string;
+	/** 어떤 성격·느낌인지 (예: "깊은 남색 — 차분하고 신뢰감") */
+	character: string;
+};
+
+/**
+ * 결과물이 어떤 형식을 갖춰야 하는지. 세 조각으로 나눈다.
+ *
+ * 한 덩어리 문장으로 적으면 "색을 정하라"까지만 남고 "몇 개를, 어떤 항목으로,
+ * 어떤 모양으로"가 통째로 빠진다 — 2026-08-18 감사에서 두 소스 모두 정확히
+ * 이 자리에서 소실됐다.
+ */
+export type PatternFormat = {
+	/** 개수 규정 (예: "색 4~6개") */
+	count?: string;
+	/** 산출물의 섹션 구성 */
+	sections?: string[];
+	/** 그대로 따라 쓸 리터럴 템플릿 (예: "이름: #hex - 역할"). 코드펜스로 렌더된다. */
+	template?: string;
+};
+
 /** 오프라인으로 정리한 "좋은 행동 패턴" 한 항목. 출처를 항목 단위로 태그한다. */
 export type ReferencePattern = {
 	/** 안정적 참조 키 (kebab-case) — AI가 사용한 패턴을 되짚을 때 사용 */
@@ -76,8 +118,33 @@ export type ReferencePattern = {
 	detail: string;
 	/** 이 패턴이 구조의 어느 자리에 들어가면 좋은지 */
 	role?: PatternRole;
-	/** 결과물에 드러나는가(artifact) / 작성 과정에만 작용하는가(process). 기본 artifact. */
+	/**
+	 * 결과물에 드러나는가(artifact) / 작성 과정에만 작용하는가(process). 기본 artifact.
+	 *
+	 * 함정: 판정 기준은 "원문이 무엇을 규정했나"가 아니라 **"Tailor가 만든
+	 * SKILL.md에서 근거 구절을 짚을 수 있나"**다. 감사 문서의 kind 표기를 그대로
+	 * 옮기면 결과물에 분명히 드러나는 항목이 process로 분류돼 출처 크레딧에서
+	 * 조용히 빠진다. 감사 표기와 다르게 판정했다면 그 이유를 주석으로 남길 것.
+	 */
 	kind?: PatternKind;
+	/** 구체 예시. 좋은 예/나쁜 예를 반드시 구분한다. */
+	examples?: PatternExample[];
+	/** 결과물의 형식 규정 (개수 · 섹션 구성 · 리터럴 템플릿). */
+	format?: PatternFormat;
+	/** 값을 고르는 닫힌 선택지. 각 값에 성격 서술이 붙는다. */
+	options?: PatternOption[];
+	/** 이 패턴을 적용하지 않아도 되는 조건 (예: "사용자가 이미 방향을 정해줬다면"). */
+	exception?: string;
+	/**
+	 * 근거가 된 감사 항목 id (예: "D-17", "T-14"). 보고서 파일 경로가 아니라
+	 * 항목 단위로 적는다 — 파일 단위로는 "그 문서 어딘가"까지만 되짚을 수 있다.
+	 */
+	auditIds?: string[];
+	/**
+	 * 이 패턴이 실제로 반영됐는지 채점할 때 볼 것. **프롬프트에 렌더하지 않는다.**
+	 * 모델에게 주면 채점 기준을 보고 쓰는 셈이라 측정이 무의미해진다.
+	 */
+	verifyHint?: string;
 	/** 이 패턴이 유래한 ReferenceSource.id 목록 (신뢰성의 핵심) */
 	sourceIds: string[];
 };

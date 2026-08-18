@@ -3,6 +3,7 @@
 // 쓰도록 하기 위해 분리했다. 여기서 갈라지면 비교 자체가 무의미해진다.
 
 import {
+	type ReferencePattern,
 	referenceCategories,
 	structureArchetypes,
 } from "@/data/reference-corpus";
@@ -216,6 +217,41 @@ export function extractArchetypeId(text: string): string | null {
 	return normalizeId(raw) || null;
 }
 
+// 패턴 한 항목을 프롬프트 줄로 렌더한다.
+//
+// 첫 줄은 예전과 동일한 `- [id] (role) summary: detail`이고, 구조화된 칸
+// (format/options/examples/exception)은 **값이 있을 때만** 들여쓴 하위 줄로 붙는다.
+// 따라서 칸을 비워둔 패턴의 렌더 결과는 스키마 도입 전과 바이트 단위로 같다 —
+// 진행 중인 실험의 대조군을 지키기 위한 조건이다(tools/check-corpus-render.mjs).
+//
+// 순서를 고정하는 이유: 순서가 흔들리면 프롬프트 캐시가 깨지고 before 자료와의
+// 비교도 무효가 되는데, 둘 다 조용히 일어난다.
+//
+// verifyHint는 의도적으로 렌더하지 않는다. 채점 기준을 모델에게 주면 그 기준에
+// 맞춰 쓰게 되어 측정이 자기충족이 된다.
+function renderPattern(p: ReferencePattern): string {
+	const lines = [`- [${p.id}] (${p.role ?? "-"}) ${p.summary}: ${p.detail}`];
+
+	if (p.format?.count) lines.push(`  형식(개수): ${p.format.count}`);
+	if (p.format?.sections?.length) {
+		lines.push(`  형식(섹션): ${p.format.sections.join(" / ")}`);
+	}
+	if (p.format?.template) {
+		lines.push("  형식(틀):", "  ```", `  ${p.format.template}`, "  ```");
+	}
+	for (const o of p.options ?? []) {
+		lines.push(`  값: ${o.value} — ${o.character}`);
+	}
+	for (const e of p.examples ?? []) {
+		lines.push(
+			`  ${e.polarity === "good" ? "이렇게" : "이러지 말 것"}: ${e.text}`,
+		);
+	}
+	if (p.exception) lines.push(`  예외: ${p.exception}`);
+
+	return lines.join("\n");
+}
+
 // 참고 코퍼스를 프롬프트용 텍스트로 렌더한다(정적 — 매 요청 동일해 캐싱 가능).
 function buildCorpusSection(): string {
 	const archetypes = structureArchetypes
@@ -226,9 +262,7 @@ function buildCorpusSection(): string {
 		.join("\n\n");
 	const categories = referenceCategories
 		.map((c) => {
-			const patterns = c.patterns
-				.map((p) => `- [${p.id}] (${p.role ?? "-"}) ${p.summary}: ${p.detail}`)
-				.join("\n");
+			const patterns = c.patterns.map(renderPattern).join("\n");
 			return `## ${c.label}${c.alwaysApply ? " (공통·항상 적용)" : ""}\n${patterns}`;
 		})
 		.join("\n\n");
