@@ -1,0 +1,316 @@
+[
+  {
+    "label": "09-mismatch-office-run1",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "systematic-debugging (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false
+      },
+      {
+        "name": "frontend-design (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+        "license": "Apache-2.0",
+        "self": false
+      },
+      {
+        "name": "tone-of-voice (Claude Code skill)",
+        "author": "entpnomad",
+        "url": "https://github.com/entpnomad/tone-of-voice",
+        "license": "MIT",
+        "self": false
+      }
+    ]
+  },
+  {
+    "label": "09-mismatch-office-run2",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ]
+  },
+  {
+    "label": "09-mismatch-office-run3",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "test-driven-development (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "systematic-debugging (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false
+      }
+    ]
+  },
+  {
+    "label": "10-mismatch-setup-run1",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ]
+  },
+  {
+    "label": "10-mismatch-setup-run2",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ]
+  },
+  {
+    "label": "10-mismatch-setup-run3",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent · Prime Radiant",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "Apache-2.0",
+        "self": false
+      }
+    ]
+  }
+]
