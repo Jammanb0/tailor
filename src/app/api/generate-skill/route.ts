@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import {
-	type ReferenceSource,
+	type AttributedSource,
 	type SkillArchetype,
 	sourcesForArchetype,
 	sourcesForUsedPatterns,
@@ -25,13 +25,15 @@ export const runtime = "nodejs";
 // 생성 모델. A/B 비교 중에는 이 값과 thinking 설정을 함께 맞춰야 공정한 비교가 된다.
 const GENERATION_MODEL = "claude-sonnet-5";
 
-function toLiteSource(source: ReferenceSource) {
+function toLiteSource(source: AttributedSource) {
 	return {
 		name: source.name,
 		author: source.author,
 		url: source.url,
 		license: source.license,
 		self: source.self ?? false,
+		// 원문을 번역·재해석해 담은 패턴에서 온 출처. 화면에 "Tailor 가공"으로 붙는다.
+		adapted: source.adapted ?? false,
 	};
 }
 

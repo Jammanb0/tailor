@@ -7,7 +7,10 @@ export type ReferencedSource = {
 	author: string;
 	url: string;
 	license: string;
+	/** Tailor가 처음부터 만든 것 */
 	self?: boolean;
+	/** 원문을 번역·재해석해 담은 것 — 원 소스는 그대로 밝히되 손댔음을 표시한다 */
+	adapted?: boolean;
 };
 
 export type GenerationResult = {
@@ -65,6 +68,13 @@ function SourceRow({ source }: { source: ReferencedSource }) {
 					? "우리가 만든 방식"
 					: `${source.author} · ${source.license}`}
 			</span>
+			{/* 원문 그대로가 아니라 Tailor가 손봐서 담은 내용. 계보(원 소스)는 위에
+			    그대로 밝히고, 손댔다는 사실만 덧붙인다. */}
+			{source.adapted && !source.self && (
+				<span className="rounded-full border border-border px-2 py-0.5 text-muted text-xs">
+					Tailor 가공
+				</span>
+			)}
 		</li>
 	);
 }

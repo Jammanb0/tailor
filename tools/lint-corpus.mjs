@@ -77,6 +77,21 @@ for (const category of referenceCategories) {
 				fail(where, `sourceIds의 "${sid}"를 찾을 수 없습니다`);
 		}
 
+		// 6. adapted(가공)는 원 소스가 있어야 성립한다.
+		// "원 소스 + Tailor 가공" 표기의 앞쪽이 비면 표기 자체가 거짓이 된다.
+		// Tailor가 처음부터 만든 것은 가공이 아니라 self(=Tailor-made)다.
+		if (p.adapted) {
+			const external = (p.sourceIds ?? []).filter(
+				(sid) => getSourceById(sid) && !getSourceById(sid).self,
+			);
+			if (!external.length) {
+				fail(
+					where,
+					"adapted인데 원 소스가 없습니다 — 처음부터 만든 것이라면 self 출처를 쓰세요",
+				);
+			}
+		}
+
 		// 4. 구조화된 칸을 하나라도 썼다면 kind를 명시해야 한다.
 		// 기본값(artifact)에 기대면, 결과물로 검증할 수 없는 항목이 크레딧에
 		// 섞여 들어간다(2026-08-18 출처 정직성 실험의 거짓 크레딧 원인).

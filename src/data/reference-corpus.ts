@@ -145,6 +145,22 @@ export type ReferencePattern = {
 	 * 모델에게 주면 채점 기준을 보고 쓰는 셈이라 측정이 무의미해진다.
 	 */
 	verifyHint?: string;
+	/**
+	 * 원문을 그대로 정리한 것이 아니라 **번역·재해석해 담은** 패턴인가.
+	 *
+	 * 원칙은 "원문에서 빼는 것은 없다 — 옮길 수 없으면 번역한다"이다. 예를 들어
+	 * 원문이 "샌드박스에 이 폰트들이 깔려 있다"고만 적어둔 것은 그 소스의 환경
+	 * 사정이라 그대로는 못 쓰지만, "이런 느낌이 필요하면 이런 폰트를 권한다"로
+	 * 바꾸면 쓸 수 있다. 그렇게 옮기는 순간 **원문에 없던 판단이 섞인다.**
+	 *
+	 * true면 출처를 "원 소스 + Tailor 가공"으로 표기한다. `sourceIds`는 그대로 원
+	 * 소스를 가리킨다 — 계보를 지우지 않는다. Tailor가 처음부터 만든 것
+	 * (`ReferenceSource.self`, "Tailor-made")과는 다른 상태다.
+	 *
+	 * 이 구분이 없어서 생긴 사고가 `context-appropriate-theme`의 가필이다.
+	 * 원문에 없는 문장에 theme-factory 크레딧이 붙어 있었다(2026-08-18 감사).
+	 */
+	adapted?: boolean;
 	/** 이 패턴이 유래한 ReferenceSource.id 목록 (신뢰성의 핵심) */
 	sourceIds: string[];
 };
@@ -787,6 +803,12 @@ export const referenceCategories: ReferenceCategory[] = [
  * 전역 소스 조회. 소스는 카테고리 안에 들어있지만, 아키타입/패턴 출처를 카테고리
  * 경계를 넘어 되찾아야 하므로 전 카테고리를 순회해 id로 찾는다.
  */
+/**
+ * 이번 생성에 실제로 쓰인 출처 한 건. 원 출처 정보에 "가공 여부"가 붙는다.
+ * 화면 표기는 세 상태로 갈린다 — 그대로 정리 / 원 소스 + Tailor 가공 / Tailor-made.
+ */
+export type AttributedSource = ReferenceSource & { adapted?: boolean };
+
 export function getSourceById(id: string): ReferenceSource | undefined {
 	for (const category of referenceCategories) {
 		const found = category.sources.find((source) => source.id === id);
@@ -820,20 +842,30 @@ export function processPatternIds(usedPatternIds: string[]): string[] {
  */
 export function sourcesForUsedPatterns(
 	usedPatternIds: string[],
-): ReferenceSource[] {
+): AttributedSource[] {
 	const used = new Set(usedPatternIds);
+	const adaptedSourceIds = new Set<string>();
 	const sourceIds = new Set<string>();
 	for (const category of referenceCategories) {
 		for (const pattern of category.patterns) {
 			if (pattern.kind === "process") continue;
 			if (used.has(pattern.id)) {
-				for (const sourceId of pattern.sourceIds) sourceIds.add(sourceId);
+				for (const sourceId of pattern.sourceIds) {
+					sourceIds.add(sourceId);
+					if (pattern.adapted) adaptedSourceIds.add(sourceId);
+				}
 			}
 		}
 	}
 	return [...sourceIds]
-		.map((id) => getSourceById(id))
-		.filter((source): source is ReferenceSource => source !== undefined);
+		.map((id) => {
+			const source = getSourceById(id);
+			if (!source) return undefined;
+			// 한 출처가 여러 패턴에 걸릴 수 있다. 그중 하나라도 가공본이면 가공으로
+			// 표기한다 — 덜 표기해서 손댄 사실을 감추는 쪽이 더 나쁜 실패다.
+			return adaptedSourceIds.has(id) ? { ...source, adapted: true } : source;
+		})
+		.filter((source): source is AttributedSource => source !== undefined);
 }
 
 /** archetype id → 구조 원형(생성 프롬프트에 구조 골격을 주입할 때 사용). */
