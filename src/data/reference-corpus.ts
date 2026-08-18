@@ -210,14 +210,14 @@ export const structureArchetypes: StructureArchetype[] = [
 		whenToUse:
 			"지켜야 할 원칙·규율이 핵심이고, AI가 '이번만 건너뛰자'며 합리화하기 쉬운 스킬 (예: 테스트 먼저, 완료 전 검증, 근본원인 우선). 단순 조회·설명·정해진 순서 실행에는 쓰지 마세요 — 그런 작업에 이 골격을 붙이면 불필요하게 무겁고 훈계조인 문서가 됩니다.",
 		sectionFlow: [
-			"--- name(kebab-case) / description('Use when …' 트리거 중심) ---",
+			"--- name(kebab-case) / description(트리거 조건 중심) ---",
 			"# 제목",
-			"## Overview — 핵심 원칙 한 줄을 굵게",
-			"## When to Use — 항상 적용되는 경우 / 예외(사람에게 확인)",
-			"## <핵심 절차> — 단계별로, 규칙마다 Good/Bad 예시 쌍",
-			"## Rationalizations — '변명 → 현실' 표로 회피 논리를 미리 차단",
-			"## Red Flags — 'STOP하고 다시 시작' 신호 목록",
-			"## Verification Checklist — 완료 전 체크 항목",
+			"## 개요 — 핵심 원칙 한 줄을 굵게",
+			"## 언제 적용하나 — 항상 적용되는 경우 / 예외(사람에게 확인)",
+			"## <핵심 절차> — 단계별로, 규칙마다 좋은 예/나쁜 예 쌍",
+			"## 흔한 변명과 현실 — 표로 회피 논리를 미리 차단",
+			"## 위험 신호 — '멈추고 다시 시작' 신호 목록",
+			"## 완료 전 점검 — 체크 항목",
 		].join("\n"),
 		sourceIds: [
 			"sp-tdd",
@@ -231,13 +231,13 @@ export const structureArchetypes: StructureArchetype[] = [
 		whenToUse:
 			"순서 있는 여러 단계를 거쳐 산출물을 만드는 스킬 (예: 문서 공동작성, 브레인스토밍, 계획 작성).",
 		sectionFlow: [
-			"--- name / description('Use when …') ---",
+			"--- name / description(트리거 조건 중심) ---",
 			"# 제목",
-			"## Overview — 이 워크플로가 무엇을 만들어내는지 한 줄",
-			"## Stages — 번호 있는 단계. 각 단계: (a) 맥락/질문 → (b) 산출 → (c) 반복.",
+			"## 개요 — 이 절차가 무엇을 만들어내는지 한 줄",
+			"## 단계 — 번호 있는 단계. 각 단계: (a) 맥락/질문 → (b) 산출 → (c) 반복.",
 			"   단계 사이에 '다음으로 넘어가기 전 게이트'(승인/확인)를 명시",
-			"## Self-Review — 자리표시자·모순·범위 이탈 점검",
-			"## Handoff / Done — 완료 기준과 다음 단계",
+			"## 자체 점검 — 자리표시자·모순·범위 이탈 점검",
+			"## 마무리 — 완료 기준과 다음 단계",
 		].join("\n"),
 		sourceIds: [
 			"sp-brainstorming",
@@ -251,12 +251,12 @@ export const structureArchetypes: StructureArchetype[] = [
 		whenToUse:
 			"옵션/프로필을 정의하고 일관되게 적용하는 스킬 (예: 테마·디자인 시스템, 말투 프로필).",
 		sectionFlow: [
-			"--- name / description('Use when …') ---",
+			"--- name / description(트리거 조건 중심) ---",
 			"# 제목",
-			"## Overview — 무엇을 일관되게 적용하는지",
-			"## Profile / Options — 정의할 항목(색·폰트·보이스 특성 등) 또는 선택지 목록",
-			"## Apply — 옵션을 먼저 보여주고 승인받은 뒤, 대비·가독성 등 제약을 지키며 전체 적용",
-			"## Constraints — 금지 조건(진부한 기본값, 금지 문구 등)",
+			"## 개요 — 무엇을 일관되게 적용하는지",
+			"## 선택지 — 정의할 항목(색·폰트·보이스 특성 등) 또는 선택지 목록",
+			"## 적용 — 옵션을 먼저 보여주고 승인받은 뒤, 대비·가독성 등 제약을 지키며 전체 적용",
+			"## 지켜야 할 조건 — 금지 조건(진부한 기본값, 금지 문구 등)",
 		].join("\n"),
 		sourceIds: [
 			"anthropic-theme-factory",
@@ -270,7 +270,7 @@ export const structureArchetypes: StructureArchetype[] = [
 		whenToUse:
 			"어떤 개념·라이브러리·도구가 무엇인지 초보에게 쉽게 설명하는 스킬 (예: '이 라이브러리 뭔지 초보한테 설명해줘'). 초심자의 흔한 첫 스킬 형태.",
 		sectionFlow: [
-			"--- name / description('Use when …') ---",
+			"--- name / description(트리거 조건 중심) ---",
 			"# 제목",
 			"## 한 줄 요약 — 개념을 쉬운 말 한 줄로",
 			"## 비유 — 일상의 구체적 장면에 빗대기",

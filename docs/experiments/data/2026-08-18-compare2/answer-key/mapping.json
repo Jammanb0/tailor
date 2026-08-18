@@ -1,0 +1,302 @@
+[
+  {
+    "anonId": "item-001",
+    "condition": "after",
+    "originalLabel": "06-voice-run1"
+  },
+  {
+    "anonId": "item-002",
+    "condition": "headings",
+    "originalLabel": "10-mismatch-setup-run3"
+  },
+  {
+    "anonId": "item-003",
+    "condition": "after",
+    "originalLabel": "02-debugging-run2"
+  },
+  {
+    "anonId": "item-004",
+    "condition": "headings",
+    "originalLabel": "04-code-review-run3"
+  },
+  {
+    "anonId": "item-005",
+    "condition": "after",
+    "originalLabel": "06-voice-run2"
+  },
+  {
+    "anonId": "item-006",
+    "condition": "after",
+    "originalLabel": "07-documentation-run3"
+  },
+  {
+    "anonId": "item-007",
+    "condition": "after",
+    "originalLabel": "07-documentation-run2"
+  },
+  {
+    "anonId": "item-008",
+    "condition": "headings",
+    "originalLabel": "06-voice-run1"
+  },
+  {
+    "anonId": "item-009",
+    "condition": "headings",
+    "originalLabel": "01-testing-run2"
+  },
+  {
+    "anonId": "item-010",
+    "condition": "headings",
+    "originalLabel": "02-debugging-run3"
+  },
+  {
+    "anonId": "item-011",
+    "condition": "headings",
+    "originalLabel": "03-planning-run3"
+  },
+  {
+    "anonId": "item-012",
+    "condition": "headings",
+    "originalLabel": "02-debugging-run1"
+  },
+  {
+    "anonId": "item-013",
+    "condition": "headings",
+    "originalLabel": "05-design-run3"
+  },
+  {
+    "anonId": "item-014",
+    "condition": "headings",
+    "originalLabel": "07-documentation-run1"
+  },
+  {
+    "anonId": "item-015",
+    "condition": "after",
+    "originalLabel": "05-design-run2"
+  },
+  {
+    "anonId": "item-016",
+    "condition": "headings",
+    "originalLabel": "08-explanation-run3"
+  },
+  {
+    "anonId": "item-017",
+    "condition": "after",
+    "originalLabel": "05-design-run1"
+  },
+  {
+    "anonId": "item-018",
+    "condition": "headings",
+    "originalLabel": "03-planning-run1"
+  },
+  {
+    "anonId": "item-019",
+    "condition": "after",
+    "originalLabel": "01-testing-run1"
+  },
+  {
+    "anonId": "item-020",
+    "condition": "after",
+    "originalLabel": "01-testing-run3"
+  },
+  {
+    "anonId": "item-021",
+    "condition": "after",
+    "originalLabel": "08-explanation-run1"
+  },
+  {
+    "anonId": "item-022",
+    "condition": "after",
+    "originalLabel": "09-mismatch-office-run1"
+  },
+  {
+    "anonId": "item-023",
+    "condition": "after",
+    "originalLabel": "08-explanation-run2"
+  },
+  {
+    "anonId": "item-024",
+    "condition": "headings",
+    "originalLabel": "10-mismatch-setup-run1"
+  },
+  {
+    "anonId": "item-025",
+    "condition": "headings",
+    "originalLabel": "06-voice-run2"
+  },
+  {
+    "anonId": "item-026",
+    "condition": "after",
+    "originalLabel": "08-explanation-run3"
+  },
+  {
+    "anonId": "item-027",
+    "condition": "after",
+    "originalLabel": "02-debugging-run1"
+  },
+  {
+    "anonId": "item-028",
+    "condition": "headings",
+    "originalLabel": "08-explanation-run1"
+  },
+  {
+    "anonId": "item-029",
+    "condition": "after",
+    "originalLabel": "09-mismatch-office-run2"
+  },
+  {
+    "anonId": "item-030",
+    "condition": "headings",
+    "originalLabel": "04-code-review-run2"
+  },
+  {
+    "anonId": "item-031",
+    "condition": "headings",
+    "originalLabel": "06-voice-run3"
+  },
+  {
+    "anonId": "item-032",
+    "condition": "after",
+    "originalLabel": "04-code-review-run3"
+  },
+  {
+    "anonId": "item-033",
+    "condition": "headings",
+    "originalLabel": "01-testing-run3"
+  },
+  {
+    "anonId": "item-034",
+    "condition": "after",
+    "originalLabel": "03-planning-run2"
+  },
+  {
+    "anonId": "item-035",
+    "condition": "after",
+    "originalLabel": "04-code-review-run1"
+  },
+  {
+    "anonId": "item-036",
+    "condition": "after",
+    "originalLabel": "02-debugging-run3"
+  },
+  {
+    "anonId": "item-037",
+    "condition": "after",
+    "originalLabel": "04-code-review-run2"
+  },
+  {
+    "anonId": "item-038",
+    "condition": "headings",
+    "originalLabel": "07-documentation-run3"
+  },
+  {
+    "anonId": "item-039",
+    "condition": "after",
+    "originalLabel": "09-mismatch-office-run3"
+  },
+  {
+    "anonId": "item-040",
+    "condition": "after",
+    "originalLabel": "07-documentation-run1"
+  },
+  {
+    "anonId": "item-041",
+    "condition": "after",
+    "originalLabel": "03-planning-run1"
+  },
+  {
+    "anonId": "item-042",
+    "condition": "headings",
+    "originalLabel": "09-mismatch-office-run2"
+  },
+  {
+    "anonId": "item-043",
+    "condition": "headings",
+    "originalLabel": "09-mismatch-office-run1"
+  },
+  {
+    "anonId": "item-044",
+    "condition": "headings",
+    "originalLabel": "02-debugging-run2"
+  },
+  {
+    "anonId": "item-045",
+    "condition": "after",
+    "originalLabel": "01-testing-run2"
+  },
+  {
+    "anonId": "item-046",
+    "condition": "after",
+    "originalLabel": "03-planning-run3"
+  },
+  {
+    "anonId": "item-047",
+    "condition": "headings",
+    "originalLabel": "05-design-run1"
+  },
+  {
+    "anonId": "item-048",
+    "condition": "headings",
+    "originalLabel": "01-testing-run1"
+  },
+  {
+    "anonId": "item-049",
+    "condition": "headings",
+    "originalLabel": "04-code-review-run1"
+  },
+  {
+    "anonId": "item-050",
+    "condition": "headings",
+    "originalLabel": "03-planning-run2"
+  },
+  {
+    "anonId": "item-051",
+    "condition": "headings",
+    "originalLabel": "07-documentation-run2"
+  },
+  {
+    "anonId": "item-052",
+    "condition": "after",
+    "originalLabel": "10-mismatch-setup-run2"
+  },
+  {
+    "anonId": "item-053",
+    "condition": "headings",
+    "originalLabel": "08-explanation-run2"
+  },
+  {
+    "anonId": "item-054",
+    "condition": "headings",
+    "originalLabel": "09-mismatch-office-run3"
+  },
+  {
+    "anonId": "item-055",
+    "condition": "after",
+    "originalLabel": "05-design-run3"
+  },
+  {
+    "anonId": "item-056",
+    "condition": "after",
+    "originalLabel": "06-voice-run3"
+  },
+  {
+    "anonId": "item-057",
+    "condition": "headings",
+    "originalLabel": "05-design-run2"
+  },
+  {
+    "anonId": "item-058",
+    "condition": "after",
+    "originalLabel": "10-mismatch-setup-run1"
+  },
+  {
+    "anonId": "item-059",
+    "condition": "headings",
+    "originalLabel": "10-mismatch-setup-run2"
+  },
+  {
+    "anonId": "item-060",
+    "condition": "after",
+    "originalLabel": "10-mismatch-setup-run3"
+  }
+]
