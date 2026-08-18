@@ -49,7 +49,7 @@ export function PathFork({ onSelectWeb, onSelectHandoff }: PathForkProps) {
 					이 사이트에서 바로 만들기
 				</span>
 				<span className="text-sm text-muted">
-					질문에 답하면 저희가 대신 만들어드려요. 하루 5회까지 무료예요.
+					질문에 답하면 저희가 대신 만들어드려요.
 				</span>
 			</button>
 
