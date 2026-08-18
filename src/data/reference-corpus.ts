@@ -395,29 +395,393 @@ export const referenceCategories: ReferenceCategory[] = [
 				collectedAt: "2026-08-12",
 			},
 		],
+		// 2026-08-18 복원. 원문 감사 2편(docs/corpus/superpowers-brainstorming.md,
+		// superpowers-writing-plans.md) 결과를 반영했다.
+		//
+		// 가장 큰 발견: brainstorming의 중심 장치인 "요청을 세 종류로 분류해 절차의
+		// 무게를 바꾼다"(원문의 11%)가 통째로 빠져 있었다. 그래서 이 카테고리는
+		// 결과적으로 "모든 요청에 가장 무거운 절차를 붙여라"고 말하고 있었다 —
+		// 코퍼스 서문의 "작업이 단순하면 구조도 단순하게"와 정면으로 어긋난 상태다.
+		//
+		// writing-plans 쪽은 형식의 이름만 남고 칸이 사라진 경우다. 계획 문서
+		// 머리말·작업 형식·자기 검토가 전부 없었다.
 		patterns: [
+			{
+				id: "classify-before-process",
+				summary: "일을 시작하기 전에 요청의 무게부터 분류한다",
+				detail:
+					"세 갈래 중 어디인지 먼저 정하고, 그 분류를 말로 밝힌다 — 사용자가 뒤집을 수 있어야 하기 때문이다. 분류에 따라 만드는 문서와 다음 단계가 달라진다. 둘 사이에서 망설이면 무거운 쪽을 고른다. 그리고 이 톱니는 한 방향이다: 하다가 숨은 복잡도가 드러나면 멈추고 말한 뒤 위 단계로 올린다. 내려가는 일은 없다.",
+				role: "workflow-step",
+				kind: "artifact",
+				options: [
+					{
+						value: "확인용 (가벼움)",
+						character:
+							"'되나?'를 알아보는 것. 결과물은 답이지 코드가 아니다. 2~3문장으로 무엇을 해볼지 말하고 동의를 받은 뒤, 가장 싸게 확인하고 권고로 보고한다. 만든 것은 버릴 것으로 표시한다",
+					},
+					{
+						value: "한정된 변경 (중간)",
+						character:
+							"이미 있는 흐름을 손보는 것. 친숙함이 아니라 '바꿀 흐름이 지금 여기 있는가'로 판정한다 — 없으면 한정된 변경이 아니다. 필요한 것만 묻고 짧은 설계를 대화로 보여준 뒤 멈춘다. 별도 문서는 만들지 않는다",
+					},
+					{
+						value: "구조를 세우는 일 (무거움)",
+						character:
+							"새 프로젝트, 새 하위 갈래, 남이 의존하는 접점을 바꾸는 것. 질문 → 접근안 → 절 단위 설계 → 문서로 남기기 → 검토까지 전 과정을 밟는다",
+					},
+				],
+				auditIds: ["B-02", "B-03", "B-04", "B-05", "B-06", "B-08"],
+				verifyHint:
+					"생성된 SKILL.md가 모든 요청에 같은 절차를 붙이는지, 요청 크기에 따라 갈래를 나누는지",
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "approval-gate-never-shrinks",
+				summary: "절차는 줄여도 승인 받는 지점은 줄이지 않는다",
+				detail:
+					"할 일 목록 하나든 설정값 하나든, 무엇을 하려는지 말하고 승인을 받기 전에는 만들기 시작하지 않는다. 설계는 두 문장이어도 되지만 승인은 생략되지 않는다. 간단함에 따라 줄어드는 것은 산출물이지 승인이 아니다 — '간단해서 물어볼 것도 없다'고 넘긴 자리에서 헛수고가 가장 많이 난다.",
+				role: "constraint",
+				kind: "artifact",
+				auditIds: ["B-01"],
+				verifyHint:
+					"'작은 작업은 바로 진행'류의 예외가 생겼는지. 그 예외가 생기면 이 패턴이 뒤집힌 것",
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "label-misuse-red-flags",
+				summary: "가벼운 쪽으로 분류하고 싶어질 때 나오는 말을 적어둔다",
+				detail:
+					"분류 장치를 만들면 반드시 따라오는 실패가 있다 — 일을 줄이려고 가벼운 라벨을 집는 것이다. 그 생각을 그대로 적고 반박을 붙여 둔다.",
+				role: "constraint",
+				kind: "artifact",
+				examples: [
+					{
+						polarity: "bad",
+						text: '"이건 너무 간단해서 설계가 필요 없어" → 간단하다는 건 설계가 짧다는 뜻이지 없다는 뜻이 아니다',
+					},
+					{
+						polarity: "bad",
+						text: '"한정된 변경이라고 하고 문서는 건너뛰자" → 일을 건너뛰려고 라벨을 집는 그 행동이 곧 의심의 증거다. 무거운 쪽을 고른다',
+					},
+					{
+						polarity: "bad",
+						text: '"설계가 뻔하니까 읽는 동안 시작해야지" → 관문은 설계의 길이가 아니라 승인이다. 보여주고, 예라는 말을 들을 때까지 멈춘다',
+					},
+					{
+						polarity: "bad",
+						text: '"이런 종류의 앱은 잘 아니까 한정된 변경이야" → 판정 기준은 내 친숙함이 아니라 저장소의 상태다',
+					},
+					{
+						polarity: "bad",
+						text: '"커졌지만 거의 다 했으니 다시 분류할 필요는 없지" → 숨은 복잡도는 단계를 올린다. 멈추고 말한다',
+					},
+				],
+				auditIds: ["B-09"],
+				sourceIds: ["sp-brainstorming"],
+			},
 			{
 				id: "design-before-code",
 				summary: "구현 전에 설계를 먼저 합의한다",
 				detail:
-					"맥락 파악 → 한 번에 하나씩 질문 → 2~3개 접근안을 트레이드오프와 함께 제시 → 승인 후 진행. '간단한' 작업일수록 검증 안 된 가정이 낭비를 만든다.",
+					"맥락을 먼저 보고, 질문은 한 번에 하나씩 한 메시지에 하나만 한다(가능하면 골라 답할 수 있는 형태로, 열린 질문도 괜찮다). 묻는 것은 목적·제약·성공 기준이다. 그다음 접근안 2~3개를 장단점과 함께 내놓되 추천안을 앞에 세우고 왜 그것인지 밝힌다. 필요 없는 기능은 각 안에서 인정사정없이 걷어낸다.",
 				role: "workflow-step",
+				kind: "artifact",
+				auditIds: ["B-13", "B-14"],
 				sourceIds: ["sp-brainstorming"],
 			},
 			{
-				id: "bite-sized-tasks",
-				summary: "계획은 2~5분짜리 독립 작업 단위로 쪼갠다",
+				id: "design-section-sizing",
+				summary: "설계는 절로 나눠 복잡도에 비례해 쓰고, 절마다 확인받는다",
 				detail:
-					"실패 테스트 작성→실패 확인→구현→통과 확인→커밋 흐름으로 잘게 나눈다. 'TBD'·'검증 추가' 같은 자리표시자 대신 실제 파일 경로·인터페이스를 적는다.",
+					"분량을 정해두지 않으면 '적절히'가 되고 그러면 항상 길어진다. 한 절을 보여준 뒤 여기까지 맞는지 묻고 다음으로 간다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					count: "간단한 절은 몇 문장, 복잡한 절도 200~300단어까지",
+					sections: [
+						"전체 구조",
+						"구성 요소",
+						"자료의 흐름",
+						"잘못됐을 때의 처리",
+						"검증 방법",
+					],
+				},
+				auditIds: ["B-15"],
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "unit-boundary-questions",
+				summary: "쪼갠 단위가 제대로 나뉘었는지 질문으로 판정한다",
+				detail:
+					"'응집도를 높여라' 같은 말은 지킬 수도 어길 수도 없다. 답할 수 있는 질문으로 바꿔두면 판정이 된다. 답이 막히면 경계를 다시 그어야 한다는 뜻이다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					sections: [
+						"이 단위가 무엇을 하나",
+						"어떻게 쓰나",
+						"무엇에 기대고 있나",
+						"안을 들여다보지 않고도 무엇을 하는지 알 수 있나",
+						"안을 바꿔도 쓰는 쪽이 안 깨지나",
+					],
+				},
+				auditIds: ["B-16"],
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "decompose-oversized-request",
+				summary: "요청이 여러 갈래면 세부를 묻기 전에 먼저 알린다",
+				detail:
+					"서로 독립된 갈래가 여러 개면 즉시 그 사실을 말한다. 나눠야 할 것의 세부를 다듬는 데 질문을 쓰지 않는다. 나눌 때는 세 가지를 함께 정한다 — 독립된 조각은 무엇인지, 서로 어떤 관계인지, 어떤 순서로 만들지. 그다음 첫 조각만 정상 흐름으로 진행한다. 조각마다 설계 → 계획 → 구현을 각각 한 벌씩 돈다.",
 				role: "workflow-step",
-				sourceIds: ["sp-writing-plans"],
+				kind: "artifact",
+				examples: [
+					{
+						polarity: "bad",
+						text: '"대화·파일 보관·결제·통계가 있는 플랫폼" 요청에 곧바로 화면 구성을 묻기 시작한다',
+					},
+					{
+						polarity: "good",
+						text: '"네 갈래가 서로 독립적이라 한 번에 다루기 어렵습니다. 나눠서 첫 조각부터 진행할까요?"',
+					},
+				],
+				auditIds: ["B-11", "B-12"],
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "respect-existing-patterns",
+				summary: "이미 있는 코드에서는 관례를 먼저 읽는다",
+				detail:
+					"바꾸자고 제안하기 전에 지금 구조를 살펴보고 기존 방식을 따른다. 이번 일에 실제로 걸리는 문제(너무 커진 파일, 흐릿한 경계)는 설계에 포함해 고치되, 무관한 정리 작업은 제안하지 않는다.",
+				role: "constraint",
+				kind: "artifact",
+				exception:
+					"고치려는 파일 자체가 이미 감당하기 어려울 만큼 커졌다면 나누는 것을 설계에 넣어도 된다",
+				auditIds: ["B-17", "W-06"],
+				sourceIds: ["sp-brainstorming", "sp-writing-plans"],
+			},
+			{
+				id: "spec-self-review",
+				summary: "설계 문서를 쓴 뒤 새 눈으로 네 가지를 점검한다",
+				detail:
+					"쓴 직후에는 자기 글의 빈 곳이 안 보인다. 점검 항목을 정해두고 한 번 훑는다. 문제를 찾으면 그 자리에서 고친다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					sections: [
+						"빈칸 — '나중에', '정하기로 함', 미완성 절, 뭉뚱그린 요구사항",
+						"내부 모순 — 절끼리 어긋나는 곳, 구조 설명과 기능 설명의 불일치",
+						"범위 — 한 번의 작업으로 감당되는 크기인가",
+						"두 갈래로 읽히는 곳 — 있으면 하나를 골라 못박는다",
+					],
+				},
+				exception:
+					"고친 뒤 다시 검토할 필요는 없다 — 고치고 넘어간다. 이 규칙이 없으면 검토가 끝없이 늘어난다",
+				auditIds: ["B-19"],
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "user-review-gate",
+				summary: "자기 점검을 통과한 뒤 사용자에게 읽어달라고 요청하고 멈춘다",
+				detail:
+					"자기 점검과 사용자 검토는 다른 관문이다. 문서를 남긴 자리를 알려주고, 답을 기다린다. 고쳐달라는 말이 오면 고친 뒤 점검을 다시 돌린다. 승인 전에는 다음 단계로 넘어가지 않는다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					template:
+						"설계 문서를 <경로>에 남겼습니다. 다음 단계로 넘어가기 전에 읽어보시고 고칠 부분이 있으면 알려주세요.",
+				},
+				auditIds: ["B-20"],
+				sourceIds: ["sp-brainstorming"],
 			},
 			{
 				id: "assume-low-context-reader",
 				summary: "'도메인을 거의 모르는 유능한 개발자'가 읽는다고 가정",
 				detail:
-					"계획은 추상적 표현 대신 구체적 구현 정보를 담는다. 읽는 사람이 이 코드베이스·도구를 모른다고 가정하고 실제 세부를 적는다.",
+					"읽는 사람이 이 코드베이스도, 우리가 쓰는 도구도 거의 모르고 좋은 검증 설계도 잘 모른다고 가정한다. 그래서 어느 파일을 건드리는지, 코드, 검증 방법, 참고할 문서까지 실제 세부를 적는다. 도구 지식은 설명하고 일반 지식은 설명하지 않는다 — 이 가정이 무엇을 생략해도 되는지의 판정 기준이 된다.",
 				role: "output-rule",
+				kind: "artifact",
+				auditIds: ["W-01", "W-02"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "file-structure-first",
+				summary: "작업을 나누기 전에 파일 구조부터 그린다",
+				detail:
+					"어떤 파일을 만들고 고칠지, 각각 무엇을 맡는지 먼저 적는다. 분해가 확정되는 자리가 여기이고, 이 구조가 곧 작업 나누기의 근거가 된다.",
+				role: "workflow-step",
+				kind: "artifact",
+				format: {
+					sections: [
+						"경계와 접점이 분명한 단위로 나눈다 — 파일 하나에 역할 하나",
+						"크고 여러 일을 하는 파일보다 작고 집중된 파일을 택한다",
+						"함께 바뀌는 것은 함께 둔다 — 기술 계층이 아니라 역할로 나눈다",
+						"기존 코드에서는 그곳의 방식을 따른다",
+					],
+				},
+				auditIds: ["W-05", "W-06"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "plan-header-fields",
+				summary: "계획 문서는 정해진 머리말로 시작한다",
+				detail:
+					"머리말이 없으면 계획만 떠돌고 근거가 된 설계 문서와 끊긴다. 계획은 설계로부터 논증되므로 설계가 계획과 함께 따라다녀야 하고, 실행하는 사람은 둘 다 읽는다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					sections: [
+						"목표 — 무엇을 만드는지 한 문장",
+						"구조 — 접근 방식 2~3문장",
+						"쓰는 기술 — 핵심 도구와 라이브러리",
+						"근거 문서 — 이 계획이 구현하는 설계 문서의 위치",
+						"전역 제약 — 프로젝트 전체에 걸리는 요구사항을 한 줄에 하나씩, 원문의 값을 그대로 옮겨 적는다",
+					],
+					template:
+						"목표: 한 문장 | 구조: 2~3문장 | 쓰는 기술: 목록 | 근거 문서: 경로 | 전역 제약: 한 줄에 하나",
+				},
+				auditIds: ["W-08"],
+				verifyHint:
+					"생성된 SKILL.md가 '계획 문서를 쓴다'에서 멈추는지, 머리말에 무엇이 들어가는지까지 적는지",
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "task-file-list",
+				summary: "작업마다 건드릴 파일을 세 종류로 적는다",
+				detail:
+					"경로는 정확히 적는다. 고치는 파일은 줄 범위까지 적어야 실행하는 사람이 찾아 헤매지 않는다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					sections: [
+						"만들 파일 — 정확한 경로",
+						"고칠 파일 — 정확한 경로와 줄 범위",
+						"검증할 파일 — 테스트 파일 경로",
+					],
+				},
+				auditIds: ["W-09"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "task-interfaces-block",
+				summary: "작업마다 '받는 것'과 '내주는 것'을 적는다",
+				detail:
+					"이것은 '잘게 쪼개라'의 짝이다. 쪼개면 조각 사이의 약속이 사라지는데, 실행하는 사람은 자기 작업만 본다. 옆 작업이 쓰는 이름과 형태를 알 수 있는 통로가 이 칸뿐이다. 이름과 타입을 정확히 적는다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					sections: [
+						"받는 것 — 앞선 작업에서 가져다 쓰는 것, 정확한 형태로",
+						"내주는 것 — 뒤 작업이 기대는 것, 정확한 이름·인자·반환 형태로",
+					],
+				},
+				auditIds: ["W-10"],
+				verifyHint:
+					"작업을 쪼개라는 지시만 있고 조각 사이 약속을 적으라는 지시가 없으면 이 패턴이 안 실린 것",
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "bite-sized-tasks",
+				summary: "계획은 2~5분짜리 독립 작업 단위로 쪼갠다",
+				detail:
+					"한 단계는 하나의 행동이다. 검증부터 쓰기 → 실패하는지 확인 → 최소한으로 구현 → 통과하는지 확인 → 저장하기 흐름으로 나눈다. 코드가 필요한 단계에는 실제 코드를 적고, 실행할 명령과 기대하는 결과(실패인지 통과인지)를 함께 적는다.",
+				role: "workflow-step",
+				kind: "artifact",
+				format: {
+					template:
+						"- [ ] 단계 N: 무엇을 한다 / 실행: <명령> / 기대: 실패 또는 통과",
+				},
+				auditIds: ["W-07", "W-11"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "task-boundary-by-reviewer",
+				summary: "작업 경계는 '남이 하나만 반려할 수 있는 지점'에서 긋는다",
+				detail:
+					"작업 하나는 자기 검증 주기를 갖는 가장 작은 덩어리다. 설정·구성·뼈대 만들기·문서 같은 곁일은 그것이 필요한 작업 안으로 접어 넣고, 검토하는 사람이 하나는 반려하고 그 옆은 승인할 수 있는 자리에서만 쪼갠다. 작업은 그 자체로 확인 가능한 결과물로 끝난다.",
+				role: "constraint",
+				kind: "artifact",
+				auditIds: ["W-15"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "no-placeholder-strings",
+				summary: "계획에 쓰면 안 되는 문장을 그대로 적어 금지한다",
+				detail:
+					"이것들은 계획의 실패다. 추상적으로 '구체적으로 쓰라'고 하면 자기가 위반 중인지 모르지만, 문장을 못박아 두면 검색으로 잡힌다.",
+				role: "constraint",
+				kind: "artifact",
+				examples: [
+					{ polarity: "bad", text: '"정하기로 함", "나중에", "세부는 추후"' },
+					{
+						polarity: "bad",
+						text: '"적절한 에러 처리 추가" / "검증 추가" / "예외 상황 처리"',
+					},
+					{ polarity: "bad", text: '"위 내용의 검증 작성" (실제 코드 없이)' },
+					{
+						polarity: "bad",
+						text: '"N번 작업과 비슷하게" — 코드를 다시 적는다. 읽는 사람이 순서대로 안 볼 수 있다',
+					},
+					{
+						polarity: "bad",
+						text: "어떻게 하는지 없이 무엇을 할지만 적은 단계",
+					},
+					{
+						polarity: "bad",
+						text: "어느 작업에서도 정의한 적 없는 이름·함수를 가져다 쓰기",
+					},
+				],
+				auditIds: ["W-12"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "plan-self-review",
+				summary: "계획을 다 쓴 뒤 세 가지를 직접 점검한다",
+				detail:
+					"남에게 맡기는 검토가 아니라 자기가 돌리는 점검이다. 특히 이름 어긋남은 실행 단계에서야 터지기 때문에 여기서 잡아야 한다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					sections: [
+						"빠진 요구사항 — 설계의 각 항목을 훑고, 그것을 구현하는 작업을 짚을 수 있는지 본다. 못 짚는 것을 적는다",
+						"빈칸 훑기 — 금지 문장 목록을 검색해 고친다",
+						"이름 일관성 — 뒤 작업에서 쓴 이름·형태가 앞 작업에서 정한 것과 맞는지 본다",
+					],
+				},
+				examples: [
+					{
+						polarity: "bad",
+						text: "3번 작업에서는 clearLayers()인데 7번 작업에서는 clearFullLayers()로 적혀 있다",
+					},
+				],
+				exception:
+					"고친 뒤 다시 검토하지 않는다 — 고치고 넘어간다. 빠진 요구사항을 찾으면 작업을 추가한다",
+				auditIds: ["W-13", "W-14"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "plan-review-categories",
+				summary: "남에게 계획 검토를 맡길 때 볼 것과 볼 정도를 함께 정한다",
+				detail:
+					"무엇을 볼지만 주고 어느 선까지 지적할지를 안 주면 표현 다듬기로 끝난다. 실제로 문제를 일으킬 것만 지적하게 하고, 그 외에는 통과시킨다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					sections: [
+						"완결성 — 빈칸, 미완성 작업, 빠진 단계",
+						"설계 부합 — 설계의 요구사항을 덮는가, 범위가 부풀지 않았는가",
+						"작업 나누기 — 경계가 분명한가, 단계가 실행 가능한가",
+						"만들 수 있는가 — 이 계획만 보고 막히지 않고 진행할 수 있는가",
+					],
+					template:
+						"판정: 통과 / 문제 있음 — 문제는 [위치]: [무엇] - [왜 중요]",
+				},
+				exception:
+					"표현 다듬기, 취향, '있으면 좋은 것'은 지적 대상이 아니다. 심각한 공백이 없으면 통과시킨다",
+				// 원문은 별도 검토자에게 넘기는 프롬프트 템플릿이다. 실행 환경 고유
+				// 개념을 걷어내고 "검토를 맡길 때의 기준"으로 옮겼으므로 가공이다.
+				adapted: true,
+				auditIds: ["W-17", "W-18", "W-19"],
 				sourceIds: ["sp-writing-plans"],
 			},
 		],
@@ -436,29 +800,251 @@ export const referenceCategories: ReferenceCategory[] = [
 				collectedAt: "2026-08-12",
 			},
 		],
+		// 2026-08-18 복원. 원문 감사(docs/corpus/superpowers-requesting-code-review.md)
+		// 결과를 반영했다. 감사에서 드러난 핵심: 이 스킬은 2파일이고 분량의 66%가
+		// `code-reviewer.md`에 있는데 코퍼스에는 그 파일에서 온 내용이 0개였다.
+		// 없어진 것의 정체가 전부 "리뷰를 끝내는 조건"이라, F축(절차 무결성)이
+		// code-review 시나리오에서 3.00 → 1.00으로 떨어진 것과 이어진다.
+		//
+		// kind 판정 주의: 감사의 kind는 "원문에서 그 지시가 무엇에 작용하는가"
+		// 기준이고, 여기 kind는 "Tailor가 만든 SKILL.md에서 근거를 짚을 수 있는가"
+		// 기준이다. 둘이 갈리는 항목은 개별 주석으로 사유를 남긴다.
 		patterns: [
 			{
 				id: "review-early-often",
 				summary: "자주, 일찍 리뷰한다",
 				detail:
-					"작업·주요 기능 후, main 병합 전에 리뷰한다. '간단한' 변경이라고 건너뛰지 않는다.",
-				role: "workflow-step",
+					"필수는 세 시점이다 — 작업 하나가 끝날 때마다, 주요 기능을 완성한 뒤, 본 줄기에 합치기 전. 여기에 선택 시점 셋이 더 있다: 막혔을 때(새 관점을 얻으려고), 구조를 크게 손보기 전(지금 상태를 기준선으로 잡으려고), 까다로운 버그를 고친 뒤. '간단한' 변경이라고 건너뛰지 않는다.",
+				role: "trigger",
+				kind: "artifact",
+				auditIds: ["R-02", "R-03", "R-04"],
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "severity-with-definitions",
+				summary: "심각도는 이름이 아니라 '무엇이 거기 들어가는지'로 정의한다",
+				detail:
+					"단계 이름만 정해두면 판정이 사람마다 갈린다. 각 단계에 들어갈 일의 종류를 미리 적어두면 판정이 목록 대조로 바뀐다.",
+				role: "output-rule",
+				kind: "artifact",
+				options: [
+					{
+						value: "치명적 (반드시 고침)",
+						character: "버그, 보안 문제, 데이터가 날아갈 위험, 기능이 깨진 것",
+					},
+					{
+						value: "중요 (고쳐야 함)",
+						character:
+							"구조상의 문제, 빠진 기능, 부실한 에러 처리, 테스트가 비어 있는 곳",
+					},
+					{
+						value: "사소 (있으면 좋음)",
+						character: "코드 스타일, 더 빠르게 만들 여지, 문서 다듬기",
+					},
+				],
+				auditIds: ["R-13"],
+				verifyHint:
+					"생성된 SKILL.md가 심각도 이름 3개만 나열하고 끝나는지, 각 단계에 무엇이 들어가는지까지 적는지",
 				sourceIds: ["sp-requesting-code-review"],
 			},
 			{
 				id: "severity-ordered-fixes",
 				summary: "피드백은 심각도 순으로 처리한다",
 				detail:
-					"치명적→중요→사소 순으로 고친다. 근거 없는 지적에는 기술적 근거를 들어 반박할 수 있다.",
+					"치명적인 것은 즉시, 중요한 것은 다음 작업으로 넘어가기 전에, 사소한 것은 기록만 해두고 나중에 본다. 지적이 틀렸다고 판단되면 기술적 근거를 들어 반박한다 — 근거로는 실제로 동작한다는 것을 보이는 코드나 테스트를 제시하거나, 무슨 뜻인지 되묻는다.",
 				role: "workflow-step",
+				kind: "artifact",
+				auditIds: ["R-07", "R-08"],
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "review-report-sections",
+				summary: "리뷰 결과는 정해진 네 자리로 적는다",
+				detail:
+					"자리를 정해두지 않으면 지적만 늘어놓은 목록이 되고, 잘된 점도 최종 판정도 사라진다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					sections: [
+						"잘된 점 — 구체적으로",
+						"이슈 — 심각도 3단계로 나눠서",
+						"권고 — 코드·구조·절차 개선 제안",
+						"판정 — 넘어가도 되는가 + 사유",
+					],
+				},
+				auditIds: ["R-11"],
+				verifyHint: "네 자리가 다 있는지, 특히 '잘된 점'과 '판정'이 있는지",
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "issue-required-fields",
+				summary: "이슈 한 건은 네 가지를 다 적어야 성립한다",
+				detail:
+					"'왜 중요한가'를 필수 칸으로 두는 것이 핵심이다. 이 칸이 없으면 지적이 취향 문제와 구분되지 않는다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					sections: [
+						"어디 — 파일과 줄 번호",
+						"무엇이 잘못됐나",
+						"왜 중요한가",
+						"어떻게 고치나 (뻔하지 않을 때)",
+					],
+					template: "파일:줄 — 무엇이 잘못됐고 / 왜 중요하고 / 어떻게 고치는지",
+				},
+				examples: [
+					{
+						polarity: "good",
+						text: "search.ts:25 — 잘못된 날짜가 조용히 빈 결과로 처리됨. 사용자는 자료가 없다고 오해한다. 형식을 검사해 예시와 함께 오류를 낼 것.",
+					},
+					{
+						polarity: "bad",
+						text: "에러 처리를 개선하세요.",
+					},
+				],
+				auditIds: ["R-12"],
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "merge-verdict-gate",
+				summary: "끝에는 반드시 셋 중 하나로 판정한다",
+				detail:
+					"판정을 닫힌 선택지로 만들어 '대체로 괜찮아 보입니다'로 빠져나갈 길을 막는다. 사유는 한두 문장으로 짧게 붙인다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					template: "판정: 넘어가도 됨 / 안 됨 / 고치고 나면 됨 — 사유 1~2문장",
+				},
+				options: [
+					{ value: "넘어가도 됨", character: "지금 상태로 다음 단계로 간다" },
+					{
+						value: "안 됨",
+						character: "구조나 방향이 어긋나 다시 만들어야 한다",
+					},
+					{
+						value: "고치고 나면 됨",
+						character: "지적한 것만 처리하면 되는 상태",
+					},
+				],
+				auditIds: ["R-14"],
+				verifyHint:
+					"완료 조건이 문서에 있는지. 판정 없이 '검토한다'로 끝나면 이 패턴이 안 실린 것",
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "review-checklist-areas",
+				summary: "무엇을 볼지 다섯 영역으로 나눠 적어둔다",
+				detail:
+					"영역을 나눠두지 않으면 눈에 먼저 띄는 것만 본다. 각 영역에 실제 질문을 두세 개씩 달아둔다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					sections: [
+						"요구사항 부합 — 계획대로인가, 달라진 부분은 개선인가 이탈인가, 빠진 기능은 없나",
+						"코드 품질 — 역할 분리, 에러 처리, 타입 안전성, 성급하지 않은 중복 제거, 경계 상황",
+						"구조 — 설계 판단, 확장성과 성능, 보안, 주변 코드와의 접합",
+						"테스트 — 흉내가 아니라 실제 동작을 검증하나, 경계 상황, 통합 검증, 전부 통과하나",
+						"출시 준비 — 자료 이전 방법, 이전 버전 호환, 문서, 눈에 띄는 버그",
+					],
+				},
+				auditIds: ["R-15", "R-16", "R-17", "R-18", "R-19"],
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "praise-before-issues",
+				summary: "잘된 점을 먼저 쓰되, 그 이유까지 문서에 적는다",
+				detail:
+					"예의 때문이 아니다 — 정확한 칭찬이 있어야 나머지 지적을 신뢰한다. 그리고 전부 치명적으로 매기지 않는다. 사소한 것을 치명적으로 올리면 심각도 구분 자체가 무의미해진다.",
+				role: "constraint",
+				kind: "artifact",
+				auditIds: ["R-20"],
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "review-dos-and-donts",
+				summary: "리뷰가 무너지는 다섯 가지를 문자열로 못박는다",
+				detail:
+					"추상적으로 '구체적으로 쓰라'고 하면 자기가 위반 중인지 모른다. 실제로 나오는 문장을 그대로 금지 목록에 넣으면 검색으로 잡힌다.",
+				role: "constraint",
+				kind: "artifact",
+				examples: [
+					{
+						polarity: "bad",
+						text: "확인도 안 하고 '괜찮아 보입니다'라고 쓰기",
+					},
+					{ polarity: "bad", text: "사소한 트집을 치명적으로 올리기" },
+					{ polarity: "bad", text: "실제로 읽지 않은 코드에 의견 내기" },
+					{
+						polarity: "bad",
+						text: "'에러 처리를 개선하세요' 같은 모호한 지적",
+					},
+					{ polarity: "bad", text: "명확한 판정을 피하고 얼버무리기" },
+					{
+						polarity: "good",
+						text: "파일과 줄을 짚고, 왜 문제인지 말하고, 판정을 내린다",
+					},
+				],
+				auditIds: ["R-21"],
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "review-rationalizations",
+				summary: "리뷰를 건너뛸 때 나오는 생각을 미리 적어 반박해 둔다",
+				detail:
+					"금지는 규칙을 어긴 뒤에야 걸리지만, 변명을 적어두면 어기기 직전의 생각을 걸어낸다. 그래서 반박에는 사유가 붙어야 한다.",
+				role: "constraint",
+				kind: "artifact",
+				examples: [
+					{
+						polarity: "bad",
+						text: '"그냥 내가 변경 내용을 직접 훑어보면 되지" → 일을 끌고 가는 쪽이 직접 훑으면, 계속 진행하는 데 써야 할 여력을 거기서 태운다. 분리된 자리에 맡기면 결과만 돌아온다.',
+					},
+					{
+						polarity: "bad",
+						text: '"지금까지 대화를 통째로 줘야 이해하지" → 다듬은 맥락만 준다. 그래야 생각의 과정이 아니라 결과물을 본다.',
+					},
+					{
+						polarity: "bad",
+						text: '"간단하니까 이번엔 건너뛰자" / 치명적 지적을 무시하기 / 중요한 것을 안 고친 채 진행하기 / 타당한 지적과 말싸움하기',
+					},
+				],
+				auditIds: ["R-09", "R-10"],
 				sourceIds: ["sp-requesting-code-review"],
 			},
 			{
 				id: "isolated-reviewer-context",
-				summary: "리뷰어에겐 변경 diff와 요구사항만 준다",
+				summary: "리뷰하는 쪽에 넘기는 것은 네 가지로 닫는다",
 				detail:
-					"세션 전체가 아니라 base·head 커밋의 diff와 요구사항만 전달해 리뷰어의 맥락을 격리하고 판단을 독립시킨다.",
+					"세션 전체가 아니라 이 네 가지만 넘겨 판단을 독립시킨다. 무엇을 넘길지 목록으로 못박아 두지 않으면 '맥락을 잘 정리해서 준다'는 말만 남는다.",
 				role: "constraint",
+				// 감사(9-4)는 위임 자체(R-01)를 process로 봤다. 그러나 "무엇을 넘길지"는
+				// 생성된 SKILL.md에 목록으로 남으므로 우리 기준으로는 artifact다.
+				kind: "artifact",
+				format: {
+					sections: [
+						"무엇을 만들었는지 — 짧은 요약",
+						"무엇을 해야 하는지 — 계획 또는 요구사항",
+						"검토 범위의 시작 지점",
+						"검토 범위의 끝 지점",
+					],
+				},
+				// 원문은 base/head 커밋 SHA로 범위를 못박는다. git 작업이 아닌 스킬에도
+				// 쓸 수 있게 "시작 지점 / 끝 지점"으로 옮겼으므로 가공에 해당한다.
+				adapted: true,
+				auditIds: ["R-05", "R-06"],
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "review-is-read-only",
+				summary: "리뷰하는 동안에는 대상을 고치지 않는다",
+				detail:
+					"검토하는 자리에서 손을 대면 무엇이 원래 상태였는지 사라진다. 봐야 할 것을 따로 꺼내 보되, 검토 대상 자체는 그대로 둔다.",
+				role: "constraint",
+				kind: "artifact",
+				// 원문은 작업 트리·HEAD·인덱스를 건드리지 말라는 git 특정 규정이다.
+				// 도구에 매이지 않는 표현으로 옮겼으므로 가공이다.
+				adapted: true,
+				auditIds: ["R-22"],
 				sourceIds: ["sp-requesting-code-review"],
 			},
 		],
