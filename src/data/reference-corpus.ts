@@ -543,69 +543,369 @@ export const referenceCategories: ReferenceCategory[] = [
 				collectedAt: "2026-08-12",
 			},
 		],
+		// 2026-08-18 복원. 이 카테고리만 원문 감사(docs/corpus/) 결과를 반영해 구체값을
+		// 되살렸다. 나머지 7개 카테고리는 재측정의 대조군이므로 손대지 않는다.
+		//
+		// kind 판정 주의: 감사 문서의 kind는 "원문에서 그 지시가 무엇에 작용하는가"
+		// 기준이고, 여기 kind는 "Tailor가 만든 SKILL.md에서 근거를 짚을 수 있는가"
+		// 기준이다. 그래서 감사가 process로 본 항목이 여기서는 artifact가 되기도 한다
+		// (아래 개별 주석). 감사 표기를 그대로 옮기면 크레딧이 조용히 사라진다.
 		patterns: [
 			{
 				id: "ground-in-subject",
 				summary: "주제 고유의 세계에서 디자인 선택을 끌어낸다",
 				detail:
-					"어떤 프로젝트에나 쓸 법한 일반 패턴을 피하고, 주제의 소재·도구·용어에서 특징적인 선택을 뽑아낸다. 히어로는 주제의 가장 특징적인 요소로 열고, 큰 숫자+그라데이션 같은 기본값을 지양한다.",
+					"브리프가 주제를 특정하지 않으면 먼저 직접 고정한다 — 구체적 주제 1개·청중·페이지의 단일 목적을 정하고 그 선택을 명시한다. 고유한 선택은 주제의 세계(소재·도구·산물·업계 용어)에서 나온다. 히어로는 주장이다: 주제 세계에서 가장 특징적인 것으로 연다.",
 				role: "workflow-step",
+				kind: "artifact",
+				format: {
+					sections: ["구체적 주제 1개", "청중", "페이지의 단일 목적"],
+				},
+				options: [
+					{
+						value: "헤드라인",
+						character: "주장을 문장으로 — 카피 자체가 강할 때",
+					},
+					{ value: "이미지", character: "주제의 실물·질감을 바로 보여줄 때" },
+					{ value: "애니메이션", character: "변화·과정이 주제의 핵심일 때" },
+					{
+						value: "라이브 데모",
+						character: "직접 만져보는 것이 가장 설득적일 때",
+					},
+					{
+						value: "인터랙티브 순간",
+						character: "참여 자체가 메시지일 때",
+					},
+				],
+				examples: [
+					{
+						polarity: "bad",
+						text: "큰 숫자 + 작은 라벨 + 보조 스탯 + 그라데이션 액센트 — 히어로의 템플릿 답안. 정말 최선일 때만 쓴다",
+					},
+				],
+				auditIds: ["D-03", "D-04", "D-05", "D-06"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
+				id: "avoid-ai-default-looks",
+				summary: "AI 디자인이 몰리는 세 가지 기본 룩을 알고 피한다",
+				detail:
+					"아래 셋은 어떤 브리프에는 정당하지만 선택이 아니라 기본값이며, 주제와 무관하게 반복해서 나온다. 브리프가 비워둔 축에서 이 셋으로 흘러가지 않는지 만들면서 확인한다.",
+				role: "constraint",
+				kind: "artifact",
+				examples: [
+					{
+						polarity: "bad",
+						text: "따뜻한 크림 배경(#F4F1EA 근처) + 고대비 세리프 디스플레이 + 테라코타 액센트",
+					},
+					{
+						polarity: "bad",
+						text: "니어블랙 배경 + 밝은 애시드 그린 또는 버밀리언 액센트 하나",
+					},
+					{
+						polarity: "bad",
+						text: "헤어라인 괘선 + border-radius: 0 + 신문식 조밀 다단(브로드시트)",
+					},
+				],
+				exception:
+					"브리프가 이 룩 중 하나를 명시적으로 요구하면 그대로 따른다 — 브리프의 말이 항상 이긴다",
+				auditIds: ["D-17"],
+				verifyHint:
+					"생성된 SKILL.md에 hex나 CSS 값이 '피할 것'으로 등장하는가. 권장값으로 등장하면 극성이 뒤집힌 것이다",
 				sourceIds: ["anthropic-frontend-design"],
 			},
 			{
 				id: "one-signature-element",
 				summary: "대담함은 한 곳에 집중하고 나머지는 절제한다",
 				detail:
-					"시그니처 요소 하나에 힘을 주고 나머지는 규율 있게 절제한다. 구조적 장치(번호 마커 등)는 순서가 실제로 의미를 가질 때만 쓰고 장식으로 쓰지 않는다.",
+					"시그니처 요소 하나만 기억에 남게 하고 주변은 조용하고 규율 있게 두며, 브리프에 복무하지 않는 장식은 잘라낸다. 구조 장치(번호·아이브로우·구분선·라벨)는 내용에 관한 참인 무언가를 담아야 하고 장식이면 안 된다.",
 				role: "constraint",
+				kind: "artifact",
+				examples: [
+					{
+						polarity: "bad",
+						text: "순서가 아닌 내용에 01 / 02 / 03 번호 마커를 붙이는 것",
+					},
+					{
+						polarity: "good",
+						text: "실제 프로세스나 시점이 찍힌 타임라인처럼, 순서가 독자에게 정보를 줄 때만 번호를 쓴다",
+					},
+				],
+				exception:
+					"모험하지 않는 것 자체가 위험일 수 있다 — 절제가 무난함으로 흐르지 않게 한다",
+				auditIds: ["D-10", "D-11", "D-23"],
 				sourceIds: ["anthropic-frontend-design"],
 			},
 			{
 				id: "deliberate-typography",
-				summary: "디스플레이·본문 폰트를 의도적으로 짝짓는다",
+				summary: "디스플레이·본문 폰트를 의도적으로 짝짓고 역할을 나눈다",
 				detail:
-					"아무 프로젝트에나 반사적으로 쓰는 폰트 대신, 주제에 맞게 디스플레이와 본문 서체를 의도적으로 고른다.",
+					"아무 프로젝트에나 반사적으로 쓰는 서체 대신 주제에 맞게 고른다. 타입 스케일을 명확히 잡고 굵기·너비·자간을 의도적으로 설정하며, 타이포 처리 자체가 기억에 남는 요소가 되게 한다. 역할은 헤더와 본문 둘로 나누는 것이 기본이고, 개성은 헤더에서 내되 본문은 가독성을 지킨다.",
 				role: "output-rule",
-				sourceIds: ["anthropic-frontend-design"],
+				// 감사는 T-16(폰트 2역할)을 theme-factory 형식으로 봤고, 헤더/본문의
+				// 성격 서술은 themes/ 10개를 전수로 읽어 우리가 읽어낸 해석이다.
+				// 원문에 없는 문장이므로 adapted로 표시한다.
+				kind: "artifact",
+				adapted: true,
+				format: {
+					sections: [
+						"헤더(디스플레이)",
+						"본문",
+						"필요시 캡션·데이터용 유틸리티",
+					],
+				},
+				options: [
+					{
+						value: "세리프 헤더",
+						character: "격식 있고 전통적 — 신뢰·역사·전문성을 말할 때",
+					},
+					{
+						value: "산세리프 헤더",
+						character: "현대적이고 중립적 — 기술·명료함을 말할 때",
+					},
+					{
+						value: "굵은 헤더 + 보통 굵기 본문",
+						character: "대비로 위계를 만드는 가장 안전한 기본 조합",
+					},
+					{
+						value: "산세리프 본문",
+						character: "긴 글에서도 읽기 쉬움 — 본문에는 이쪽을 권한다",
+					},
+				],
+				exception:
+					"실행 환경에 따라 쓸 수 있는 서체가 제한될 수 있다. 그때는 이름이 아니라 성격(세리프/산세리프, 굵기 대비)을 맞춘다",
+				auditIds: ["D-07", "D-08", "D-09", "T-16"],
+				sourceIds: ["anthropic-frontend-design", "anthropic-theme-factory"],
 			},
 			{
 				id: "purposeful-motion",
-				summary: "모션은 목적을 갖고 절제한다",
+				summary: "모션은 쓸 곳과 쓸지 여부를 함께 판단한다",
 				detail:
-					"흩뿌린 효과보다 하나의 연출된 순간이 더 강하게 남는다. 애니메이션이 과하면 'AI가 만든' 느낌이 나니 목적을 갖고 쓴다.",
+					"흩뿌린 효과보다 연출된 한 순간이 대개 더 세게 꽂힌다. 애니메이션이 과하면 'AI가 만든' 느낌에 기여하므로, 어디에 쓸지와 아예 쓰지 않을지를 함께 정한다.",
 				role: "constraint",
+				kind: "artifact",
+				options: [
+					{
+						value: "페이지 로드 시퀀스",
+						character: "첫인상을 연출 — 한 번만 쓰고 짧게",
+					},
+					{
+						value: "스크롤 트리거 등장",
+						character: "읽는 속도에 맞춰 정보를 드러냄",
+					},
+					{
+						value: "호버 마이크로 인터랙션",
+						character: "조작 가능하다는 신호 — 작고 빠르게",
+					},
+					{
+						value: "앰비언트 분위기",
+						character: "배경에서 은은하게, 주의를 뺏지 않게",
+					},
+				],
+				auditIds: ["D-12", "D-13", "D-14"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
+				id: "match-complexity-to-vision",
+				summary: "복잡도를 택한 방향에 맞춘다",
+				detail:
+					"맥시멀리즘 방향은 정교한 실행을 요구하고, 미니멀 방향은 여백·타입·디테일의 정밀함을 요구한다. 우아함은 택한 비전을 잘 실행하는 것이지 요소를 줄이는 것이 아니다.",
+				role: "constraint",
+				kind: "artifact",
+				auditIds: ["D-15"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
+				id: "design-token-plan",
+				summary: "만들기 전에 토큰 시스템 4종을 개수까지 정한다",
+				detail:
+					"코드를 쓰기 전에 색·타입·레이아웃·시그니처를 한 벌로 정하고, 이후 모든 결정을 이 계획에서 파생시킨다. 개수를 정해두지 않으면 계획이 '분위기 설명'으로 흐른다.",
+				role: "output-rule",
+				// 감사(9-1)는 이것을 process로 봤다 — 원문에서는 작성 과정의 1패스이기
+				// 때문이다. 그러나 Tailor가 만든 SKILL.md에는 "색 4~6개를 정한다"가
+				// 문장으로 남으므로, 우리 기준으로는 결과물에서 확인 가능한 artifact다.
+				kind: "artifact",
+				format: {
+					count: "색 명명 hex 4~6개 · 서체 2역할 이상 · 시그니처 정확히 1개",
+					sections: [
+						"Color — 명명된 hex 4~6개",
+						"Type — 디스플레이 / 본문 (+필요시 유틸리티)",
+						"Layout — 한 문장 산문 + ASCII 와이어프레임으로 안 비교",
+						"Signature — 이 페이지가 기억될 단 하나의 요소",
+					],
+					template:
+						"Color: Deep Navy #1B2A41 / ... (4~6개)  |  Type: 디스플레이 + 본문  |  Layout: 산문 1문장 + ASCII 와이어프레임  |  Signature: 1개",
+				},
+				auditIds: ["D-19"],
+				verifyHint:
+					"생성된 SKILL.md가 '색을 정한다' 수준에서 멈추는지, 개수(4~6)와 4조각 구성까지 적는지",
 				sourceIds: ["anthropic-frontend-design"],
 			},
 			{
 				id: "plan-then-critique",
-				summary: "만들기 전에 계획→클리셰 자기비판→구현(2패스)",
+				summary: "계획을 브리프에 비춰 검토한 뒤에야 만든다(2패스)",
 				detail:
-					"바로 만들지 말고 디자인 계획을 먼저 세우고 흔한 클리셰에 비춰 자기비판한 뒤, 고유성을 확인하고 나서 구현한다.",
+					"계획의 각 부분이 '비슷한 페이지면 아무거나 나올 법한 기본값'으로 읽히는지 본다. 판정은 감이 아니라 절차로 한다 — 비슷한 프롬프트를 실제로 굴려 같은 결과에 도달하는지 확인하고, 고쳤으면 무엇을 왜 바꿨는지 말한다. 고유성을 확인한 뒤에야 코드를 쓴다.",
 				role: "workflow-step",
+				kind: "artifact",
+				auditIds: ["D-20"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
+				id: "brief-wins",
+				summary: "브리프가 지정한 것은 그대로 따른다",
+				detail:
+					"고유성을 요구하는 다른 모든 규칙에 우선하는 예외다. 브리프가 방향을 지정했으면 그대로 따르고, 브리프가 비워둔 축에서만 그 자유를 기본값에 쓰지 않는다. 이 규칙이 없으면 '고유하게 하라'가 사용자 지시를 무시하는 근거로 쓰인다.",
+				role: "constraint",
+				kind: "artifact",
+				auditIds: ["D-18"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
+				id: "quality-floor-unannounced",
+				summary: "품질 바닥선을 티내지 않고 지킨다",
+				detail:
+					"아래 3항목은 자랑하지 않고 기본으로 지킨다. 문서에 '접근성을 고려했습니다'라고 쓰는 대신 항목을 실제 점검 대상으로 둔다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					sections: [
+						"모바일까지 반응형",
+						"키보드 포커스가 눈에 보임",
+						"prefers-reduced-motion 존중",
+					],
+				},
+				auditIds: ["D-24"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
+				id: "ui-copy-is-design-material",
+				summary: "화면의 글도 디자인 재료로 다룬다",
+				detail:
+					"카피는 장식이 아니라 디자인 재료다. 사용자가 다루고 알아보는 이름으로 부르고 시스템 구현 방식으로 부르지 않는다. 능동태를 기본으로 하고, 한 동작은 흐름 전체에서 같은 이름을 유지한다. 실패와 빈 화면은 분위기가 아니라 방향을 주는 자리다 — 에러는 사과하지 않고 무엇이 잘못됐고 어떻게 고치는지 말한다.",
+				role: "output-rule",
+				kind: "artifact",
+				examples: [
+					{
+						polarity: "good",
+						text: '"Save changes" — 눌렀을 때 벌어질 일을 그대로',
+					},
+					{ polarity: "bad", text: '"Submit" — 무슨 일이 나는지 말하지 않음' },
+					{
+						polarity: "good",
+						text: '"Publish" 버튼이 "Published" 토스트를 낸다 — 이름이 흐름 내내 유지됨',
+					},
+					{ polarity: "good", text: '"알림을 관리" — 사람이 아는 말' },
+					{ polarity: "bad", text: '"웹훅 설정"을 관리 — 시스템 구현 용어' },
+				],
+				auditIds: ["D-26", "D-27", "D-28", "D-29", "D-30"],
 				sourceIds: ["anthropic-frontend-design"],
 			},
 			{
 				id: "cohesive-palette-and-fonts",
-				summary: "색 팔레트와 폰트 짝을 하나의 시각 정체성으로 묶는다",
+				summary: "색·폰트·정체성 3종을 한 벌로 묶는다",
 				detail:
-					"색과 폰트 조합을 하나의 정체성으로 정해 슬라이드·문서·랜딩 등 여러 콘텐츠에 일관되게 적용한다.",
+					"테마 하나는 세 가지로 구성된다 — hex 코드를 갖춘 응집된 색 팔레트, 헤더·본문의 상보적 폰트 짝, 맥락과 청중에 맞는 뚜렷한 시각 정체성. 셋 중 하나라도 빠지면 여러 콘텐츠에 일관되게 적용할 수 없다.",
 				role: "output-rule",
+				kind: "artifact",
+				format: {
+					sections: [
+						"hex 코드를 갖춘 색 팔레트",
+						"헤더·본문 폰트 짝",
+						"맥락·청중에 맞는 시각 정체성",
+					],
+				},
+				auditIds: ["T-01"],
+				sourceIds: ["anthropic-theme-factory"],
+			},
+			{
+				id: "option-spec-format",
+				summary: "옵션 하나를 적는 형식 — 이름·값·역할 3부",
+				detail:
+					"선택지를 제공하는 스킬은 옵션 하나하나를 같은 틀로 적는다. 색은 정확히 4개를 배경·주 강조·보조 강조·텍스트 자리에 배치하고, 각 항목은 부르는 이름·실제 값·쓰이는 자리 세 조각을 모두 갖춘다. 이름만 있으면 못 쓰고, 값만 있으면 어디 쓸지 모르고, 역할만 있으면 무슨 색인지 모른다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					count: "색 정확히 4개 · 폰트 2역할 · 용도 4~5개",
+					sections: [
+						"# 이름",
+						"성격 한 문장 (형용사 + 무엇을 연상시키는지)",
+						"## Color Palette",
+						"## Typography",
+						"## Best Used For",
+					],
+					template: "- **Deep Navy**: `#1B2A41` - 주 배경색",
+				},
+				auditIds: ["T-14", "T-15", "T-16", "T-17", "T-18"],
+				verifyHint:
+					"생성된 SKILL.md가 값만 나열하는지, 이름·값·역할 3부를 갖춘 틀을 제시하는지",
 				sourceIds: ["anthropic-theme-factory"],
 			},
 			{
 				id: "show-options-then-apply",
 				summary: "옵션을 먼저 보여주고 승인 후 일관 적용",
 				detail:
-					"테마 옵션을 먼저 제시해 사용자 승인을 받은 뒤, 대비·가독성을 지키며 전체에 체계적으로 적용한다.",
+					"선택지를 먼저 눈으로 보게 하고, 어느 것을 쓸지 묻고, 명시적 확인을 받은 뒤에 적용한다. 적용할 때는 대비·가독성을 지키며 전체에 일관되게 반영한다.",
 				role: "workflow-step",
+				kind: "artifact",
+				exception:
+					"보여주기용 자료(쇼케이스)는 보여주기만 하고 수정하지 않는다",
+				auditIds: ["T-02", "T-03", "T-05", "T-09", "T-10", "T-11"],
+				sourceIds: ["anthropic-theme-factory"],
+			},
+			{
+				id: "wait-for-explicit-choice",
+				summary: "'제시했다'와 '확인받았다'를 다른 사건으로 다룬다",
+				detail:
+					"선택지를 보여준 것만으로 진행하지 않고 명시적 확인을 기다린다. 한 문장으로 합치면 제시만 하고 적용해버리는 실패가 규칙 위반으로 잡히지 않는다.",
+				role: "workflow-step",
+				// 완성된 SKILL.md에 "확인을 받은 뒤 적용한다"는 문장으로 남으므로
+				// artifact다. 감사(9-1)는 원문 기준으로 process로 분류했다.
+				kind: "artifact",
+				auditIds: ["T-04"],
+				sourceIds: ["anthropic-theme-factory"],
+			},
+			{
+				id: "custom-option-fallback",
+				summary: "맞는 선택지가 없으면 만들고, 같은 승인 절차를 다시 밟는다",
+				detail:
+					"기존 선택지 중 맞는 것이 없으면 새로 만든다. 이름은 조합이 무엇을 표상하는지 드러나게 붙이고, 사용자가 준 설명으로 값을 고른다. 만든 뒤에는 기존 선택지와 똑같이 검토·확인을 받고 나서 적용한다 — 예외 경로에서 승인 절차가 새지 않게 한다.",
+				role: "workflow-step",
+				kind: "artifact",
+				auditIds: ["T-12", "T-13"],
+				sourceIds: ["anthropic-theme-factory"],
+			},
+			{
+				id: "read-the-spec-not-memory",
+				summary: "명세가 파일로 있으면 기억하지 말고 읽는다",
+				detail:
+					"적용할 값이 별도 파일에 정의돼 있으면 그 파일을 열어 읽고 적용한다. 기억이나 추측으로 값을 채우면 파일과 결과물이 조용히 어긋난다.",
+				role: "workflow-step",
+				kind: "artifact",
+				auditIds: ["T-08"],
 				sourceIds: ["anthropic-theme-factory"],
 			},
 			{
 				id: "context-appropriate-theme",
-				summary: "맥락·청중에 맞는 시각 정체성을 고른다",
+				summary: "용도를 형용사가 아니라 실제 상황으로 적는다",
 				detail:
-					"미니멀부터 드라마틱까지, 맥락과 청중에 맞는 시각 정체성을 고른다. 스타일은 미학이자 전달 수단이다.",
+					"맥락과 청중에 맞는 시각 정체성을 고르되, 어디에 쓰는 것인지를 실제 문서 종류·업종으로 적는다. 고를 때 필요한 판단은 '멋진가'가 아니라 '내 상황이 여기 있는가'이기 때문이다.",
 				role: "workflow-step",
+				kind: "artifact",
+				format: { count: "용도 4~5개" },
+				examples: [
+					{
+						polarity: "good",
+						text: "의료 발표자료, 재무 보고서, 웨딩 기획, 기술 스타트업 데모",
+					},
+					{
+						polarity: "bad",
+						text: "'우아한', '전문적인', '모던한' 같은 형용사만 나열하는 것",
+					},
+				],
+				auditIds: ["T-17"],
+				// 초판 코퍼스에 있던 "스타일은 미학이자 전달 수단이다"는 원문에 없는
+				// 문장이었다(감사 8-4의 가필). 이번에 삭제하고 T-17 근거로 대체했다.
 				sourceIds: ["anthropic-theme-factory"],
 			},
 		],
