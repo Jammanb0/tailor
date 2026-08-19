@@ -291,7 +291,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			{
 				id: "sp-tdd",
 				name: "test-driven-development (superpowers)",
-				author: "Jesse Vincent · Prime Radiant",
+				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
 				license: "MIT",
 				collectedAt: "2026-08-12",
@@ -332,7 +332,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			{
 				id: "sp-systematic-debugging",
 				name: "systematic-debugging (superpowers)",
-				author: "Jesse Vincent · Prime Radiant",
+				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
 				license: "MIT",
 				collectedAt: "2026-08-12",
@@ -340,7 +340,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			{
 				id: "sp-verification-before-completion",
 				name: "verification-before-completion (superpowers)",
-				author: "Jesse Vincent · Prime Radiant",
+				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
 				license: "MIT",
 				collectedAt: "2026-08-12",
@@ -381,7 +381,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			{
 				id: "sp-brainstorming",
 				name: "brainstorming (superpowers)",
-				author: "Jesse Vincent · Prime Radiant",
+				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
 				license: "MIT",
 				collectedAt: "2026-08-12",
@@ -389,7 +389,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			{
 				id: "sp-writing-plans",
 				name: "writing-plans (superpowers)",
-				author: "Jesse Vincent · Prime Radiant",
+				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
 				license: "MIT",
 				collectedAt: "2026-08-12",
@@ -794,7 +794,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			{
 				id: "sp-requesting-code-review",
 				name: "requesting-code-review (superpowers)",
-				author: "Jesse Vincent · Prime Radiant",
+				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/requesting-code-review",
 				license: "MIT",
 				collectedAt: "2026-08-12",
@@ -1058,7 +1058,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			{
 				id: "sp-writing-skills",
 				name: "writing-skills (superpowers)",
-				author: "Jesse Vincent · Prime Radiant",
+				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
 				license: "MIT",
 				collectedAt: "2026-08-12",
