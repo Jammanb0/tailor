@@ -47,7 +47,7 @@ if (promptCode.includes("verifyHint")) {
 	);
 }
 
-// ── 규칙 2~5: 패턴 단위 검사 ──────────────────────────────────────
+// ── 규칙 2~7: 패턴 단위 검사 ──────────────────────────────────────
 const AUDIT_ID = /^[A-Z]{1,3}-\d{1,3}$/;
 const STRUCTURED_FIELDS = [
 	"examples",
@@ -140,6 +140,21 @@ for (const category of referenceCategories) {
 		for (const aid of p.auditIds ?? []) {
 			if (!AUDIT_ID.test(aid)) {
 				fail(where, `auditIds의 "${aid}"는 항목 id 형식이 아닙니다(예: D-17)`);
+			}
+		}
+
+		// 7. 라이선스 미확인 소스(summaryOnly)에서 온 패턴은 요약본임을 표시한다.
+		// 정책 B 등급 2 — 그 소스에서는 개념만 우리 말로 다시 써서 담기로 했다.
+		// 검사기가 "이 문장이 원문 복사인가"까지 볼 수는 없다. 대신 "요약본이라고
+		// 표시했는가"는 확실히 잡는다. 표시가 강제되면 나중에 값 리터럴을 넣을 때
+		// 최소한 그것이 요약 소스라는 사실이 코드에 보인다.
+		for (const sid of p.sourceIds ?? []) {
+			const src = getSourceById(sid);
+			if (src?.summaryOnly && !p.adapted) {
+				fail(
+					where,
+					`"${sid}"는 라이선스 미확인 소스(summaryOnly)입니다 — 개념만 요약해 담고 adapted: true로 표시하세요`,
+				);
 			}
 		}
 	}

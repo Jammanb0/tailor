@@ -15,9 +15,35 @@
 // "참고함"으로 찍지 않는다. 표기 문구는 원문 직접 열람이 아님을 정직하게 드러낸다
 // (예: "아래 스킬들에서 정리한 패턴을 참고했습니다").
 //
-// 출처 라이선스: MIT/Apache-2.0만 코퍼스에 정리한다(정책 A). 카피레프트(CC-BY-SA
-// 등)·무라이선스·마케팅성 저품질 스킬은 제외. Anthropic 문서 스킬(docx/pdf/pptx/
-// xlsx)은 source-available(오픈소스 아님)이라 제외.
+// 출처 라이선스 (정책 B, 2026-08-19 — 이전 정책 A를 대체한다):
+//
+// 저작권은 "표현"을 보호하고 "아이디어·방법·사실"은 보호하지 않는다. 그래서
+// 원문을 읽고 우리 말로 다시 쓰는 것과, 원문의 값을 그대로 옮기는 것은 성질이
+// 다르다. 라이선스는 후자를 확실하게 만들어 주는 장치다. 이 구분에 맞춰 소스를
+// 두 등급으로 나눈다.
+//
+//   1) 라이선스가 확인된 소스 (MIT / Apache-2.0)
+//      → 값 리터럴까지 옮긴다 (금지 문구 목록, 선택지, 수치, 리터럴 템플릿 등)
+//
+//   2) 라이선스가 확인되지 않은 소스  → `summaryOnly: true`
+//      → 개념·방법만 우리 말로 요약해 담고, **원문의 값 리터럴은 옮기지 않는다**
+//      → 이 소스에서 온 패턴은 전부 `adapted: true` (lint 규칙 7이 강제한다)
+//
+// **두 등급 모두 출처를 표기한다.** 라이선스가 없는 쪽이 표기가 덜 중요한 게
+// 아니라 오히려 더 중요하다 — 표기를 생략하면 화면에서 Tailor 자체 제작으로
+// 보이는데 그건 틀린 신호다.
+//
+// 카피레프트(CC-BY-SA 등)는 여전히 제외한다 — 요약본에까지 같은 라이선스를
+// 요구할 수 있어 등급 2로도 다루기 어렵다. 마케팅성 저품질 스킬도 제외(품질 사유).
+//
+// `license` 필드에는 **확인한 사실만** 적는다. 확인 못 했으면 "확인되지 않음"으로
+// 적는다 — 화면에 그대로 표시되므로 추측을 적으면 사용자에게 거짓을 보여주게 된다.
+//
+// 왜 바뀌었나: 옛 정책 A는 "MIT/Apache만"이었고 근거가 기록돼 있지 않았다.
+// 2026-08-19에 두 소스가 연달아 걸리면서(doc-coauthoring, writing-skills의
+// anthropic-best-practices.md) 따져본 결과, 그 규칙은 법이 요구하는 선보다
+// 엄격한 자기 규율이었고 **쓸 수 있는 개념까지 통째로 버리고 있었다.**
+// 상세 판단은 `.claude/plans/open-questions.md`의 해결된 미결 사항에 있다.
 
 /** 정리 파일이 유래한 실제 스킬/저장소. 출처·저작자·라이선스·수집시점을 담는다. */
 export type ReferenceSource = {
@@ -33,6 +59,21 @@ export type ReferenceSource = {
 	license: string;
 	/** 수집 시점 (YYYY-MM-DD) — "언제 받아왔는지" 표기용 */
 	collectedAt: string;
+	/**
+	 * 라이선스가 확인되지 않은 소스인가 (정책 B의 등급 2).
+	 *
+	 * true면 이 소스에서 **개념·방법만 우리 말로 요약해** 담고, 원문의 값
+	 * 리터럴(목록·선택지·수치·템플릿)은 옮기지 않는다. 저작권이 보호하는 것은
+	 * 표현이지 아이디어가 아니므로, 다시 쓴 요약은 라이선스와 별개 문제다.
+	 *
+	 * 이 소스를 가리키는 패턴은 전부 `adapted: true`여야 한다(lint 규칙 7).
+	 * 검사기가 "이 문장이 원문 복사인가"까지는 볼 수 없지만, "요약본임을
+	 * 표시했는가"는 확실히 잡는다.
+	 *
+	 * 출처 표기는 등급과 무관하게 한다 — 생략하면 화면에서 Tailor 자체 제작으로
+	 * 보이는데 그건 틀린 신호다.
+	 */
+	summaryOnly?: boolean;
 	/** true면 Tailor 자체 제작 출처(결과 화면은 외부 링크 대신 "Tailor 자체 제작"으로 표시). */
 	self?: boolean;
 };
@@ -2545,7 +2586,13 @@ export const referenceCategories: ReferenceCategory[] = [
 				name: "doc-coauthoring (Anthropic skills)",
 				author: "Anthropic",
 				url: "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
-				license: "Apache-2.0",
+				// 2026-08-19 정정: 종전 "Apache-2.0" 표기는 확인된 사실이 아니었다.
+				// `anthropics/skills`에는 루트 라이선스가 없고 GitHub API의 license도
+				// null이다. 스킬 폴더마다 개별 LICENSE.txt를 두는 방식인데 18개 폴더에는
+				// 있고 이 폴더에는 없다. README도 "많은(many) 스킬이 Apache 2.0"이라고만
+				// 적는다. 화면에 그대로 표시되는 값이므로 추측을 적어둘 수 없다.
+				license: "확인되지 않음",
+				summaryOnly: true,
 				collectedAt: "2026-08-12",
 			},
 		],
@@ -2556,6 +2603,8 @@ export const referenceCategories: ReferenceCategory[] = [
 				detail:
 					"초기 질문·정보 덤프·후속 질문으로 지식 공백을 메운다. 모르는 게 가장 많은 섹션부터 시작한다.",
 				role: "workflow-step",
+				// 정책 B 등급 2 — 라이선스 미확인 소스이므로 개념만 우리 말로 요약했다.
+				adapted: true,
 				sourceIds: ["anthropic-doc-coauthoring"],
 			},
 			{
@@ -2564,6 +2613,8 @@ export const referenceCategories: ReferenceCategory[] = [
 				detail:
 					"섹션마다 5~20개 옵션을 브레인스토밍하고 선별해 초안을 쓴 뒤 피드백을 반영한다. 전체 재작성 대신 타깃 편집(str_replace)을 쓴다.",
 				role: "workflow-step",
+				// 정책 B 등급 2 — 라이선스 미확인 소스이므로 개념만 우리 말로 요약했다.
+				adapted: true,
 				sourceIds: ["anthropic-doc-coauthoring"],
 			},
 			{
@@ -2572,6 +2623,8 @@ export const referenceCategories: ReferenceCategory[] = [
 				detail:
 					"저자는 알지만 독자는 모를 지점을, 맥락이 섞이지 않은 새 Claude로 문서를 읽혀 찾아낸다.",
 				role: "verification",
+				// 정책 B 등급 2 — 라이선스 미확인 소스이므로 개념만 우리 말로 요약했다.
+				adapted: true,
 				sourceIds: ["anthropic-doc-coauthoring"],
 			},
 			{
@@ -2580,6 +2633,8 @@ export const referenceCategories: ReferenceCategory[] = [
 				detail:
 					"세 번 반복해도 변화가 적으면 무엇을 뺄지 묻는다. 마무리에 전체 흐름·일관성·군더더기를 점검한다.",
 				role: "verification",
+				// 정책 B 등급 2 — 라이선스 미확인 소스이므로 개념만 우리 말로 요약했다.
+				adapted: true,
 				sourceIds: ["anthropic-doc-coauthoring"],
 			},
 		],
