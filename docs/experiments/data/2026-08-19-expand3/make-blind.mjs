@@ -1,6 +1,6 @@
 // 채점용 블라인드 묶음 생성기.
 //
-// 두 조건(직전 = planning·code-review 확장 / 이번 = testing·debugging 확장)의 60건을
+// 두 조건(직전 = testing·debugging 확장 / 이번 = voice 확장)의 60건을
 // 고정 시드로 섞고, 조건·시나리오 라벨을 모두 지운 채 채점자에게 넘긴다.
 // 채점자는 조건이 둘이라는 사실 자체를 몰라야 한다 — 2026-08-18 headings 실험에서
 // 이 절차 덕분에 불리한 결과(B축 회귀)가 정직하게 나왔다.
@@ -13,8 +13,8 @@ const ROOT = join(HERE, "..", "..", "..", "..");
 const load = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
 
 const conditions = [
-	["before", "docs/experiments/data/2026-08-18-expand1/for-grader/generated-docs.json"],
-	["after", "docs/experiments/data/2026-08-19-expand2/for-grader/generated-docs.json"],
+	["before", "docs/experiments/data/2026-08-19-expand2/for-grader/generated-docs.json"],
+	["after", "docs/experiments/data/2026-08-19-expand3/for-grader/generated-docs.json"],
 ];
 
 const items = [];
