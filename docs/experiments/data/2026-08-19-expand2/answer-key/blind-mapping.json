@@ -1,0 +1,362 @@
+[
+  {
+    "id": "item-001",
+    "condition": "before",
+    "sourceLabel": "05-design-run3",
+    "category": "design"
+  },
+  {
+    "id": "item-002",
+    "condition": "after",
+    "sourceLabel": "10-mismatch-setup-run3",
+    "category": "(none)"
+  },
+  {
+    "id": "item-003",
+    "condition": "after",
+    "sourceLabel": "09-mismatch-office-run2",
+    "category": "(none)"
+  },
+  {
+    "id": "item-004",
+    "condition": "before",
+    "sourceLabel": "08-explanation-run1",
+    "category": "explanation"
+  },
+  {
+    "id": "item-005",
+    "condition": "after",
+    "sourceLabel": "10-mismatch-setup-run2",
+    "category": "(none)"
+  },
+  {
+    "id": "item-006",
+    "condition": "before",
+    "sourceLabel": "07-documentation-run2",
+    "category": "documentation"
+  },
+  {
+    "id": "item-007",
+    "condition": "after",
+    "sourceLabel": "07-documentation-run2",
+    "category": "documentation"
+  },
+  {
+    "id": "item-008",
+    "condition": "before",
+    "sourceLabel": "01-testing-run2",
+    "category": "testing"
+  },
+  {
+    "id": "item-009",
+    "condition": "after",
+    "sourceLabel": "02-debugging-run3",
+    "category": "debugging"
+  },
+  {
+    "id": "item-010",
+    "condition": "before",
+    "sourceLabel": "06-voice-run2",
+    "category": "voice"
+  },
+  {
+    "id": "item-011",
+    "condition": "after",
+    "sourceLabel": "06-voice-run2",
+    "category": "voice"
+  },
+  {
+    "id": "item-012",
+    "condition": "before",
+    "sourceLabel": "01-testing-run1",
+    "category": "testing"
+  },
+  {
+    "id": "item-013",
+    "condition": "before",
+    "sourceLabel": "03-planning-run2",
+    "category": "planning"
+  },
+  {
+    "id": "item-014",
+    "condition": "after",
+    "sourceLabel": "10-mismatch-setup-run1",
+    "category": "(none)"
+  },
+  {
+    "id": "item-015",
+    "condition": "after",
+    "sourceLabel": "08-explanation-run3",
+    "category": "explanation"
+  },
+  {
+    "id": "item-016",
+    "condition": "before",
+    "sourceLabel": "04-code-review-run2",
+    "category": "code-review"
+  },
+  {
+    "id": "item-017",
+    "condition": "before",
+    "sourceLabel": "10-mismatch-setup-run3",
+    "category": "(none)"
+  },
+  {
+    "id": "item-018",
+    "condition": "after",
+    "sourceLabel": "01-testing-run1",
+    "category": "testing"
+  },
+  {
+    "id": "item-019",
+    "condition": "before",
+    "sourceLabel": "02-debugging-run2",
+    "category": "debugging"
+  },
+  {
+    "id": "item-020",
+    "condition": "after",
+    "sourceLabel": "05-design-run1",
+    "category": "design"
+  },
+  {
+    "id": "item-021",
+    "condition": "before",
+    "sourceLabel": "07-documentation-run3",
+    "category": "documentation"
+  },
+  {
+    "id": "item-022",
+    "condition": "after",
+    "sourceLabel": "02-debugging-run1",
+    "category": "debugging"
+  },
+  {
+    "id": "item-023",
+    "condition": "before",
+    "sourceLabel": "03-planning-run1",
+    "category": "planning"
+  },
+  {
+    "id": "item-024",
+    "condition": "after",
+    "sourceLabel": "04-code-review-run3",
+    "category": "code-review"
+  },
+  {
+    "id": "item-025",
+    "condition": "before",
+    "sourceLabel": "10-mismatch-setup-run1",
+    "category": "(none)"
+  },
+  {
+    "id": "item-026",
+    "condition": "after",
+    "sourceLabel": "02-debugging-run2",
+    "category": "debugging"
+  },
+  {
+    "id": "item-027",
+    "condition": "after",
+    "sourceLabel": "03-planning-run1",
+    "category": "planning"
+  },
+  {
+    "id": "item-028",
+    "condition": "before",
+    "sourceLabel": "02-debugging-run3",
+    "category": "debugging"
+  },
+  {
+    "id": "item-029",
+    "condition": "before",
+    "sourceLabel": "08-explanation-run3",
+    "category": "explanation"
+  },
+  {
+    "id": "item-030",
+    "condition": "after",
+    "sourceLabel": "09-mismatch-office-run3",
+    "category": "(none)"
+  },
+  {
+    "id": "item-031",
+    "condition": "after",
+    "sourceLabel": "05-design-run3",
+    "category": "design"
+  },
+  {
+    "id": "item-032",
+    "condition": "before",
+    "sourceLabel": "09-mismatch-office-run1",
+    "category": "(none)"
+  },
+  {
+    "id": "item-033",
+    "condition": "before",
+    "sourceLabel": "08-explanation-run2",
+    "category": "explanation"
+  },
+  {
+    "id": "item-034",
+    "condition": "after",
+    "sourceLabel": "03-planning-run2",
+    "category": "planning"
+  },
+  {
+    "id": "item-035",
+    "condition": "after",
+    "sourceLabel": "01-testing-run3",
+    "category": "testing"
+  },
+  {
+    "id": "item-036",
+    "condition": "before",
+    "sourceLabel": "05-design-run1",
+    "category": "design"
+  },
+  {
+    "id": "item-037",
+    "condition": "after",
+    "sourceLabel": "04-code-review-run1",
+    "category": "code-review"
+  },
+  {
+    "id": "item-038",
+    "condition": "before",
+    "sourceLabel": "07-documentation-run1",
+    "category": "documentation"
+  },
+  {
+    "id": "item-039",
+    "condition": "before",
+    "sourceLabel": "05-design-run2",
+    "category": "design"
+  },
+  {
+    "id": "item-040",
+    "condition": "after",
+    "sourceLabel": "07-documentation-run1",
+    "category": "documentation"
+  },
+  {
+    "id": "item-041",
+    "condition": "after",
+    "sourceLabel": "05-design-run2",
+    "category": "design"
+  },
+  {
+    "id": "item-042",
+    "condition": "before",
+    "sourceLabel": "06-voice-run1",
+    "category": "voice"
+  },
+  {
+    "id": "item-043",
+    "condition": "after",
+    "sourceLabel": "03-planning-run3",
+    "category": "planning"
+  },
+  {
+    "id": "item-044",
+    "condition": "before",
+    "sourceLabel": "02-debugging-run1",
+    "category": "debugging"
+  },
+  {
+    "id": "item-045",
+    "condition": "before",
+    "sourceLabel": "10-mismatch-setup-run2",
+    "category": "(none)"
+  },
+  {
+    "id": "item-046",
+    "condition": "after",
+    "sourceLabel": "09-mismatch-office-run1",
+    "category": "(none)"
+  },
+  {
+    "id": "item-047",
+    "condition": "before",
+    "sourceLabel": "09-mismatch-office-run2",
+    "category": "(none)"
+  },
+  {
+    "id": "item-048",
+    "condition": "after",
+    "sourceLabel": "01-testing-run2",
+    "category": "testing"
+  },
+  {
+    "id": "item-049",
+    "condition": "before",
+    "sourceLabel": "01-testing-run3",
+    "category": "testing"
+  },
+  {
+    "id": "item-050",
+    "condition": "after",
+    "sourceLabel": "07-documentation-run3",
+    "category": "documentation"
+  },
+  {
+    "id": "item-051",
+    "condition": "before",
+    "sourceLabel": "06-voice-run3",
+    "category": "voice"
+  },
+  {
+    "id": "item-052",
+    "condition": "after",
+    "sourceLabel": "04-code-review-run2",
+    "category": "code-review"
+  },
+  {
+    "id": "item-053",
+    "condition": "after",
+    "sourceLabel": "08-explanation-run2",
+    "category": "explanation"
+  },
+  {
+    "id": "item-054",
+    "condition": "before",
+    "sourceLabel": "04-code-review-run1",
+    "category": "code-review"
+  },
+  {
+    "id": "item-055",
+    "condition": "before",
+    "sourceLabel": "09-mismatch-office-run3",
+    "category": "(none)"
+  },
+  {
+    "id": "item-056",
+    "condition": "after",
+    "sourceLabel": "06-voice-run3",
+    "category": "voice"
+  },
+  {
+    "id": "item-057",
+    "condition": "before",
+    "sourceLabel": "04-code-review-run3",
+    "category": "code-review"
+  },
+  {
+    "id": "item-058",
+    "condition": "after",
+    "sourceLabel": "08-explanation-run1",
+    "category": "explanation"
+  },
+  {
+    "id": "item-059",
+    "condition": "after",
+    "sourceLabel": "06-voice-run1",
+    "category": "voice"
+  },
+  {
+    "id": "item-060",
+    "condition": "before",
+    "sourceLabel": "03-planning-run3",
+    "category": "planning"
+  }
+]
