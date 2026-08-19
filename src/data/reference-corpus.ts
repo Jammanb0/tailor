@@ -232,9 +232,7 @@ export type ReferenceCategory = {
 	id: string;
 	/** 표시용 이름 */
 	label: string;
-	/** 사용자 상황 텍스트와 매칭하기 위한 힌트 키워드 */
-	keywords: string[];
-	/** true면 키워드 매칭과 무관하게 모든 생성에 항상 주입(공통 기본) */
+	/** true면 요청 종류와 무관하게 모든 생성에 항상 주입(공통 기본) */
 	alwaysApply?: boolean;
 	sources: ReferenceSource[];
 	patterns: ReferencePattern[];
@@ -327,7 +325,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "testing",
 		label: "테스트",
-		keywords: ["테스트", "test", "tdd", "단위 테스트"],
 		sources: [
 			{
 				id: "sp-tdd",
@@ -609,7 +606,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "debugging",
 		label: "디버깅",
-		keywords: ["디버그", "debug", "버그", "에러", "오류", "고치"],
 		sources: [
 			{
 				id: "sp-systematic-debugging",
@@ -969,7 +965,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "planning",
 		label: "계획·설계",
-		keywords: ["계획", "기획", "설계", "plan", "브레인", "아이디어"],
 		sources: [
 			{
 				id: "sp-brainstorming",
@@ -1382,7 +1377,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "code-review",
 		label: "코드 리뷰",
-		keywords: ["리뷰", "review", "코드 리뷰", "pr", "풀리퀘"],
 		sources: [
 			{
 				id: "sp-requesting-code-review",
@@ -1645,7 +1639,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "baseline",
 		label: "공통 기본 (모든 스킬)",
-		keywords: ["스킬", "skill", "skill.md", "에이전트"],
 		alwaysApply: true,
 		sources: [
 			{
@@ -1692,17 +1685,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "design",
 		label: "디자인·프론트엔드",
-		keywords: [
-			"디자인",
-			"design",
-			"ui",
-			"프론트",
-			"frontend",
-			"화면",
-			"레이아웃",
-			"색상",
-			"스타일",
-		],
 		// Anthropic 공식 예시 스킬(Apache-2.0). brand-guidelines는 Anthropic 브랜드 전용이라 제외.
 		sources: [
 			{
@@ -2092,18 +2074,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "voice",
 		label: "말투·보이스",
-		keywords: [
-			"말투",
-			"톤",
-			"tone",
-			"보이스",
-			"voice",
-			"페르소나",
-			"persona",
-			"문체",
-			"글쓰기",
-			"writing",
-		],
 		// TODO: "설명 방식(비유로 쉽게 설명)" 소스 추가 필요 — 현재는 말투/보이스 위주.
 		//   goal.md 갤러리 시드 스킬 #2("설명 말투 스타일")와 겹치므로 자체 스킬로도 커버 가능.
 		sources: [
@@ -2570,16 +2540,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "documentation",
 		label: "문서 작성",
-		keywords: [
-			"문서",
-			"docs",
-			"documentation",
-			"readme",
-			"스펙",
-			"spec",
-			"기술 문서",
-			"가이드",
-		],
 		sources: [
 			{
 				id: "anthropic-doc-coauthoring",
@@ -2642,17 +2602,6 @@ export const referenceCategories: ReferenceCategory[] = [
 	{
 		id: "explanation",
 		label: "설명형 (쉽게 설명)",
-		keywords: [
-			"설명",
-			"쉽게",
-			"비유",
-			"초보",
-			"입문",
-			"explain",
-			"eli5",
-			"뭔지",
-			"개념",
-		],
 		// 출처=Tailor 자체(용어사전 방식). 외부 clean-라이선스 설명 스킬을 못 찾아,
 		// 이미 제품이 실천 중인 접근을 정리함(제품 정체성과 일치, 라이선스 문제 없음).
 		sources: [
@@ -2705,8 +2654,17 @@ export const referenceCategories: ReferenceCategory[] = [
 
 // 생성 시 코퍼스는 "전체를 정적으로" 프롬프트에 주입하고(정적 접두부라 캐시 가능),
 // 어떤 카테고리·아키타입·패턴을 참고할지는 생성 AI가 고른다. 키워드 하드필터는
-// 부분문자열 오매칭(ui→build)과 캐싱 모순 때문에 두지 않는다. keywords 필드는
-// AI에게 주는 힌트로만 남긴다.
+// 부분문자열 오매칭(ui→build)과 캐싱 모순 때문에 두지 않는다.
+//
+// 2026-08-19: `keywords` 필드를 지웠다. 하드필터를 폐기할 때 "AI에게 주는 힌트로만
+// 남긴다"고 적어뒀지만 **그 구현이 따라간 적이 없다** — `buildCorpusSection()`은
+// 카테고리 `label`과 패턴만 렌더하므로 keywords는 모델에 도달한 적이 없고,
+// 데이터 파일 밖에서 이 필드를 참조하는 코드도 없었다. 그런데 코드에는 남아 있어서
+// "협소한 keywords 탓에 패턴이 안 뽑힌다"는 **틀린 진단**을 한 번 낳았다
+// (2026-08-18 정정). 죽은 필드가 살아 있는 것처럼 보이는 상태가 가장 나쁘다.
+//
+// 나중에 카테고리 선별 주입을 하게 되면 거르는 장치가 필요해지는데, 그때는 요청
+// 문장을 실제로 분석하는 방식이라 이 필드로는 못 한다. 그때 새로 설계할 것.
 
 /**
  * 전역 소스 조회. 소스는 카테고리 안에 들어있지만, 아키타입/패턴 출처를 카테고리
