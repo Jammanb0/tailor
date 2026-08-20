@@ -818,7 +818,7 @@ export const referenceCategories: ReferenceCategory[] = [
 						label: "잘못된 값이 어디서 왔는지 거슬러 올라간다",
 					},
 				],
-				auditIds: ["SD-02", "SD-08", "SD-09", "SD-10"],
+				auditIds: ["SD-01", "SD-02", "SD-08", "SD-09", "SD-10"],
 				verifyHint: "단계 이름만 나열하는지, 단계마다 무엇을 볼지가 붙는지",
 				sourceIds: ["sp-systematic-debugging"],
 			},
@@ -879,7 +879,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				},
 				exception:
 					"더 이상 거슬러 올라갈 수 없으면 터진 자리에서 고치되, 대신 층마다 방어를 함께 넣는다.",
-				auditIds: ["SD-29", "SD-33", "SD-28"],
+				auditIds: ["SD-28", "SD-29", "SD-30", "SD-33", "SD-35"],
 				verifyHint:
 					"거슬러 올라가는 단계가 있는지, 막다른 길일 때의 처리가 있는지",
 				sourceIds: ["sp-systematic-debugging"],
@@ -968,7 +968,7 @@ export const referenceCategories: ReferenceCategory[] = [
 						"기록 — 나중에 따져볼 수 있게 맥락을 남긴다",
 					],
 				},
-				auditIds: ["SD-39", "SD-40", "SD-42"],
+				auditIds: ["SD-37", "SD-38", "SD-39", "SD-40", "SD-42"],
 				verifyHint: "층이 네 개로 나뉘는지, 우회 시험까지 규정하는지",
 				sourceIds: ["sp-systematic-debugging"],
 			},
@@ -1019,7 +1019,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				},
 				exception:
 					"시간에 따라 달라지는 동작 자체를 확인할 때는 시간을 정해 기다려도 된다. 단 세 가지를 지킨다 — 먼저 시작 조건을 기다리고, 아는 주기에 근거해 값을 정하고, 왜 그 값인지 적는다.",
-				auditIds: ["SD-44", "SD-49"],
+				auditIds: ["SD-43", "SD-44", "SD-49"],
 				verifyHint: "금지만 적는지, 예외 조건까지 같이 적는지",
 				sourceIds: ["sp-systematic-debugging"],
 			},
