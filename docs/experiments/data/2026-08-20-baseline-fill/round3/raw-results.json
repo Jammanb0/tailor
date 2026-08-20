@@ -1,0 +1,677 @@
+[
+  {
+    "label": "01-testing-run1",
+    "ok": true,
+    "ms": 39280,
+    "chars": 2824,
+    "json": {
+      "skillMarkdown": "---\nname: test-driven-development\ndescription: Use when writing new features, fixing bugs, or changing behavior in code - before writing implementation code, when tempted to \"write tests later\", or when starting any code change. Symptoms include skipping tests to save time, writing tests after implementation is done, or tests that pass immediately without ever failing.\n---\n\n# 테스트 먼저, 구현은 그다음\n\n## 개요\n\n구현 코드보다 실패하는 테스트를 먼저 쓴다. 테스트가 \"기능이 없어서\" 실패하는 것을 눈으로 확인한 뒤, 그 테스트를 통과시킬 최소한의 코드만 쓴다. **테스트를 나중에 쓰면 이미 짠 코드에 맞춰 검증하게 되어, \"이게 되는가\"가 아니라 \"내가 짠 대로 됐는가\"만 확인하는 셀프 채점이 된다.**\n\n## 언제 쓰나\n\n- 새 기능을 추가할 때\n- 버그를 고칠 때\n- 기존 동작을 바꾸는 리팩터링을 할 때\n- \"테스트는 나중에 몰아서 쓰자\"는 생각이 들 때 — 바로 이 순간이 이 스킬이 필요한 순간\n\n쓰지 않아도 되는 경우: 버리는 프로토타입, 자동 생성된 코드, 단순 설정 파일. 다만 이 예외를 적용할지는 스스로 판단하지 말고 사용자에게 먼저 확인한다.\n\n## 지켜야 할 절차\n\n**핵심 원칙: 테스트 없이는 구현 코드를 한 줄도 쓰지 않는다.**\n\n### 1단계 — 무엇이 망가지면 실패하는지 먼저 말로 정의한다\n\n테스트 코드를 쓰기 전에, \"이 테스트를 실패시킬 제품 코드 변경이 무엇인지\"를 한 문장으로 말한다. 말로 설명이 안 되면 아직 테스트를 쓸 준비가 안 된 것이다.\n\n- ❌ 나쁜 예: 테스트 대상 함수로 기대값을 계산해서 비교한다 → 그 함수가 무슨 짓을 해도 항상 통과한다\n- ✅ 좋은 예: 손으로 계산한 값을 그대로 적어서 비교한다 (예: \"3개 항목의 합은 900원이어야 한다\"를 직접 계산해서 적는다)\n\n### 2단계 — 테스트를 쓰고, 실패하는 것을 눈으로 확인한다\n\n테스트를 실행해서 실패를 직접 본다. 이때 확인할 것:\n\n- 실패하는가 (에러가 나는 것과는 다르다 — 오타 때문에 에러가 난 게 아니라, \"그 기능이 아직 없어서\" 실패해야 한다)\n- 실패 메시지가 예상한 그대로인가\n\n| 상황 | 할 일 |\n|---|---|\n| 테스트가 처음부터 통과했다 | 이미 있는 동작을 재고 있는 것 → 테스트를 다시 설계한다 |\n| 실패가 아니라 에러가 났다 (오타, import 실수 등) | 에러를 고쳐서 \"제대로 실패\"할 때까지 다시 돌린다 |\n\n### 3단계 — 테스트를 통과시킬 최소한의 코드만 쓴다\n\n아직 요구되지 않은 옵션, 에러 처리, 확장 포인트를 미리 넣지 않는다. \"이 테스트가 요구하는 것\"만 정확히 구현한다.\n\n- ✅ 좋은 예: \"3번 재시도한다\"는 테스트에 맞춰, 3번 시도하고 마지막에 예외를 던지는 코드만 쓴다\n- ❌ 나쁜 예: 재시도 횟수, 대기 시간, 재시도 콜백까지 옵션으로 미리 열어둔다 — 어떤 테스트도 그걸 요구하지 않았다\n\n### 4단계 — 통과를 확인하고, 다른 테스트도 안 깨졌는지 본다\n\n- 이 테스트가 통과하는가\n- 기존의 다른 테스트도 여전히 통과하는가\n- 출력이 깨끗한가 (에러나 경고 없이)\n\n여기서 테스트가 실패하면, **테스트가 아니라 코드를 고친다.** 통과시키려고 기대값(assert)을 실제 결과에 맞춰 바꾸는 것은 방금 세운 기준을 스스로 지우는 것과 같다.\n\n### 5단계 — 정리(리팩터링)한 뒤 다시 통과를 확인한다\n\n코드를 정리했다면, 정리 후에도 여전히 테스트가 통과하는지 다시 확인한다.\n\n## 흔한 변명과 현실\n\n| 이런 생각이 든다면 | 현실은 이렇다 |\n|---|---|\n| \"일단 구현부터 하고 테스트는 나중에 쓰겠다\" | 나중에 쓴 테스트는 이미 있는 코드에 맞춰지므로 즉시 통과한다. 실패하는 걸 본 적이 없으니, 그 테스트가 진짜로 버그를 잡을 수 있다는 증거가 없다 |\n| \"간단한 기능이라 테스트까지는 필요 없다\" | 간단한 기능도 망가질 수 있다. 오히려 간단할수록 테스트 작성이 빠르다 |\n| \"이미 구현에 시간을 많이 썼는데 다시 테스트부터 하는 건 낭비\" | 그 시간은 이미 썼다. 남은 선택은 믿을 수 있는 코드를 만드는 것과, 믿지 못할 코드를 그대로 안고 가는 것뿐이다 |\n| \"이번 한 번만 순서를 건너뛰자\" | \"이번만\"이 쌓여서 결국 테스트가 하나도 없는 코드베이스가 된다 |\n| \"테스트가 통과하니까 됐다\" | 통과가 처음부터 통과였다면, 무엇을 검증하는지 모르는 테스트다. 실패하는 걸 본 적이 있어야 의미가 있다 |\n\n## 위험 신호\n\n다음 중 하나라도 해당하면 멈추고 1단계로 돌아간다.\n\n- 테스트보다 구현 코드를 먼저 썼다\n- 테스트를 처음 돌렸는데 바로 통과했다\n- 왜 실패했는지 설명하지 못한다\n- 테스트가 실패하자 기대값(assert)을 결과에 맞춰 바꾸고 있다\n- \"이건 예외로 치자\"고 스스로 판단하고 있다\n- 여러 곳을 한꺼번에 고치고 한 번에 테스트를 돌리려 한다\n\n## 완료 전 점검\n\n- [ ] 구현 코드보다 테스트를 먼저 썼는가\n- [ ] 그 테스트가 실패하는 것을 직접 봤는가\n- [ ] 기능이 없어서 실패했는가 (오타나 설정 실수가 아니라)\n- [ ] 테스트를 통과시킬 최소한의 코드만 썼는가\n- [ ] 이 테스트와 기존 테스트가 모두 통과하는가\n- [ ] 정리한 뒤에도 다시 통과를 확인했는가\n\n하나라도 체크할 수 없다면 해당 단계로 돌아가서 다시 진행한다.",
+      "reviewNotes": [
+        "사용자의 핵심 문제(테스트를 나중에 몰아서 쓰다가 안 쓰게 됨)를 description의 트리거 조건에 증상 그대로 반영했습니다.",
+        "원칙을 어기고 싶어지는 순간을 막는 것이 핵심이라 판단해 규율형(discipline) 구조를 채택했습니다.",
+        "각 단계에 좋은 예/나쁜 예를 짝지어 넣어 \"무엇이 기준을 지키는 것이고 무엇이 아닌지\"를 구체적으로 구분했습니다.",
+        "변명 표와 위험 신호 목록을 분리했습니다 — 변명 표는 왜 그 생각이 틀렸는지 설득하고, 위험 신호는 짧게 나열해 스스로 알아채게 하는 역할로 나눴습니다.",
+        "완료 전 점검은 모두 과거형 질문(\"~했는가\")으로 작성해 이미 한 일을 확인하게 했고, 못 채웠을 때 돌아갈 곳을 명시했습니다.",
+        "예외(프로토타입, 생성 코드, 설정 파일)를 인정하되 \"혼자 판단하지 말고 사용자에게 확인\"하도록 명시해 예외가 무제한 확장되지 않게 했습니다.",
+        "처음 접하는 사용자를 고려해 \"assert(기대값)\" 같은 용어에 한글 풀이를 붙였습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "test-driven-development",
+      "referencedSources": [
+        {
+          "name": "test-driven-development (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "test-driven-development (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "systematic-debugging (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "verification-before-completion (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "02-debugging-run1",
+    "ok": true,
+    "ms": 46572,
+    "chars": 2980,
+    "json": {
+      "skillMarkdown": "---\nname: 근본-원인-디버깅\ndescription: 버그, 테스트 실패, 예상과 다른 동작, 에러 메시지, 성능 문제 등을 고칠 때 사용한다. 특히 \"어디를 고쳤는지 모르겠는데 됐다\", \"일단 이것저것 바꿔보자\", \"급해서 빨리 고쳐야 한다\", \"이미 여러 번 고쳐봤는데 안 된다\" 같은 상황에서 반드시 사용한다.\n---\n\n# 근본 원인 디버깅\n\n## 개요\n버그는 증상이 아니라 원인을 고쳐야 다시 안 생긴다. **왜 고쳐졌는지 말로 설명할 수 없으면, 아직 고친 게 아니다.** 이 스킬은 원인을 찾는 순서를 강제해서, \"여기저기 바꿔보다 우연히 통과됨\"을 막는다.\n\n## 언제 쓰나\n- 테스트가 실패한다\n- 운영 중인 서비스에서 버그가 발견됐다\n- 코드가 예상과 다르게 동작한다\n- 성능이 이상하게 느리다\n- 빌드가 실패한다\n- 두 시스템(또는 두 모듈)을 연동했는데 안 맞는다\n\n**특히 이럴 때 더 필요하다** — 이런 생각이 들 때가 바로 건너뛰기 가장 쉬운 순간이다:\n- 시간에 쫓길 때\n- \"이거 하나만 빨리 바꾸면 될 것 같은데\" 싶을 때\n- 이미 여러 번 고쳐봤을 때\n- 방금 고친 게 안 먹혔을 때\n- 아직 문제를 완전히 이해하지 못했을 때\n\n## 지켜야 할 원칙\n**원인을 모르는 채로 \"고쳐졌다\"고 말하지 않는다.** 증상이 사라졌다고 끝난 게 아니다. 왜 사라졌는지 설명할 수 있어야 끝난 것이다. 예외를 두고 싶으면(예: \"이번엔 급하니까 그냥 넘어가자\") 스스로 정하지 말고 사용자에게 먼저 물어본다.\n\n## 디버깅 절차\n\n아래 4단계를 순서대로 밟는다. 각 단계를 끝내기 전에는 다음 단계로 넘어가지 않는다.\n\n### 1단계 — 원인부터 조사한다 (고칠 방법을 아직 제안하지 않는다)\n- 에러 메시지를 끝까지 읽는다 — 줄 번호, 파일 경로, 에러 코드까지 전부.\n- 문제를 다시 일으켜본다 — 정확히 어떤 순서로 하면 매번 재현되는지 확인한다.\n  - 재현이 안 되면 추측하지 말고 정보를 더 모은다.\n- 최근에 무엇이 바뀌었는지 본다 — 코드 변경 이력, 새로 추가된 라이브러리, 설정 변경.\n- 여러 부분(모듈, 서버, 함수 등)을 거치는 문제라면, 각 경계마다 \"여기까지는 정상이었나?\"를 확인할 수 있는 기록(로그, 출력 등)을 남긴다.\n\n> 이 단계가 끝나기 전에는 \"이렇게 고치면 될 것 같다\"는 말을 하지 않는다.\n\n### 2단계 — 정상 동작하는 사례와 비교한다\n- 같은 종류인데 정상적으로 동작하는 코드나 사례를 찾는다.\n- 그 코드를 끝까지 읽는다 — 훑어보기만 하면 다른 점이 아니라 비슷한 점만 눈에 들어온다.\n- 문제가 있는 쪽과 정상 동작하는 쪽의 **차이를 전부** 적는다. \"이건 상관없겠지\"라며 미리 거르지 않는다.\n\n### 3단계 — 가설을 하나만 세우고 검증한다\n- \"OO 때문에 이런 문제가 생기는 것 같다\"처럼 가설을 분명한 말로 적는다.\n- 가장 작은 변경으로 그 가설이 맞는지 시험한다. 한 번에 한 가지만 바꾼다.\n- 여러 군데를 한꺼번에 고치고 돌려보지 않는다 — 그러면 무엇 때문에 됐는지 알 수 없다.\n- 가설이 틀렸다면, 그 수정을 그대로 둔 채 다음 걸 얹지 말고 **원래대로 되돌린 뒤** 새 가설을 세운다.\n\n**세 번 고쳤는데 안 됐다면 구조 자체를 의심한다.** 같은 자리를 계속 고치는데 안 먹히면, 그건 가설이 틀린 게 아니라 애초에 접근 방식이 틀렸다는 신호다. 이럴 때는 멈추고 사용자에게 알린 뒤 다시 1단계로 돌아간다.\n\n### 4단계 — 고친다 (테스트를 먼저 쓴다)\n- 고치기 전에, 이 문제를 그대로 재현하는 **실패하는 테스트**를 먼저 만든다.\n- 그 테스트가 \"기능이 없어서\" 실패하는지 확인한다 (오타 때문에 실패하는 게 아니다).\n- 그제서야 코드를 고친다. 한 번에 이 문제만 고친다 — 온 김에 다른 것도 정리하지 않는다.\n- 테스트가 통과하는지 확인한다. 다른 기존 테스트들도 여전히 통과하는지 함께 본다.\n\n## 끝내기 전 최종 확인\n아래 질문에 모두 \"예\"라고 답할 수 있어야 끝난 것이다. 하나라도 아니라면 해당 단계로 돌아간다.\n\n- [ ] 무엇이 문제였는지 한 문장으로 설명할 수 있는가?\n- [ ] 그 원인이 왜 문제를 일으켰는지 설명할 수 있는가?\n- [ ] 이 문제를 재현하는 테스트를 실제로 실패시켜본 적이 있는가?\n- [ ] 그 테스트가 지금은 통과하는가?\n- [ ] 다른 기존 테스트들도 여전히 통과하는가?\n- [ ] 왜 고쳐졌는지 모른 채 \"일단 되니까 넘어가자\"고 하고 있지 않은가?\n\n## 흔한 변명과 현실\n\n| 이런 생각이 들 때 | 현실은 이렇다 |\n|---|---|\n| \"간단한 버그라 이런 절차까지는 필요 없다\" | 간단한 버그에도 원인은 있다. 오히려 절차대로 하는 게 이것저것 찍어보는 것보다 빠르다 |\n| \"급해서 절차 밟을 시간이 없다\" | 체계적으로 원인을 찾는 게 여기저기 찍어보며 헤매는 것보다 결국 더 빠르다 |\n| \"일단 이것부터 해보고 나중에 제대로 조사하자\" | 처음 시도가 이후 방향을 정한다. 처음부터 제대로 하는 게 낫다 |\n| \"고쳐지는지 먼저 보고 테스트는 나중에 쓰겠다\" | 확인 안 된 수정은 증명되지 않은 것이다. 테스트를 먼저 써야 진짜로 고쳐졌는지 안다 |\n| \"여러 곳을 한꺼번에 고치면 시간이 절약된다\" | 무엇 때문에 고쳐졌는지 알 수 없고, 오히려 새 버그를 만들 수 있다 |\n| \"증상이 보이니 바로 고치겠다\" | 증상이 보이는 것과 원인을 아는 것은 다르다 |\n| \"이번만 한 번 더 고쳐보자\" (이미 여러 번 실패한 뒤) | 세 번 이상 실패했으면 접근 방식 자체가 틀린 것이다. 또 고치지 말고 구조를 다시 본다 |\n\n## 위험 신호\n아래 중 하나라도 해당하면 멈추고 1단계(원인 조사)로 돌아간다.\n\n- 테스트보다 코드를 먼저 고쳤다\n- 왜 고쳐졌는지 설명할 수 없다\n- \"일단 빨리 고치고 조사는 나중에\"라는 생각이 든다\n- 여러 군데를 한꺼번에 고치고 한꺼번에 테스트를 돌렸다\n- \"이번만 예외로 하자\"는 생각이 든다\n- 같은 곳을 세 번째 고치고 있다\n- 고칠 때마다 다른 곳에서 새로운 문제가 튀어나온다",
+      "reviewNotes": [
+        "사용자가 말한 핵심 문제(\"우연히 고쳐짐\", \"원인 모른 채 넘어감\")를 정면으로 겨냥해 \"지켜야 할 원칙\"과 \"끝내기 전 최종 확인\"에 명시적으로 반영했습니다.",
+        "discipline 골격을 채택하되 실제 절차(4단계)는 workflow 성격이 강해, 절차는 명확한 단계별 흐름으로 쓰고 규율적 요소(변명 표, 위험 신호, 완료 전 점검)를 덧붙이는 방식으로 균형을 잡았습니다.",
+        "description은 3인칭 서술로 구체적 트리거(버그, 테스트 실패, 에러 메시지 등)와 증상 표현(\"일단 이것저것 바꿔보자\" 등)을 포함해 검색 가능성을 높였습니다.",
+        "각 단계 사이에 \"넘어가기 전에 확인할 것\"을 넣어 건너뛰기를 막았고, 3단계 가설 검증에는 \"세 번 실패 시 구조를 의심\"하는 규칙을 넣었습니다.",
+        "완료 체크리스트는 전부 과거형 질문으로 만들어 \"안 한 것\"을 숨길 수 없게 했습니다.",
+        "분량이 과하지 않도록 순서도나 표는 필요한 곳(변명 표, 위험 신호)에만 사용했습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "근본-원인-디버깅",
+      "referencedSources": [
+        {
+          "name": "test-driven-development (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "systematic-debugging (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "test-driven-development (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "systematic-debugging (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "verification-before-completion (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "03-planning-run1",
+    "ok": true,
+    "ms": 34626,
+    "chars": 2024,
+    "json": {
+      "skillMarkdown": "---\nname: 기능-설계-먼저\ndescription: 새 기능을 만들거나 기존 동작을 크게 바꾸는 요청이 들어왔을 때 사용한다. 사용자가 \"~기능 추가해줘\", \"~하는 거 만들어줘\"처럼 코드를 바로 작성해도 될 것 같은 요청을 했을 때, 구현에 들어가기 전에 무엇을 만들지 먼저 정리하고 애매한 부분을 사용자에게 확인받기 위해 쓴다. 오탈자 수정, 단순 버그 픽스, 이미 합의된 설계를 그대로 구현하는 작업에는 사용하지 않는다.\n---\n\n# 기능 설계 먼저 정하기\n\n## 개요\n새 기능은 코드부터 쓰면 애매한 부분을 임의로 판단하게 되고, 그 판단이 틀렸을 때 크게 갈아엎게 됩니다. 이 스킬은 코드를 쓰기 전에 \"무엇을 만들지\"를 사용자와 먼저 맞추는 절차입니다. 핵심 원칙: **애매한 지점은 마음대로 정하지 않고 반드시 사용자에게 묻는다.**\n\n## 언제 쓰나\n- \"이런 기능 만들어줘\", \"이 부분 이렇게 바꿔줘\"처럼 새로운 동작을 요청받았을 때\n- 요청에 여러 방식으로 구현할 수 있는 부분이 있을 때 (화면 구성, 데이터 처리 방식, 예외 상황 처리 등)\n- 기존 코드를 크게 건드리는 리팩터링을 시작할 때\n\n쓰지 않을 때:\n- 오탈자·간단한 버그 수정처럼 방법이 하나뿐인 작업\n- 이미 사용자와 설계를 다 합의한 뒤, 그대로 구현만 하면 되는 단계\n\n## 절차\n\n### 1단계. 요청을 읽고 애매한 지점을 찾는다\n요청을 읽고 다음 세 가지를 정리합니다.\n- **목적**: 이 기능으로 사용자가 실제로 하고 싶은 것은 무엇인가\n- **애매한 지점**: 요청에 명시되지 않아서 임의로 정해야 하는 부분 (예: 에러가 나면 어떻게 보여줄지, 입력값이 비었을 때 어떻게 할지, 화면을 어떤 구조로 나눌지)\n- **범위**: 이번에 만들 것과 나중으로 미룰 것\n\n이 단계에서는 아직 코드를 쓰지 않습니다.\n\n### 2단계. 애매한 지점을 사용자에게 하나씩 확인한다\n1단계에서 찾은 애매한 지점을, 한 번에 다 쏟아내지 말고 중요한 것부터 하나씩 물어봅니다. 가능하면 \"A로 할까요, B로 할까요?\"처럼 고를 수 있는 형태로 묻되, 선택지로 좁히기 어려운 질문은 자유롭게 답하도록 열어둡니다.\n\n**하지 말 것**: 여러 질문을 한 메시지에 몰아넣고 사용자가 뭉뚱그려 답하게 만드는 것.\n**이렇게**: \"에러가 났을 때 화면에 메시지를 보여줄까요, 아니면 그냥 조용히 넘어갈까요?\"\n\n애매한 지점이 없다고 판단되면 이 단계는 짧게 \"특별히 애매한 부분은 없어 보입니다\"라고 말하고 넘어가도 됩니다. 다만 정말 없는지는 1단계를 건너뛰지 않고 확인한 뒤에 판단합니다.\n\n### 3단계. 정해진 내용을 간단히 정리해서 보여주고 확인받는다\n질문에 대한 답을 받았으면, 무엇을 만들 것인지 짧게 정리해서 보여줍니다. 복잡한 기능이 아니라면 문서를 따로 만들 필요 없이 대화로 몇 문장이면 충분합니다. 정리 내용에는 다음이 들어갑니다.\n- 무엇을 만드는지\n- 애매했던 부분을 어떻게 정했는지\n- 이번에 안 하기로 한 것 (있다면)\n\n이 정리를 보여준 뒤 \"이대로 진행할까요?\"라고 묻고, 사용자의 확인을 받은 뒤에야 코드를 쓰기 시작합니다. 확인을 건너뛰고 바로 구현에 들어가지 않습니다.\n\n### 4단계. 구현 중 새로운 애매함이 나오면 다시 2단계로 돌아간다\n코드를 쓰다가 미처 몰랐던 애매한 지점이 나오면, 혼자 판단해서 넘어가지 말고 멈추고 사용자에게 묻습니다. \"일단 이렇게 해두고 나중에 고치면 되지\"라고 넘기는 순간이 바로 이 스킬을 쓰는 이유였던 문제가 재발하는 지점입니다.\n\n## 흔한 실수\n| 상황 | 문제 | 대신 이렇게 |\n|---|---|---|\n| 애매한 부분이 하나 정도라 그냥 넘어감 | 하나가 두 개, 세 개로 늘어남 | 하나라도 있으면 확인 절차를 거친다 |\n| 질문을 한꺼번에 다 물어봄 | 사용자가 대충 답하고 넘어감 | 중요한 것부터 하나씩 |\n| 정리 내용 확인 없이 바로 코드 작성 | 방향이 틀려도 다 만든 뒤에야 발견 | 정리 → 확인 → 그다음 구현 |\n| 구현 중 애매함이 나왔는데 혼자 정함 | 애초에 이 스킬을 쓴 이유가 무너짐 | 발견 즉시 멈추고 다시 물어봄 |",
+      "reviewNotes": [
+        "사용자가 명시한 두 핵심 요구사항(\"먼저 정리\", \"애매한 부분은 물어봐서 정한 뒤 시작\")을 각각 1~3단계, 4단계로 명확히 분리해 반영했습니다.",
+        "description에 트리거 조건(새 기능/큰 변경 요청)과 제외 조건(단순 수정, 이미 합의된 구현)을 함께 넣어 호출 판단이 쉽도록 했습니다.",
+        "작업 성격상 \"순서대로 단계를 밟아 산출물을 만드는\" 워크플로형에 가까워 workflow 골격을 택했고, 규율형에 쓰는 변명 표·위험 신호 목록은 넣지 않았습니다 — 이 스킬은 사고를 막는 규율이라기보다 절차 안내에 가깝기 때문입니다.",
+        "단계마다 승인/확인 게이트(3단계 확인, 4단계 재확인)를 명시해 사용자가 원한 \"확인 후 진행\" 흐름이 문서 구조로 강제되도록 했습니다.",
+        "작업 규모가 크지 않아 \"빠른 참조\" 섹션은 생략하고, 실패가 예상되는 지점이 뚜렷해 \"흔한 실수\" 표만 추가했습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "기능-설계-먼저",
+      "referencedSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "tone-of-voice (Claude Code skill)",
+          "author": "entpnomad",
+          "url": "https://github.com/entpnomad/tone-of-voice",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "doc-coauthoring (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+          "license": "확인되지 않음",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "04-code-review-run1",
+    "ok": true,
+    "ms": 34641,
+    "chars": 2099,
+    "json": {
+      "skillMarkdown": "---\nname: self-code-review\ndescription: Use when the user has just written or modified code and wants a review of the diff before committing or moving on — especially when they say things like \"내가 방금 바꾼 거 검토해줘\", \"이거 이상한 거 없나 봐줘\", or after completing a coding task and pausing before finalizing it. Triggers on requests to catch bugs vs. style nitpicks in recently changed code, not full-codebase audits.\n---\n\n# 방금 바꾼 코드 자체 검토\n\n## 개요\n자기가 쓴 코드는 스스로 검토하기 어렵습니다 — 방금 왜 그렇게 짰는지 알고 있어서 이상한 부분이 눈에 안 띕니다. 이 스킬은 \"방금 바뀐 부분\"만 놓고, 진짜 문제(버그·데이터 손실·보안)와 사소한 취향(스타일·이름 짓기)을 갈라서 짚어줍니다.\n\n## 언제 쓰나\n- 코드를 고치거나 새로 쓴 뒤, 커밋하거나 다음 작업으로 넘어가기 전\n- \"방금 바꾼 것만\" 검토가 필요할 때 (전체 코드베이스 훑기가 아님)\n- 사소한 지적과 진짜 버그가 섞여서 뭘 먼저 봐야 할지 모를 때\n\n쓰지 말아야 할 때: 전체 코드베이스를 훑는 대규모 감사, 아직 코드를 쓰기 전 설계 검토\n\n## 검토 범위 정하기\n가장 먼저 \"방금 바뀐 부분\"이 정확히 무엇인지 확정합니다. 범위가 흐리면 관계없는 코드까지 지적하게 됩니다.\n\n- 버전 관리(git)를 쓰는 프로젝트라면 `git diff` (아직 커밋 안 한 변경) 또는 `git diff HEAD~1`(직전 커밋)로 실제 바뀐 줄만 가져옵니다.\n- 버전 관리가 없다면 사용자에게 \"어떤 파일, 어느 부분을 봐줄까요?\"를 먼저 확인합니다.\n- 바뀐 줄 자체는 diff로 보되, 그 줄이 무슨 뜻인지 판단하려면 주변 코드(함수 전체, 호출하는 곳)도 열어서 맥락을 함께 봅니다. diff만 보고 판단하면 \"이 변수가 왜 여기 있는지\" 같은 맥락을 놓칩니다.\n\n## 검토하기\n아래 다섯 갈래로 훑습니다. 전부 다 해당 코드에 나타나지는 않을 수 있고, 그래도 됩니다 — 해당하는 것만 짚습니다.\n\n- **버그** — 로직이 실제로 잘못된 부분. 경계 조건(빈 값, 0, 범위 끝), 조건문이 반대로 된 곳, 오탈자로 인한 잘못된 변수/함수 참조\n- **데이터·상태 위험** — 파일을 지우거나 덮어쓰는 코드, 되돌릴 수 없는 삭제, 저장 순서가 꼬여서 일부만 반영될 수 있는 곳\n- **에러 처리** — 실패할 수 있는 동작(네트워크, 파일, 파싱)인데 실패를 조용히 삼키거나 아예 처리하지 않는 곳\n- **보안** — 사용자 입력을 그대로 명령어나 쿼리에 꽂는 곳, 비밀값(키·토큰)이 코드에 그대로 박혀 있는 곳\n- **스타일/취향** — 변수 이름, 코드 배치, 더 짧게 쓸 수 있는 방법. 동작에는 영향 없음\n\n버그처럼 보이는데 확신이 안 서면, \"이게 의도한 동작인가요?\"라고 짧게 되묻고 넘어갑니다. 억지로 심각도를 매기지 않습니다.\n\n## 결과 보여주기\n아래 형식으로 정리합니다. 지적 하나마다 파일명과 줄(또는 함수 이름), 무엇이 문제인지, 왜 문제인지, 필요하면 어떻게 고치면 되는지를 담습니다.\n\n```\n## 🔴 버그 (반드시 고쳐야 함)\n- [파일:줄] 무엇이 잘못됐는지 — 왜 문제인지 — (뻔하지 않다면) 어떻게 고칠지\n\n## 🟡 취향 (있으면 좋음, 안 고쳐도 무방)\n- [파일:줄] 무엇을 이렇게 바꾸면 더 나은지, 짧게\n```\n\n버그가 하나도 없으면 \"버그는 없었습니다\"라고 명시적으로 말합니다. 안 말하면 검토를 안 한 건지 문제가 없는 건지 구분이 안 됩니다.\n\n## 흔한 실수\n- 스타일 지적을 버그처럼 심각하게 말한다 → 동작에 영향이 없으면 반드시 🟡로 내린다\n- diff 밖의 코드까지 손대라고 제안한다 → 이번 검토 범위(방금 바뀐 것)를 벗어난 개선은 \"참고로\" 정도로만 짚고 강요하지 않는다\n- \"괜찮아 보입니다\"라고만 말하고 끝낸다 → 실제로 다섯 갈래를 하나씩 확인했는지 스스로 점검한 뒤 말한다",
+      "reviewNotes": [
+        "골격은 reference(옵션 제공·적용)와 workflow(순서) 중 고민했지만, 실제로는 \"정해진 다섯 갈래 기준을 적용해 일관되게 판정한다\"는 축이 핵심이라 reference로 판단하고, 범위 정하기라는 최소한의 선행 단계만 워크플로처럼 배치했습니다.",
+        "description은 3인칭, \"Use when...\"으로 시작하고 실제로 나올 법한 사용자 발화(\"내가 방금 바꾼 거 검토해줘\")를 넣어 검색 트리거를 강화했습니다.",
+        "절차 요약형 문구를 description에 넣지 않도록 주의했습니다 — 세부 단계는 본문에만 있습니다.",
+        "심각도 판정 기준을 \"이름\"이 아니라 \"무엇이 그 등급에 들어가는지\" 예시로 정의해 판정이 갈리지 않게 했습니다.",
+        "버그가 없을 때도 명시적으로 \"없다\"고 말하게 해, 검토를 건너뛴 것과 문제가 없는 것을 구분했습니다.",
+        "분량이 짧은 작업 특성에 맞게 불필요한 섹션(빠른 참조 표, 실제 성과)은 넣지 않았습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "self-code-review",
+      "referencedSources": [
+        {
+          "name": "verification-before-completion (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "requesting-code-review (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/requesting-code-review",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "theme-factory (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+          "license": "Apache-2.0",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "frontend-design (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+          "license": "Apache-2.0",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "tone-of-voice (Claude Code skill)",
+          "author": "entpnomad",
+          "url": "https://github.com/entpnomad/tone-of-voice",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "05-design-run1",
+    "ok": true,
+    "ms": 40936,
+    "chars": 2697,
+    "json": {
+      "skillMarkdown": "---\nname: unique-landing-page-design\ndescription: Use when designing or building a landing page and the result feels generic, templated, or \"like every other AI-generated page\" — especially when picking colors, fonts, or hero section layout for a personal project landing page.\n---\n\n# 랜딩 페이지, 뻔하지 않게 디자인하기\n\n## 개요\n\n랜딩 페이지가 흔해 보이는 건 대개 색·폰트·구조를 정하는 과정을 건너뛰고 손에 익은 기본값으로 바로 가기 때문입니다. 이 스킬은 주제에서 디자인 선택을 끌어내고, AI가 잘 빠지는 \"기본 룩\" 세 가지를 피하고, 코드를 쓰기 전에 계획을 세워 검토하는 순서를 잡아줍니다.\n\n## 언제 쓰나\n\n- 랜딩 페이지 결과물이 \"어디서 본 것 같다\"고 느껴질 때\n- 색이나 폰트를 뭘로 할지 감이 안 잡힐 때\n- 히어로 섹션(페이지 맨 위, 처음 보이는 영역)이 뻔한 템플릿처럼 나올 때\n- 이미 브리프(요청사항)에서 디자인 방향을 구체적으로 정해준 경우는 이 스킬보다 그 지시를 그대로 따르는 게 우선입니다\n\n## 1단계 — 주제를 못박는다\n\n주제, 청중, 이 페이지가 하려는 단 하나의 목적을 먼저 문장으로 정합니다. 이게 흐릿하면 이후 모든 선택이 흐릿해집니다.\n\n- 구체적 주제 1개 (예: \"빈티지 카메라 수리 서비스\" — \"포트폴리오 사이트\"보다 구체적으로)\n- 청중이 누구인지\n- 페이지가 방문자에게 하게 하려는 행동 하나\n\n히어로 섹션은 이 주제의 세계에서 가장 특징적인 것으로 엽니다. 카메라 수리라면 필름 롤이나 셔터 소리 같은 그 세계 고유의 것에서 시작하고, 일반적인 \"빠르고 안전한 서비스\" 문구로 시작하지 않습니다.\n\n## 2단계 — AI가 기본으로 빠지는 세 가지 룩을 안다\n\n아래 세 가지는 브리프가 명시적으로 요구했다면 정당하지만, 그냥 습관적으로 나오면 문제입니다. 지금 만들고 있는 결과물이 이 셋 중 하나로 흘러가고 있는지 확인하세요.\n\n- 따뜻한 크림 배경(`#F4F1EA` 근처) + 대비 큰 세리프 제목 폰트 + 테라코타 색 강조\n- 거의 검은 배경 + 밝은 형광 녹색이나 버밀리언 색 하나로만 포인트\n- 얇은 실선 구분선 + 사각 모서리(border-radius 0) + 신문처럼 조밀한 여러 단 구성\n\n예외: 브리프가 이 룩 중 하나를 직접 요청했다면 그대로 따르세요. 사용자 지시가 항상 이깁니다.\n\n## 3단계 — 색·폰트·구조를 계획으로 먼저 정한다\n\n코드를 쓰기 전에 아래 네 가지를 정해서 짧은 계획으로 적습니다.\n\n| 항목 | 정할 것 | 개수 |\n|---|---|---|\n| 색 | 이름 붙인 hex 코드 | 4~6개 |\n| 폰트 | 제목용, 본문용 역할 구분 | 최소 2역할 |\n| 레이아웃 | 한 문장 설명 + 간단한 구조 스케치 | - |\n| 시그니처 요소 | 이 페이지에서 기억에 남을 단 하나 | 정확히 1개 |\n\n- **색**: 배경, 주 강조, 보조 강조, 텍스트 자리에 쓸 색을 각각 이름(예: \"딥 네이비\")과 hex 코드로 정합니다. 주제에서 끌어온 이름이면 좋습니다.\n- **폰트**: 제목(디스플레이)과 본문 역할을 나눕니다. 세리프 제목은 격식·신뢰를 말할 때, 산세리프 제목은 기술·명료함을 말할 때 씁니다. 본문은 긴 글도 읽기 편한 산세리프를 기본으로 둡니다.\n- **레이아웃**: 구조를 산문 한 문장과 간단한 스케치로 적습니다.\n- **시그니처 요소**: 대담함은 한 곳에 집중시킵니다. 이 페이지에서 사람들이 기억할 단 하나를 정하고, 나머지는 조용하고 절제된 상태로 둡니다. 구조 장치(번호, 라벨, 구분선)를 쓴다면 그게 실제로 의미 있는 정보를 담는지 확인하세요 — 순서가 아닌 항목에 01/02/03을 붙이는 식의 장식은 피합니다.\n\n## 4단계 — 계획을 브리프에 비춰 검토한다\n\n계획을 다 세운 뒤, 코드를 쓰기 전에 한 번 스스로 되묻습니다:\n\n- 이 색·폰트·구조가 \"비슷한 종류의 페이지라면 아무거나 나올 법한 기본값\"으로 읽히지 않는가?\n- 2단계에서 짚은 세 가지 흔한 룩 중 하나로 흘러가지 않았는가?\n- 히어로 섹션이 주제 고유의 것에서 열리는가, 아니면 일반적인 문구로 시작하는가?\n\n여기서 걸리는 게 있으면 그 부분만 고치고, 왜 바꿨는지 한 줄로 남깁니다. 이 검토를 통과한 뒤에야 실제로 만듭니다.\n\n## 5단계 — 만들 때 지킬 최소 기준\n\n아래는 자랑하지 않고 그냥 지키는 기본 항목입니다.\n\n- 모바일 화면에서도 무너지지 않게 반응형으로 만든다\n- 키보드로 이동할 때 지금 어디에 포커스가 있는지 눈에 보인다\n- 사용자가 애니메이션을 줄이도록 설정했으면(`prefers-reduced-motion`) 그걸 존중한다\n\n## 흔한 실수\n\n| 실수 | 원인 | 고치는 법 |\n|---|---|---|\n| 페이지가 어디서 본 것 같다 | 계획 없이 손에 익은 기본값으로 바로 감 | 3단계 계획표를 먼저 채우고 시작 |\n| 색이 붕 떠 있다 | 주제와 무관하게 \"예쁜 색\"을 고름 | 색 이름을 주제의 세계에서 끌어와 짓기 |\n| 히어로가 밋밋하다 | \"빠르고 안전한 서비스\" 식 일반 문구로 시작 | 주제 고유의 장면·소재로 열기 |\n| 장식이 산만하다 | 대담한 요소가 여러 곳에 흩어져 있음 | 시그니처 요소 하나만 남기고 나머지는 절제 |",
+      "reviewNotes": [
+        "사용자가 언급한 두 가지 문제(흔한 모양, 색·폰트 정하기)를 각각 2단계와 3단계로 분리해 다뤘습니다.",
+        "discipline 골격 대신 reference에 가까운 골격을 택했습니다 — 사용자가 원하는 건 \"지켜야 할 원칙 강제\"가 아니라 \"선택지를 정하고 일관되게 적용\"하는 것이라 판단했습니다.",
+        "브리프가 명시한 경우를 예외로 명시해, 스킬이 사용자의 구체적 지시를 덮어쓰지 않도록 했습니다.",
+        "시그니처 요소를 정확히 1개로 제한하고, 흔한 AI 기본 룩 3종을 구체적 hex/특징으로 적어 \"느낀 대로 피하기\"가 아니라 판정 가능한 형태로 만들었습니다.",
+        "품질 바닥선(반응형, 포커스, 모션 설정 존중)을 \"자랑하지 않고 지키는 항목\"으로 분리해 본문 계획과 섞이지 않게 했습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "unique-landing-page-design",
+      "referencedSources": [
+        {
+          "name": "frontend-design (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+          "license": "Apache-2.0",
+          "self": false,
+          "adapted": true
+        },
+        {
+          "name": "theme-factory (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+          "license": "Apache-2.0",
+          "self": false,
+          "adapted": true
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "theme-factory (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+          "license": "Apache-2.0",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "frontend-design (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+          "license": "Apache-2.0",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "tone-of-voice (Claude Code skill)",
+          "author": "entpnomad",
+          "url": "https://github.com/entpnomad/tone-of-voice",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "06-voice-run1",
+    "ok": true,
+    "ms": 41448,
+    "chars": 2941,
+    "json": {
+      "skillMarkdown": "---\nname: blog-voice-consistency\ndescription: Use when writing or editing blog posts, and the author's voice/tone needs to stay consistent across posts - covers setting up a personal voice profile (identity, tone traits, vocabulary, banned phrases) on first use, then applying that saved profile to new drafts and edits, especially to avoid generic hype/marketing phrasing.\n---\n\n# 블로그 말투 일관성 스킬\n\n## 개요\n이 스킬은 블로그 글의 말투(voice)를 한 번 정의해두고, 그 뒤로 쓰거나 고치는 모든 글에 똑같이 적용합니다. 핵심 원칙: **말투는 매번 즉석에서 정하지 않고, 저장된 프로필을 기준으로 판단한다.** 프로필이 없으면 먼저 만들고(수집 모드), 있으면 그것을 적용한다(집행 모드).\n\n## 언제 쓰나\n- 새 블로그 글을 쓸 때\n- 이미 쓴 글을 다듬거나 고칠 때\n- \"이 글 말투가 좀 이상한 것 같다\"는 느낌이 들 때\n- 과장된 홍보 문구, 뻔한 클리셰가 섞여 있는지 점검할 때\n\n쓰지 않을 때: 블로그 글이 아닌 코드 주석, 커밋 메시지, 사내 문서 등 — 이 스킬은 블로그 글쓰기에 한정합니다.\n\n## 1단계 — 프로필이 있는지 먼저 확인한다\n글을 쓰기 전에 항상 이 순서를 지킵니다.\n\n1. `voice-profile.md` (또는 이 스킬이 저장해둔 프로필 파일)이 있는지 찾는다.\n2. **있으면** → 아래 \"3단계: 프로필 적용하기\"로 바로 간다.\n3. **없으면** → 아래 \"2단계: 프로필 만들기\"를 먼저 진행한다.\n\n이 확인을 건너뛰고 바로 글을 쓰면, 매번 다른 말투가 나오는 원래 문제가 그대로 반복됩니다.\n\n## 2단계 — 프로필 만들기 (처음 한 번만)\n아래 항목을 **한 번에 하나씩** 사용자에게 묻습니다. 여러 개를 한꺼번에 묻지 않습니다 — 그러면 대충 뭉쳐서 답하게 됩니다.\n\n1. **정체성**: 어떤 사람이고 지금 무슨 일을 하는지 (2~3문장)\n2. **핵심 신념**: 글 전체를 관통하는 하나의 생각이나 태도\n3. **독자**: 인구통계가 아니라 \"어떤 사람이 읽는지\"를 구체적으로\n4. **보이스 특성**: \"어떻게 들리고 싶은지\"를 나타내는 단어 3~5개. 고르기 어려워하면 아래 후보를 보여준다 —\n   - 직설적 (돌려 말하지 않고 결론부터)\n   - 담백함 (꾸미지 않고 사실 위주)\n   - 따뜻함 (독자 쪽으로 기울어 있음)\n   - 정밀함 (표현의 오차를 줄이는 쪽을 택함)\n   - 유머 섞임 (격식을 일부러 흐트러뜨림)\n5. **핵심 주제**: 늘 돌아오는 소재나 관심사 3~5개\n6. **어휘**: \"이 말을 쓰고 저 말은 안 쓴다\"는 짝으로 5~10개 받는다.\n   예: `'만들었다'를 쓰고 '개발을 진행하였다'는 쓰지 않는다`\n7. **금지 문구**: 보이면 무조건 지우는 표현들. 아래 기본값을 먼저 보여주고 추가/삭제하게 한다 —\n   - \"○○를 출시하게 되어 기쁩니다\"\n   - \"이 글에서는 ○○에 대해 알아보겠습니다\"\n   - \"놓치지 마세요!\"\n   - \"지금 바로 시작해보세요!\"\n   - \"오늘날과 같은 ○○ 시대에\"\n   - 과도한 이모지, 느낌표 반복\n8. **예시 문단**: 사용자가 이미 만족한 글이 있다면 1~3문단을 가져와 기준 표본으로 삼는다. 없으면 이 스킬로 처음 쓴 글이 나중에 표본이 된다.\n\n받은 답은 항목별로 정리해 `voice-profile.md` 파일에 저장합니다. 저장 후 \"이 프로필로 앞으로 글을 쓰겠습니다. 나중에 언제든 '말투 프로필 보여줘' 또는 '말투 프로필 고쳐줘'라고 하면 됩니다\"라고 안내합니다.\n\n## 3단계 — 프로필 적용하기\n저장된 프로필을 읽고, 아래 순서로 글을 쓰거나 고칩니다.\n\n1. **열기**: 빌드업이나 정의로 시작하지 않는다. 숫자, 구체적인 주장, 또는 통념을 뒤집는 한 문장으로 연다.\n2. **본문**: 저장된 보이스 특성·어휘 짝을 따라 쓴다. 문단마다 아이디어는 하나만.\n3. **홍보 문구 배제**: 아래는 항상 확인하고 지운다.\n   - 과장된 형용사 나열 (\"혁신적인\", \"압도적인\", \"역대급\")\n   - 근거 없는 확신형 문장 (\"무조건 되는\", \"누구나 성공하는\")\n   - 저장된 금지 문구 목록에 있는 것들\n   - 자랑을 위한 자랑 — 결정과 수치가 아니라 태도로 세게 말하는 문장\n4. **완료 전 훑기**: 아래 항목을 순서대로 확인한다.\n   - 도입부가 빌드업 없이 바로 열리는가\n   - 보이스 특성 3~5개와 실제로 맞는가\n   - 쓰기로 한 어휘를 쓰고, 안 쓰기로 한 어휘는 없는가\n   - 금지 문구가 하나도 없는가\n   - 홍보 문구(과장, 확신형, 클리셰)가 없는가\n   - 예시 문단과 결이 같은가\n\n## 프로필 고치기\n사용자가 \"말투 좀 바꾸고 싶다\"고 하면:\n1. 해당 항목의 현재 내용을 먼저 보여준다.\n2. 무엇을 바꿀지 묻는다.\n3. 바뀐 내용을 저장한다.\n\n기억에만 의존해 답하게 하지 않고, 항상 현재 저장된 내용을 먼저 보여준 뒤에 바꿉니다.\n\n## 흔한 실수\n| 실수 | 왜 문제인가 | 대신 할 것 |\n|---|---|---|\n| 프로필 확인 없이 바로 글을 쓴다 | 매번 다른 말투가 나오는 원인이 그대로 반복됨 | 항상 1단계부터 시작 |\n| 설정 질문을 한꺼번에 다 묻는다 | 대충 뭉쳐서 답하게 됨 | 한 번에 하나씩 |\n| \"홍보 문구 넣지 마세요\"만 지시하고 끝 | 무엇이 홍보 문구인지 기준이 없어서 계속 새어나옴 | 금지 문구 목록 + 완료 전 훑기로 실제로 걸러냄 |\n| 어휘를 \"선호하는 말\"만 받는다 | 실제로 쓰지 말아야 할 말이 안 걸러짐 | \"이 말 쓰고 저 말은 안 쓴다\" 짝으로 받기 |",
+      "reviewNotes": [
+        "사용자가 \"여러 글마다 말투가 다르다\"고 한 문제를 \"저장된 프로필 기준으로 통일\"하는 구조로 반영했습니다.",
+        "\"과장된 홍보 문구를 안 썼으면 한다\"는 요청을 금지 문구 기본값 목록과 완료 전 훑기 항목에 구체적으로 넣었습니다.",
+        "처음 쓰는 사용자와 이미 프로필이 있는 사용자를 가르는 1단계(수집/집행 분기)를 넣어, 반복 사용 시 설정 질문을 다시 묻지 않도록 했습니다.",
+        "설정 질문은 한 번에 하나씩 묻도록 명시했고, 어휘는 \"쓸 말/안 쓸 말\" 짝으로 받아 판정 가능하게 했습니다.",
+        "골격은 처음엔 설정(수집)과 이후 적용(집행)이 섞여 있어 reference로 보일 수 있으나, 실제 핵심은 \"정해진 순서(확인→수집 또는 적용→점검)를 밟아 산출물(글)을 만드는 것\"이라 workflow를 선택했습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "blog-voice-consistency",
+      "referencedSources": [
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "tone-of-voice (Claude Code skill)",
+          "author": "entpnomad",
+          "url": "https://github.com/entpnomad/tone-of-voice",
+          "license": "MIT",
+          "self": false,
+          "adapted": true
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "doc-coauthoring (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+          "license": "확인되지 않음",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "07-documentation-run1",
+    "ok": true,
+    "ms": 39105,
+    "chars": 2255,
+    "json": {
+      "skillMarkdown": "---\nname: 기획-문서-공동작성\ndescription: 사용자가 기획 문서(제품 기획서, 프로젝트 제안서, 기능 명세서 등)를 작성하려고 할 때 사용한다. 문서를 한 번에 통째로 써주는 것이 아니라, 섹션 단위로 사용자와 대화하며 빠진 정보를 질문으로 채워가면서 함께 완성해나간다. \"기획서 써야 하는데\", \"문서 초안 잡아줘\", \"이 기획 정리하고 싶어\" 같은 요청에서 트리거된다.\n---\n\n# 기획 문서 공동작성\n\n## 개요\n기획 문서는 한 번에 다 써버리면 배경, 예외 상황, 트레이드오프 같은 부분이 빠지기 쉽습니다. 이 스킬은 문서를 섹션 단위로 나눠서, 먼저 사용자에게 필요한 정보를 묻고, 그 답을 바탕으로 초안을 쓰고, 확인을 받은 뒤 다음 섹션으로 넘어가는 방식으로 문서를 완성합니다.\n\n## 언제 쓰나\n- 기획서, 제안서, 기능 명세서 등을 새로 쓰기 시작할 때\n- \"혼자 쓰면 빠뜨리는 게 많다\"고 느껴서 누군가 같이 채워줬으면 할 때\n- 이미 다 쓴 문서를 문법만 다듬어달라고 할 때는 이 스킬을 쓰지 않는다 — 그때는 그냥 요청받은 대로 다듬어주면 된다\n\n## 진행 순서\n\n문서는 아래 순서로, 한 섹션씩 완성해 나갑니다. 한 섹션이 끝나기 전에 다음 섹션으로 넘어가지 않습니다.\n\n1. **문서 종류와 목적 확인**\n   - 어떤 종류의 문서인지(제품 기획서/제안서/명세서 등), 누가 읽을 문서인지, 이 문서로 무엇을 결정하려는 것인지 먼저 묻습니다.\n   - 답을 듣고 나서 전체 섹션 구성을 제안합니다(예: 배경 → 문제 정의 → 목표 → 해결 방안 → 예상 리스크 → 일정). 이 구성이 맞는지 확인받습니다.\n\n2. **섹션별로 반복**: 정해진 섹션 순서대로, 각 섹션마다 아래 (a)~(c)를 거칩니다.\n   - **(a) 정보 모으기**: 이 섹션을 쓰는 데 필요한 정보를 질문합니다. 한 번에 여러 질문을 쏟아내지 않고, 하나씩 묻고 답을 받은 뒤 다음 질문으로 넘어갑니다. 답이 애매하거나 뭉뚱그려져 있으면(\"적당히 알아서\") 구체적인 예시를 들어 다시 묻습니다.\n   - **(b) 초안 작성**: 받은 답을 바탕으로 그 섹션의 초안을 씁니다. 답하지 않은 빈틈이 있으면 지어내지 않고 \"이 부분은 아직 안 정해진 것 같은데, 이렇게 해도 될까요?\"처럼 짚어서 다시 묻습니다.\n   - **(c) 확인받고 다음으로**: 초안을 보여주고 고칠 곳이 있는지 확인받습니다. 괜찮다고 하면 다음 섹션으로 넘어갑니다. 고쳐달라고 하면 그 부분만 다시 씁니다.\n\n3. **섹션 사이 빠뜨리기 쉬운 것 짚어주기**: 아래에 해당하는 것이 안 채워졌으면, 다음 섹션으로 넘어가기 전에 먼저 물어봅니다. 사용자가 이 스킬을 쓰는 이유가 \"빠뜨리는 걸 잡아달라\"는 것이므로, 이 확인은 건너뛰지 않습니다.\n   - 왜 지금 이걸 해야 하는지(배경/계기)가 빠져 있지 않은가\n   - \"이렇게 하면 잘 될 것\"이라고만 쓰고, 안 될 경우(리스크·예외 상황)는 안 적혀 있지 않은가\n   - 숫자나 기한이 필요한 자리에 \"추후 협의\", \"적당히\" 같은 말로 넘어가지 않았는가\n   - 이 문서를 읽을 사람이 결정해야 할 것이 무엇인지 분명한가\n\n## 빠른 참조\n\n| 상황 | 할 일 |\n|---|---|\n| 사용자가 질문에 \"잘 모르겠다\"고 답함 | 예시 2~3개를 던져 고르게 하거나, 일단 비워두고 표시해둔 뒤 나중에 다시 묻는다 |\n| 사용자가 섹션을 통째로 건너뛰고 싶어함 | 이유를 확인하고, 정말 필요 없으면 문서 구성에서 뺀다 (억지로 채우지 않음) |\n| 사용자가 \"그냥 다 알아서 써줘\"라고 함 | 그래도 핵심 질문 한두 개(목적, 독자)만은 확인하고 나서 쓴다 — 그것 없이 쓴 문서는 뒤에서 대부분 다시 손봐야 하게 된다 |\n| 문서 중간에 방향이 바뀜 | 이전 섹션 중 영향받는 곳이 있는지 확인하고, 있으면 사용자에게 알린 뒤 같이 고친다 |\n\n## 흔한 실수\n\n- **한 번에 다 써버리기**: 사용자가 \"빨리 써달라\"고 해도, 최소한 목적과 독자만은 확인하고 시작합니다. 확인 없이 쓴 문서는 방향이 어긋나 있을 확률이 높고, 그러면 처음부터 다시 써야 합니다.\n- **애매한 답을 그대로 문서에 옮기기**: \"적당히\", \"나중에 정하기로 함\" 같은 말이 답으로 나오면, 그 문장을 그대로 문서에 박아넣지 않습니다. 구체적인 값이 필요한 이유를 짧게 설명하고 한 번 더 물어봅니다.\n- **리스크·예외 상황을 안 물어보기**: 잘 될 때 이야기만 쓰고 끝내면, 이 스킬을 쓰는 이유(빠뜨리는 것 잡기)를 놓치게 됩니다. 반드시 \"이게 안 될 경우는?\"을 한 번은 물어봅니다.",
+      "reviewNotes": [
+        "사용자가 \"혼자 쓰면 빠뜨리는 게 많다\"고 한 부분을 반영해, 섹션 사이에 빠뜨리기 쉬운 항목을 짚어주는 별도 절차를 넣었습니다.",
+        "\"같이 단계별로 채워나가면서 물어봐줬으면 좋겠다\"는 요청에 맞춰 워크플로 골격을 채택하고, 한 섹션 안에서도 정보 모으기 → 초안 → 확인 3단계로 나눠 확인 없이 다음으로 넘어가지 않도록 게이트를 넣었습니다.",
+        "description은 3인칭으로, 실제 트리거될 만한 사용자 발화 예시를 넣어 구체화했습니다.",
+        "단순한 공동작성 작업이라 규율형(금지·변명표)까지는 넣지 않고, 실무에서 바로 참고할 수 있는 빠른 참조 표와 흔한 실수만 추가해 분량을 적절히 유지했습니다."
+      ],
+      "clarifyingQuestions": [
+        "주로 어떤 종류의 기획 문서를 쓰시나요? (예: 신규 서비스 제안서, 사내 프로젝트 기획서, 기능 명세서 등) 문서 종류에 따라 섹션 구성 기본값을 더 구체적으로 잡아드릴 수 있습니다."
+      ],
+      "suggestedFilename": "기획-문서-공동작성",
+      "referencedSources": [
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "tone-of-voice (Claude Code skill)",
+          "author": "entpnomad",
+          "url": "https://github.com/entpnomad/tone-of-voice",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "doc-coauthoring (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+          "license": "확인되지 않음",
+          "self": false,
+          "adapted": true
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "doc-coauthoring (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+          "license": "확인되지 않음",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "08-explanation-run1",
+    "ok": true,
+    "ms": 33599,
+    "chars": 1884,
+    "json": {
+      "skillMarkdown": "---\nname: 라이브러리-쉽게-설명\ndescription: 사용자가 처음 보는 라이브러리·프레임워크·도구 이름을 언급하며 \"이게 뭐예요\", \"이거 뭔지 몰라요\", \"이해가 안 돼요\"라고 물을 때, 또는 코드에 낯선 라이브러리가 import/require 되어 있어 설명이 필요할 때 사용한다. 초보자를 대상으로 하므로 전문용어로 먼저 답하지 않는다.\n---\n\n# 낯선 라이브러리 쉽게 설명하기\n\n## 개요\n새로 만난 라이브러리나 도구를 볼 때, 전문용어(공식 문서에 나오는 딱딱한 정의)로 시작하지 않고 일상 비유로 먼저 감을 잡게 한 뒤, 아주 짧은 예제로 마무리하는 스킬입니다. 목표는 \"정확한 정의\"가 아니라 \"이제 대충 뭔지 알겠다\"는 느낌입니다.\n\n## 언제 쓰나\n- 사용자가 라이브러리·프레임워크·도구 이름을 보고 \"이게 뭐예요?\"라고 물을 때\n- 코드에 낯선 것이 import 되어 있어서 설명이 필요할 때\n- 사용자가 \"어려운 말 빼고 알려줘\"라고 요청할 때\n- 쓰지 말아야 할 때: 사용자가 이미 그 라이브러리를 써본 적 있고 세부 API나 옵션을 물어보는 경우 — 이때는 이 스킬 대신 정확한 레퍼런스로 답한다.\n\n## 설명 순서\n\n### 1단계 — 비유로 먼저 감을 잡힌다\n전문용어를 단 하나도 쓰지 않고, 카페·알바생·메모·정리함처럼 누구나 아는 일상 장면에 빗대어 \"이게 뭐 하는 물건인지\"를 한두 문장으로 설명한다.\n\n예: \"Redux는 냉장고 같은 거예요. 여러 방에서(여러 화면에서) 같은 재료(데이터)를 꺼내 쓰는데, 냉장고가 하나뿐이면 누가 뭘 넣고 빼도 모두가 같은 재료를 보게 되죠.\"\n\n- 비유는 반드시 라이브러리가 \"왜 존재하는지\"와 맞아떨어져야 한다. 아무 비유나 가져다 붙이면 오히려 헷갈린다.\n- 비유 하나로 부족하면 두 번째 비유를 덧붙이되, 절대 세 개 이상 늘어놓지 않는다 — 비유가 많아지면 다시 헷갈린다.\n\n### 2단계 — 한 줄 요약 → 왜 필요한지\n비유 다음에는 아주 짧은 한 줄로 \"이게 정확히 무슨 일을 하는 물건인지\"를 요약하고, 이어서 \"이게 없으면 뭐가 불편했는지 / 이게 있으면 뭐가 편해지는지\"를 한두 문장으로 설명한다.\n\n이렇게: \"정리하면, Redux는 '데이터를 한 군데에 모아두고 다 같이 보는 도구'예요. 이게 없으면 화면마다 데이터를 따로 들고 있어서 한쪽을 바꿔도 다른 쪽이 안 바뀌는 문제가 생겨요.\"\n\n### 3단계 — 아주 짧은 예제 하나\n- 예제는 5~10줄 이내로 짧게. 실행 가능한 최소한의 형태만 보여준다.\n- 예제 코드 위에 \"이 코드가 뭘 하는지\" 한 줄 설명을 먼저 달고, 코드 안에는 각 줄이 무슨 일을 하는지 짧은 주석을 단다.\n- 예제는 하나만 보여준다. 여러 언어나 여러 버전으로 반복하지 않는다.\n- 아직 배우지 않은 문법이나 개념이 예제에 섞여 있으면, 그 부분에는 짧게 괄호로 설명을 곁들인다.\n\n### 4단계 — 전문용어는 마지막에 살짝만\n설명이 다 끝난 뒤, 마지막 한 줄에 \"참고로 이런 걸 전문 용어로는 ○○라고 불러요\"처럼 정식 용어를 괄호나 짧은 문장으로 곁들인다. 처음부터 용어로 시작하지 않는다.\n\n## 지켜야 할 것\n- 전문용어로 시작하지 않는다 — 공식 문서 정의를 그대로 복붙하지 않는다.\n- 비유는 라이브러리의 핵심 목적과 맞아야 하고, 두 개를 넘기지 않는다.\n- 예제는 짧게 하나만, 실행 가능한 최소 형태로.\n- \"왜 필요한지\"를 반드시 넣는다 — 뭐가 편해지는지 없이 개념만 던지지 않는다.\n- 사용자가 이미 안다고 말한 개념은 다시 풀어 설명하지 않는다.\n\n## 흔한 실수\n- 첫 문장을 \"○○는 △△를 위한 라이브러리입니다\"로 시작 → 비유부터 시작하도록 고친다.\n- 예제에 실전에서 쓰는 옵션·에러 처리까지 다 넣음 → 가장 짧고 단순한 형태만 남긴다.\n- 비유를 서너 개 늘어놓음 → 하나, 많아야 둘로 줄인다.",
+      "reviewNotes": [
+        "초보자 대상이라는 요구에 맞춰 explanation(설명형) 골격을 채택하고, 본문을 \"비유 → 요약/이유 → 예제 → 용어\" 순서로 구성해 사용자가 요청한 \"비유 먼저, 짧은 예제\" 흐름을 그대로 반영했습니다.",
+        "\"언제 쓰나\"에 쓰지 말아야 할 경우(이미 아는 사용자가 세부 API를 물을 때)를 넣어 스킬의 적용 범위를 분명히 했습니다.",
+        "비유 개수 제한(최대 2개), 예제 길이 제한(5~10줄), 용어는 마지막에만 등 사용자가 \"쉽게\"라고 말한 요구를 구체적인 수치·순서 규칙으로 바꿔 실제로 실행 가능하게 만들었습니다.",
+        "description에 트리거 조건(초보자가 낯선 라이브러리를 물을 때, 코드에 낯선 import가 있을 때)을 구체적으로 적어 Claude가 언제 이 스킬을 호출할지 판단하기 쉽게 했습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "라이브러리-쉽게-설명",
+      "referencedSources": [
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "Tailor 용어사전 방식 (자체)",
+          "author": "Tailor",
+          "url": "",
+          "license": "자체 (프로젝트 내부)",
+          "self": true,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "Tailor 용어사전 방식 (자체)",
+          "author": "Tailor",
+          "url": "",
+          "license": "자체 (프로젝트 내부)",
+          "self": true,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "09-mismatch-office-run1",
+    "ok": true,
+    "ms": 30835,
+    "chars": 1998,
+    "json": {
+      "skillMarkdown": "---\nname: monthly-sales-report-formatter\ndescription: 거래처별 매출 엑셀을 매달 정리할 때 사용. 사용자가 \"이번 달 매출 정리해줘\", \"거래처 매출 엑셀 정리\", \"지난달 표랑 맞춰줘\" 같은 요청을 하거나, 여러 거래처의 매출 원본 파일(엑셀/CSV)을 주고 표로 합쳐달라고 할 때, 또는 항목명이나 순서가 지난달과 달라 보일 때 사용.\n---\n\n# 월별 거래처 매출 정리\n\n## 개요\n이 스킬은 매달 들어오는 거래처별 매출 엑셀을 **항상 같은 항목명·같은 순서**로 정리하고, 숫자가 앞뒤로 안 맞으면 조용히 넘어가지 않고 반드시 짚어서 알려주는 것을 목표로 합니다. 핵심 원칙은 하나입니다: **형태를 고정하고, 이상하면 멈춰서 물어본다.**\n\n## 언제 쓰나\n- 거래처별 매출 원본 파일(엑셀/CSV, 여러 개일 수 있음)을 받아서 한 표로 정리할 때\n- \"이번 달 매출 정리해줘\", \"지난달 형식이랑 맞춰줘\" 같은 요청이 들어올 때\n- 지난달 정리본과 이번 달 정리본의 항목명·순서가 다른 것 같을 때\n- 아래와 같은 상황에는 이 스킬을 쓰지 않습니다: 매출과 무관한 일반 데이터 정리, 단순 통계 분석(합계·평균 등)만 필요할 때 — 이때는 별도로 요청하세요.\n\n## 고정할 항목명과 순서\n정리한 표는 아래 순서와 이름을 **항상** 그대로 씁니다. 원본 파일의 열 이름이 다르게 되어 있어도(예: \"매출액\"이 \"판매액\"으로, \"거래처\"가 \"업체명\"으로 적혀 있어도) 아래 이름으로 통일합니다.\n\n1. 거래처명\n2. 거래일자\n3. 품목\n4. 수량\n5. 단가\n6. 매출액\n7. 비고\n\n원본에 없는 열이 있으면 비워두고, 원본에만 있고 이 목록에 없는 열이 있으면 \"비고\"로 옮기거나 사용자에게 어떻게 할지 물어봅니다 — 마음대로 버리지 않습니다.\n\n## 작업 순서\n\n1. **원본 파일을 읽고 열 구조를 확인한다.**\n   각 파일의 열 이름이 위 7개 항목 중 무엇에 해당하는지 매칭합니다. 매칭이 애매한 열(예: \"금액\"이 매출액인지 단가인지 불분명)이 있으면 넘겨짚지 말고 사용자에게 확인합니다.\n\n2. **위 순서·이름으로 표를 다시 만든다.**\n   여러 거래처 파일이 있으면 하나의 표로 합칩니다. 거래처명 → 거래일자 순으로 정렬합니다.\n\n3. **숫자 검증을 한다. (건너뛰지 않음)**\n   아래 세 가지를 반드시 확인하고, 하나라도 어긋나면 표를 완성했다고 말하기 전에 먼저 짚어서 보고합니다.\n   - **수량 × 단가 = 매출액**이 맞는지 각 행마다 확인. 안 맞으면 어느 행인지, 원본 값이 얼마였는지 구체적으로 알립니다.\n   - **거래처별 합계가 원본 파일에 표시된 합계(있는 경우)와 일치**하는지 확인.\n   - **지난달 정리본이 있다면, 전체 매출 합계가 전달과 비교해 비정상적으로 튀지 않는지** (예: 10배 차이, 0원 거래처 등) 확인. 급증·급감이 있으면 \"이번 달 특이사항일 수도 있다\"고만 보고하고 판단은 사용자에게 맡깁니다.\n\n4. **짚을 것이 있으면 먼저 말하고, 사용자 확인 후에만 표를 최종 확정한다.**\n   숫자가 안 맞는 부분을 발견하면 \"일단 정리는 했지만 이 부분이 이상합니다\"라고 구체적으로 알리고, 사용자가 원본을 다시 확인하거나 고치라고 할 때까지 그 값을 임의로 수정하지 않습니다.\n\n5. **이상 없으면 최종 표를 출력한다.**\n   지난달 파일과 같은 형태(항목명·순서)로 나왔는지 마지막으로 한 번 더 확인합니다.\n\n## 흔한 실수\n| 실수 | 고치는 법 |\n|---|---|\n| 원본 열 이름을 그대로 써서 지난달과 표 모양이 또 달라짐 | 항상 고정된 7개 항목명으로 바꿔서 출력 |\n| 수량×단가가 매출액과 안 맞는데 그냥 표에 그대로 넣음 | 검증 단계에서 반드시 계산해보고, 안 맞으면 표 완성 전에 먼저 보고 |\n| 애매한 열을 마음대로 짐작해서 매칭 | 매칭이 불확실하면 사용자에게 확인 후 진행 |\n| 이상한 값을 발견하고 조용히 고쭈서 넘김 | 값을 임의로 고치지 않고, 이상한 점을 그대로 보고한 뒤 지시를 기다림 |",
+      "reviewNotes": [
+        "description에 실제 사용 트리거(요청 문구, 상황)를 구체적으로 담았습니다.",
+        "\"항목명이 다르면 통일한다\", \"숫자가 안 맞으면 짚는다\"는 사용자의 핵심 요구를 본문에서 명시적 단계(3, 4번)로 분리해 절대 건너뛰지 않도록 구성했습니다.",
+        "애매한 경우(열 매칭 불확실, 이상 급증/급감)는 AI가 임의로 판단하지 않고 사용자에게 확인받도록 명시했습니다.",
+        "고정할 항목명/순서를 표로 명확히 못박아 매달 형태가 달라지는 문제를 구조적으로 막았습니다.",
+        "작업이 순서가 있는 절차 중심이라 workflow 골격을 선택했습니다."
+      ],
+      "clarifyingQuestions": [
+        "고정할 항목명 7가지(거래처명, 거래일자, 품목, 수량, 단가, 매출액, 비고)가 실제 업무에서 쓰는 항목과 맞는지 확인해 주시면 더 정확해질 것 같습니다. 다르다면 알려주세요."
+      ],
+      "suggestedFilename": "monthly-sales-report-formatter",
+      "referencedSources": [
+        {
+          "name": "verification-before-completion (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "doc-coauthoring (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+          "license": "확인되지 않음",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "10-mismatch-setup-run1",
+    "ok": true,
+    "ms": 31550,
+    "chars": 2245,
+    "json": {
+      "skillMarkdown": "---\nname: dev-environment-setup\ndescription: 새 컴퓨터나 새 프로젝트에서 개발 환경을 처음 세팅할 때 사용. \"환경 세팅해줘\", \"개발 환경 구축\", \"새 컴퓨터 초기 설정\", \"뭘 깔아야 하는지 모르겠다\" 같은 요청이나, 필요한 도구를 빠뜨려서 빌드/실행이 안 되는 상황에서 사용.\n---\n\n# 개발 환경 세팅\n\n## 개요\n새 컴퓨터나 새 프로젝트에서 개발 환경을 맞출 때, 필요한 도구를 순서대로 확인하며 설치하고 마지막에 빠진 것이 없는지 점검한다. 기억에 의존하지 않고 항상 같은 순서로 확인하는 것이 핵심이다.\n\n## 언제 쓰나\n- 새 컴퓨터를 받아서 개발을 시작하려 할 때\n- 새 프로젝트를 클론했는데 실행이 안 될 때\n- \"뭐 깔았었는지 기억이 안 난다\"는 상황\n- 이미 세팅이 끝난 환경에서 특정 도구 하나만 추가로 설치할 때는 이 스킬 전체를 쓸 필요 없이 해당 단계만 참고\n\n## 단계\n\n### 1단계 — 무엇을 세팅할지 먼저 파악한다\n바로 설치를 시작하지 말고 아래를 먼저 확인한다.\n- 이 프로젝트(또는 앞으로 할 작업)에 어떤 언어/런타임이 필요한가 (예: Node.js, Python, Go 등)\n- 프로젝트 안에 `package.json`, `requirements.txt`, `.tool-versions`, `README` 같은 설정 파일이 있는지 찾아본다 — 있으면 그 안에 필요한 버전과 도구 목록이 적혀 있을 가능성이 높다\n- 위 파일들을 발견하면 내용을 읽고 필요한 것을 목록으로 정리한다\n\n**다음으로 넘어가기 전:** 무엇을 설치할지 목록이 나오기 전에는 설치를 시작하지 않는다.\n\n### 2단계 — 순서대로 하나씩 설치하며 확인한다\n아래 순서를 따른다. 이미 설치돼 있으면 건너뛰되, 건너뛰기 전에 버전이 맞는지 확인한다.\n\n1. **버전 관리 도구** (Git) — `git --version`으로 확인\n2. **언어/런타임 버전 관리자** (예: nvm, pyenv, asdf 등 — 여러 프로젝트를 오갈 때 버전 충돌을 막아주는 도구) — 설치 여부와 버전 확인\n3. **언어/런타임 자체** (Node.js, Python 등) — 1단계에서 파악한 필요 버전과 일치하는지 확인\n4. **패키지 관리자** (npm, pip, yarn 등) — 언어에 딸려오는 경우가 많으니 버전만 확인\n5. **프로젝트 의존성 설치** (`npm install`, `pip install -r requirements.txt` 등)\n6. **환경 변수 파일** — `.env.example`이 있으면 `.env`로 복사하고, 값을 채워야 하는 항목이 있는지 확인\n7. **데이터베이스나 외부 서비스** (필요한 경우) — 로컬 DB, Docker 등\n\n각 단계마다:\n- 설치 명령을 실행하기 전에 무엇을 설치할지 한 줄로 말한다\n- 설치 후 확인 명령(`--version` 등)으로 결과를 눈으로 본다\n- 실패하면 에러 메시지를 읽고 원인을 확인한 뒤 다음 단계로 넘어간다 — 에러를 무시하고 넘어가지 않는다\n\n### 3단계 — 마지막에 전부 점검한다\n설치가 끝났다고 바로 끝내지 않고, 아래를 순서대로 확인한다. 하나라도 빠졌으면 그 항목으로 돌아가 다시 설치한다.\n\n- [ ] 필요한 모든 도구의 버전을 확인했는가 (`--version` 명령으로)\n- [ ] 프로젝트 의존성 설치가 에러 없이 끝났는가\n- [ ] 환경 변수 파일이 필요한 곳에 있고, 값이 채워졌는가\n- [ ] 프로젝트를 실제로 실행(빌드, 테스트, 서버 기동 등)해서 정상 동작을 확인했는가 — 명령이 성공했다는 로그만 보고 넘기지 않고, 실제로 화면이나 응답이 나오는지까지 본다\n- [ ] 세팅 과정에서 발견한 \"이 프로젝트는 이게 필요하다\"는 정보를 README나 메모에 남겼는가 — 다음에 같은 걸 또 헤매지 않도록\n\n위 다섯 항목을 다 채우기 전에는 \"세팅 완료\"라고 말하지 않는다.\n\n## 흔한 실수\n\n| 실수 | 어떻게 고치나 |\n|---|---|\n| 버전 확인 없이 \"이미 설치돼 있으니 됐다\"고 넘어감 | 프로젝트가 요구하는 버전과 실제 설치된 버전이 다를 수 있으므로 버전 번호까지 비교 |\n| 의존성 설치만 하고 실행은 안 해봄 | 설치가 성공해도 실행 시점에야 빠진 게 드러나는 경우가 많으므로 반드시 실행까지 확인 |\n| 환경 변수 파일을 복사만 하고 값은 안 채움 | `.env` 안의 각 항목이 비어있지 않은지 확인 |\n| 에러가 나도 무시하고 다음 단계로 진행 | 에러 메시지를 읽고 원인을 파악한 뒤 해결하거나, 해결 못 하면 사용자에게 알림 |",
+      "reviewNotes": [
+        "작업이 \"순서대로 여러 단계를 밟아 결과물(세팅된 환경)을 만든다\"는 성격이라 workflow 골격을 채택했습니다.",
+        "사용자가 \"필요한 걸 순서대로 확인\"과 \"마지막에 점검\"을 명시했으므로, 1단계(파악)→2단계(설치)→3단계(점검) 구조로 나누고 각 게이트에 \"다음으로 넘어가기 전\" 조건을 넣었습니다.",
+        "점검 단계는 과거형 질문 체크리스트로 만들어 \"안 한 것을 숨길 수 없게\" 했고, 마지막에 \"다 채우기 전에는 완료라고 말하지 않는다\"는 처분을 붙였습니다.",
+        "실행 확인을 \"로그만 보고 넘기지 않고 실제 동작까지 본다\"로 구체화해 완료 확인이 형식적으로 끝나지 않도록 했습니다.",
+        "description은 실제 트리거 상황(요청 문구, 증상)을 중심으로 3인칭으로 작성했습니다.",
+        "이 스킬은 규율보다는 절차가 핵심이라 discipline 골격의 변명 표·위험 신호 목록은 넣지 않았습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "dev-environment-setup",
+      "referencedSources": [
+        {
+          "name": "test-driven-development (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "verification-before-completion (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "doc-coauthoring (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+          "license": "확인되지 않음",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  }
+]
