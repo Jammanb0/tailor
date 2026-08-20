@@ -3,6 +3,7 @@
 // 쓰도록 하기 위해 분리했다. 여기서 갈라지면 비교 자체가 무의미해진다.
 
 import {
+	commonSpine,
 	type FlowStep,
 	type ReferencePattern,
 	referenceCategories,
@@ -279,10 +280,12 @@ function renderPattern(p: ReferencePattern): string {
 
 // 참고 코퍼스를 프롬프트용 텍스트로 렌더한다(정적 — 매 요청 동일해 캐싱 가능).
 function buildCorpusSection(): string {
+	// 공통 뼈대는 한 번만 찍고, 타입별로는 다른 본문만 찍는다. 4종에 같은 줄이
+	// 네 번 반복되던 것을 2026-08-20에 걷어냈다.
 	const archetypes = structureArchetypes
 		.map(
 			(a) =>
-				`### ${a.id} — ${a.label}\n언제: ${a.whenToUse}\n골격:\n${a.sectionFlow}`,
+				`### ${a.id} — ${a.label}\n언제: ${a.whenToUse}\n본문:\n${a.bodySections}`,
 		)
 		.join("\n\n");
 	const categories = referenceCategories
@@ -321,6 +324,16 @@ function buildCorpusSection(): string {
 discipline은 마지막 수단입니다. 위 셋 중 하나로 설명되면 그걸 쓰세요.
 Rationalizations·Red Flags 같은 섹션은 discipline을 골랐을 때만 쓰고,
 다른 골격에 끌어다 붙이지 마세요.
+
+## 공통 뼈대 (네 골격 모두 공유)
+
+아래 앞뒤 구성은 어느 골격을 고르든 같습니다. {{본문}} 자리에 고른 골격의
+본문 섹션이 들어갑니다. 뒤쪽 세 섹션은 조건이 붙어 있으니, 조건에 안 맞으면
+넣지 마세요 — 짧은 스킬에 다 넣으면 본문보다 목차가 길어집니다.
+
+${commonSpine}
+
+## 골격별 본문
 
 ${archetypes}
 
