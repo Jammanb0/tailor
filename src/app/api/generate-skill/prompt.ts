@@ -239,7 +239,7 @@ function describeGoto(goto: string, flow: FlowStep[]): string {
 	return i < 0 ? goto : `${i + 1}번(${flow[i].label})으로`;
 }
 
-function renderPattern(p: ReferencePattern, includeFlow: boolean): string {
+function renderPattern(p: ReferencePattern): string {
 	const lines = [`- [${p.id}] (${p.role ?? "-"}) ${p.summary}: ${p.detail}`];
 
 	if (p.format?.count) lines.push(`  형식(개수): ${p.format.count}`);
@@ -260,8 +260,8 @@ function renderPattern(p: ReferencePattern, includeFlow: boolean): string {
 	if (p.exception) lines.push(`  예외: ${p.exception}`);
 
 	// 흐름은 마지막에 붙인다. flow가 없는 패턴의 렌더 결과는 이 블록 도입 전과
-	// 바이트 단위로 같다 — includeFlow=false와의 비교가 성립하는 조건이다.
-	if (includeFlow && p.flow?.length) {
+	// 바이트 단위로 같다.
+	if (p.flow?.length) {
 		const flow = p.flow;
 		lines.push("  흐름:");
 		flow.forEach((step, i) => {
@@ -278,7 +278,7 @@ function renderPattern(p: ReferencePattern, includeFlow: boolean): string {
 }
 
 // 참고 코퍼스를 프롬프트용 텍스트로 렌더한다(정적 — 매 요청 동일해 캐싱 가능).
-function buildCorpusSection(includeFlow: boolean): string {
+function buildCorpusSection(): string {
 	const archetypes = structureArchetypes
 		.map(
 			(a) =>
@@ -287,15 +287,7 @@ function buildCorpusSection(includeFlow: boolean): string {
 		.join("\n\n");
 	const categories = referenceCategories
 		.map((c) => {
-			// includeFlow=false는 '흐름 도입 전'을 재현하는 대조군이다. 흐름 블록만
-			// 빼면 요약 줄('네 단계이고 각 단계를 끝내야 다음으로 간다')이 남아 대조군에
-			// 답을 흘린다. 흐름을 담으려고 만든 패턴은 통째로 뺀다.
-			const visible = includeFlow
-				? c.patterns
-				: c.patterns.filter((pattern) => !pattern.flow?.length);
-			const patterns = visible
-				.map((pattern) => renderPattern(pattern, includeFlow))
-				.join("\n");
+			const patterns = c.patterns.map(renderPattern).join("\n");
 			return `## ${c.label}${c.alwaysApply ? " (공통·항상 적용)" : ""}\n${patterns}`;
 		})
 		.join("\n\n");
@@ -336,13 +328,4 @@ ${archetypes}
 ${categories}`;
 }
 
-export const CORPUS_SECTION = buildCorpusSection(true);
-
-/**
- * 실험 전용 — 흐름 블록만 뺀 렌더. 나머지는 CORPUS_SECTION과 글자 단위로 같다.
- *
- * flow 도입이 생성물의 단계 순서에 닿는지 재기 위한 대조군이다. 코퍼스를 복제하지
- * 않고 같은 데이터에서 두 렌더를 뽑는 이유는, 사본을 두면 한쪽만 고쳐져 조용히
- * 어긋나기 때문이다. 판정이 끝나면 이 export와 includeFlow 인자를 함께 지운다.
- */
-export const CORPUS_SECTION_NO_FLOW = buildCorpusSection(false);
+export const CORPUS_SECTION = buildCorpusSection();
