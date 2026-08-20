@@ -760,6 +760,7 @@ export const referenceCategories: ReferenceCategory[] = [
 					{
 						id: "analyze",
 						label: "패턴 분석 — 작동하는 예를 찾아 차이를 전부 나열한다",
+						patternId: "compare-with-working-example",
 					},
 					{
 						id: "hypothesize",
@@ -820,6 +821,38 @@ export const referenceCategories: ReferenceCategory[] = [
 				],
 				auditIds: ["SD-01", "SD-02", "SD-08", "SD-09", "SD-10"],
 				verifyHint: "단계 이름만 나열하는지, 단계마다 무엇을 볼지가 붙는지",
+				sourceIds: ["sp-systematic-debugging"],
+			},
+			{
+				// 원문 Phase 2. 감사 「잃은 것」 표 9번에 미복원(✗)으로 적혀 있었고,
+				// 2026-08-20 A/B에서 이 단계가 생성물에 나오는지가 6 대 0으로 갈렸다.
+				// 그때는 four-phase-debugging-order의 label 한 줄뿐이었고 원문의 네
+				// 항목은 없었다 — 그 네 항목을 여기서 채운다.
+				//
+				// 값 리터럴을 옮긴다: 소스가 MIT로 확인됐다(정책 B 등급 1).
+				id: "compare-with-working-example",
+				summary: "정상 동작하는 사례를 찾아 문제 사례와 끝까지 비교한다",
+				detail:
+					"문제가 난 쪽만 들여다보면 무엇이 정상인지 기준이 없다. 잘 되는 쪽과 나란히 놓아야 차이가 보인다.",
+				role: "workflow-step",
+				kind: "artifact",
+				flow: [
+					{ id: "find", label: "같은 종류인데 정상 동작하는 사례를 찾는다" },
+					{
+						id: "read",
+						label: "참조할 구현을 끝까지 읽는다",
+						gate: "훑어보고 넘어가지 않는다 — 훑으면 다른 점이 아니라 비슷한 점만 눈에 들어온다",
+					},
+					{
+						id: "list",
+						label: "두 쪽의 차이를 하나도 빠짐없이 적는다",
+						gate: "'이건 상관없을 것'이라고 미리 거르지 않는다",
+					},
+					{ id: "deps", label: "그 코드가 무엇에 기대고 있는지 파악한다" },
+				],
+				auditIds: ["SD-13"],
+				verifyHint:
+					"정상 사례를 찾는 행동이 있는지, 훑기 금지와 '상관없을 것' 금지가 붙는지",
 				sourceIds: ["sp-systematic-debugging"],
 			},
 			{
