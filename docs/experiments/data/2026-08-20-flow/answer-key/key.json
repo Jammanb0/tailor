@@ -1,0 +1,194 @@
+[
+	{
+		"item": "item-001",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "off",
+		"run": 6,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-002",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "off",
+		"run": 4,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-003",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "off",
+		"run": 1,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-004",
+		"scenarioId": "09-mismatch-office",
+		"role": "control",
+		"corpus": "on",
+		"run": 3,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-005",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "on",
+		"run": 5,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-006",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "off",
+		"run": 2,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-007",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "on",
+		"run": 3,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-008",
+		"scenarioId": "05-design",
+		"role": "control",
+		"corpus": "on",
+		"run": 1,
+		"archetype": "reference"
+	},
+	{
+		"item": "item-009",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "on",
+		"run": 1,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-010",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "off",
+		"run": 3,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-011",
+		"scenarioId": "05-design",
+		"role": "control",
+		"corpus": "off",
+		"run": 3,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-012",
+		"scenarioId": "09-mismatch-office",
+		"role": "control",
+		"corpus": "off",
+		"run": 3,
+		"archetype": "reference"
+	},
+	{
+		"item": "item-013",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "on",
+		"run": 2,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-014",
+		"scenarioId": "09-mismatch-office",
+		"role": "control",
+		"corpus": "on",
+		"run": 2,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-015",
+		"scenarioId": "05-design",
+		"role": "control",
+		"corpus": "off",
+		"run": 2,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-016",
+		"scenarioId": "09-mismatch-office",
+		"role": "control",
+		"corpus": "off",
+		"run": 2,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-017",
+		"scenarioId": "09-mismatch-office",
+		"role": "control",
+		"corpus": "on",
+		"run": 1,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-018",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "on",
+		"run": 4,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-019",
+		"scenarioId": "05-design",
+		"role": "control",
+		"corpus": "on",
+		"run": 3,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-020",
+		"scenarioId": "09-mismatch-office",
+		"role": "control",
+		"corpus": "off",
+		"run": 1,
+		"archetype": "reference"
+	},
+	{
+		"item": "item-021",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "on",
+		"run": 6,
+		"archetype": "discipline"
+	},
+	{
+		"item": "item-022",
+		"scenarioId": "05-design",
+		"role": "control",
+		"corpus": "on",
+		"run": 2,
+		"archetype": "reference"
+	},
+	{
+		"item": "item-023",
+		"scenarioId": "05-design",
+		"role": "control",
+		"corpus": "off",
+		"run": 1,
+		"archetype": "workflow"
+	},
+	{
+		"item": "item-024",
+		"scenarioId": "02-debugging",
+		"role": "measure",
+		"corpus": "off",
+		"run": 5,
+		"archetype": "discipline"
+	}
+]
