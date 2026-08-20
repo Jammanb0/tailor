@@ -10,13 +10,19 @@
 // prompt.ts를 그대로 import한다 — 여기서 렌더를 복제하면 앱과 조용히 갈라져
 // 대조 자체가 무의미해진다. 대조 절차는 tools/check-corpus-render.mjs 참조.
 
-import { CORPUS_SECTION } from "../generate-skill/prompt";
+import {
+	CORPUS_SECTION,
+	CORPUS_SECTION_NO_FLOW,
+} from "../generate-skill/prompt";
 
-export function GET() {
+// ?flow=off 를 붙이면 흐름 블록을 뺀 렌더를 준다(실험 대조군). 흐름 도입이
+// 다른 카테고리를 건드리지 않았음을 바이트 비교로 확인하는 데 쓴다.
+export function GET(request: Request) {
 	if (process.env.NODE_ENV === "production") {
 		return new Response("not found", { status: 404 });
 	}
-	return new Response(CORPUS_SECTION, {
+	const off = new URL(request.url).searchParams.get("flow") === "off";
+	return new Response(off ? CORPUS_SECTION_NO_FLOW : CORPUS_SECTION, {
 		headers: { "content-type": "text/plain; charset=utf-8" },
 	});
 }

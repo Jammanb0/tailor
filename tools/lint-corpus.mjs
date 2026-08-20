@@ -59,6 +59,11 @@ const STRUCTURED_FIELDS = [
 ];
 
 const seenIds = new Map();
+// flow.patternId 검사용 — 흐름은 카테고리 경계를 넘어 참조할 수 있으므로
+// 카테고리별이 아니라 전역 집합으로 미리 모아둔다.
+const allPatternIds = new Set(
+	referenceCategories.flatMap((c) => c.patterns.map((x) => x.id)),
+);
 
 for (const category of referenceCategories) {
 	for (const p of category.patterns) {
@@ -140,6 +145,53 @@ for (const category of referenceCategories) {
 		for (const aid of p.auditIds ?? []) {
 			if (!AUDIT_ID.test(aid)) {
 				fail(where, `auditIds의 "${aid}"는 항목 id 형식이 아닙니다(예: D-17)`);
+			}
+		}
+
+		// 8. flow 검사 — 순서를 담는 칸이 조용히 낡는 것을 막는다.
+		// 이 칸을 만든 이유가 "산문으로 적으면 패턴 이름이 바뀌어도 아무도 못 잡는다"
+		// 였으므로, 검사가 없으면 칸을 만든 값이 없다.
+		if (p.flow?.length) {
+			const stepIds = new Set();
+			for (const step of p.flow) {
+				// 8-a. 흐름 안에서 단계 id가 유일해야 goto가 한 곳을 가리킨다.
+				if (stepIds.has(step.id)) {
+					fail(where, `flow의 단계 id "${step.id}"가 중복입니다`);
+				}
+				stepIds.add(step.id);
+			}
+			for (const step of p.flow) {
+				// 8-b. patternId가 실존해야 한다. 안 그러면 렌더에 죽은 참조가 실린다.
+				if (step.patternId && !allPatternIds.has(step.patternId)) {
+					fail(
+						where,
+						`flow 단계 "${step.id}"의 patternId "${step.patternId}"를 찾을 수 없습니다`,
+					);
+				}
+				// 8-c. goto는 같은 흐름의 단계이거나 done/stop이어야 한다.
+				for (const b of step.branches ?? []) {
+					if (b.goto !== "done" && b.goto !== "stop" && !stepIds.has(b.goto)) {
+						fail(
+							where,
+							`flow 단계 "${step.id}"의 goto "${b.goto}"가 이 흐름에 없습니다(done/stop도 아님)`,
+						);
+					}
+				}
+			}
+			// 8-d. 순서의 집은 하나여야 한다. 순서형 template과 겹치면 둘이 갈라진다.
+			if (p.format?.template?.includes("→")) {
+				fail(
+					where,
+					"flow와 순서형 format.template을 함께 갖고 있습니다 — 순서는 한 곳에만 둡니다",
+				);
+			}
+			// 8-e. 지어낸 순서에 원 소스 크레딧이 붙는 것을 막는다.
+			// context-appropriate-theme 가필 사고와 같은 종류의 위험이다.
+			if (!p.auditIds?.length) {
+				fail(
+					where,
+					"flow가 있는데 auditIds가 비어 있습니다 — 원문 근거 없는 순서는 담지 않습니다",
+				);
 			}
 		}
 

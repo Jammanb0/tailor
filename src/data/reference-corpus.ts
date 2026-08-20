@@ -150,6 +150,33 @@ export type PatternFormat = {
 };
 
 /** 오프라인으로 정리한 "좋은 행동 패턴" 한 항목. 출처를 항목 단위로 태그한다. */
+/**
+ * 흐름 안의 한 단계.
+ *
+ * 왜 별도 타입인가: 원본 스킬이 규정한 순서가 여러 패턴으로 쪼개지면서 사라진다.
+ * systematic-debugging의 4단계(감사 SD-07)가 그 사례다 — 각 단계는 패턴으로
+ * 남았는데 "이 순서이고 각 단계를 끝내야 다음"이라는 규정만 어디에도 없다.
+ *
+ * 목록(string[])으로는 부족하다. 원문에는 분기(SD-16)와 되돌아감(SD-20)이 있고,
+ * 그 둘은 직선 목록에 담기지 않는다.
+ */
+export type FlowStep = {
+	/** 이 흐름 안에서만 유일하면 된다(전역 유일일 필요 없음) */
+	id: string;
+	/** 렌더에 나올 짧은 행동 문장 */
+	label: string;
+	/** 이 단계에 대응하는 패턴이 있으면 그 id. 없으면 생략한다 */
+	patternId?: string;
+	/** 다음으로 넘어가기 전 충족해야 하는 조건 */
+	gate?: string;
+	/** 조건부 이동. 비어 있으면 다음 단계로 순차 진행 */
+	branches?: {
+		when: string;
+		/** 같은 흐름의 FlowStep.id | "done"(정상 종료) | "stop"(중단) */
+		goto: string;
+	}[];
+};
+
 export type ReferencePattern = {
 	/** 안정적 참조 키 (kebab-case) — AI가 사용한 패턴을 되짚을 때 사용 */
 	id: string;
@@ -202,6 +229,15 @@ export type ReferencePattern = {
 	 * 원문에 없는 문장에 theme-factory 크레딧이 붙어 있었다(2026-08-18 감사).
 	 */
 	adapted?: boolean;
+	/**
+	 * 여러 패턴에 걸친 순서·게이트·분기·되돌아감.
+	 *
+	 * 한 패턴 안에 닫힌 직선 절차는 `format.template`에 둔다 — 둘을 동시에 갖지
+	 * 않는다(lint 규칙 8-e). 순서의 집은 하나여야 한다.
+	 *
+	 * `flow`가 있으면 `detail`은 '왜'와 적용 조건만 쓰고 순서를 반복하지 않는다.
+	 */
+	flow?: FlowStep[];
 	/** 이 패턴이 유래한 ReferenceSource.id 목록 (신뢰성의 핵심) */
 	sourceIds: string[];
 };
@@ -644,6 +680,55 @@ export const referenceCategories: ReferenceCategory[] = [
 		// 있는 이유: 원문 verification-before-completion에 쓰인 항목이라 출처
 		// 계보를 따랐다. testing 쪽에서는 이 항목을 다시 쓰지 않는다.
 		patterns: [
+			{
+				// 원문 44–47줄의 4단계 순서와 "각 단계를 끝내야 다음"(감사 SD-07)은
+				// 지금까지 어느 패턴에도 담기지 않았다. 감사 문서의 「잃은 것」 표에
+				// 5번 항목으로 "부분" 복원이라 적혀 있고, SD-07을 참조하는 패턴이
+				// 코퍼스에 0개다. 각 단계의 내용은 이미 개별 패턴으로 있으므로
+				// 여기서는 순서와 넘어가는 조건만 담는다.
+				//
+				// 2단계(패턴 분석)에는 대응 패턴이 없다 — 감사 9번이 미복원(✗)이다.
+				// 그래서 patternId 없이 label만 둔다.
+				//
+				// 3회 규칙(SD-20, 조사 단계로 되돌아감)은 여기 넣지 않는다.
+				// 원문에서 별개 규칙이고 three-fix-rule이 이미 담고 있다.
+				id: "four-phase-debugging-order",
+				summary: "디버깅은 네 단계이고, 각 단계를 끝내야 다음으로 간다",
+				detail:
+					"단계를 건너뛰거나 뒤섞으면 원인을 모르는 채 고치게 된다. 각 단계에서 무엇을 할지는 해당 패턴에 적혀 있고, 여기서 정하는 것은 순서와 넘어가는 조건이다.",
+				role: "workflow-step",
+				kind: "artifact",
+				flow: [
+					{
+						id: "investigate",
+						label: "근본 원인 조사",
+						patternId: "root-cause-first",
+						gate: "증거를 다 모으기 전에는 고칠 방법을 제안하지 않는다",
+					},
+					{
+						id: "analyze",
+						label: "패턴 분석 — 작동하는 예를 찾아 차이를 전부 나열한다",
+					},
+					{
+						id: "hypothesize",
+						label: "가설을 하나 세우고 검증한다",
+						patternId: "single-hypothesis",
+						branches: [
+							{ when: "고쳐졌다", goto: "implement" },
+							{ when: "안 고쳐졌다", goto: "hypothesize" },
+						],
+					},
+					{
+						id: "implement",
+						label: "고친다",
+						patternId: "failing-test-before-fix",
+					},
+				],
+				auditIds: ["SD-07", "SD-16"],
+				verifyHint:
+					"단계 이름만 나열하는지, 넘어가는 조건과 되돌아가는 길이 붙는지",
+				sourceIds: ["sp-systematic-debugging"],
+			},
 			{
 				id: "root-cause-first",
 				summary: "증상이 아니라 근본 원인부터 조사한다",
