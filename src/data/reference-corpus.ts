@@ -761,11 +761,13 @@ export const referenceCategories: ReferenceCategory[] = [
 						id: "analyze",
 						label: "패턴 분석 — 작동하는 예를 찾아 차이를 전부 나열한다",
 						patternId: "compare-with-working-example",
+						gate: "차이가 전부 적히기 전에는 넘어가지 않는다",
 					},
 					{
 						id: "hypothesize",
 						label: "가설을 하나 세우고 검증한다",
 						patternId: "single-hypothesis",
+						gate: "가설이 맞았는지 틀렸는지가 갈리기 전에는 넘어가지 않는다",
 						branches: [
 							{ when: "고쳐졌다", goto: "implement" },
 							{ when: "안 고쳐졌다", goto: "hypothesize" },
@@ -775,9 +777,10 @@ export const referenceCategories: ReferenceCategory[] = [
 						id: "implement",
 						label: "고친다",
 						patternId: "failing-test-before-fix",
+						gate: "문제가 사라지고 테스트가 통과해야 끝난 것이다",
 					},
 				],
-				auditIds: ["SD-07", "SD-16"],
+				auditIds: ["SD-07", "SD-16", "SD-25"],
 				verifyHint:
 					"단계 이름만 나열하는지, 넘어가는 조건과 되돌아가는 길이 붙는지",
 				sourceIds: ["sp-systematic-debugging"],
@@ -1103,8 +1106,8 @@ export const referenceCategories: ReferenceCategory[] = [
 					],
 				},
 				exception:
-					"더 이상 거슬러 올라갈 수 없으면 터진 자리에서 고치되, 대신 층마다 방어를 함께 넣는다.",
-				auditIds: ["SD-28", "SD-29", "SD-30", "SD-33", "SD-35"],
+					"더 이상 거슬러 올라갈 수 없으면 터진 자리에서 고치되, 대신 층마다 방어를 함께 넣는다. 기록을 남길 때는 걸러지거나 묻힐 수 있는 경로를 쓰지 않는다 — 남긴 것이 화면에 안 보이면 안 남긴 것과 같다.",
+				auditIds: ["SD-28", "SD-29", "SD-30", "SD-31", "SD-33", "SD-35"],
 				verifyHint:
 					"거슬러 올라가는 단계가 있는지, 막다른 길일 때의 처리가 있는지",
 				sourceIds: ["sp-systematic-debugging"],
@@ -1236,15 +1239,61 @@ export const referenceCategories: ReferenceCategory[] = [
 				role: "constraint",
 				kind: "artifact",
 				format: {
+					count: "인자 3개 — 확인할 조건 · 무엇을 기다리는지 설명 · 시간 한도",
 					sections: [
 						"조건이 만족될 때까지 확인을 되풀이한다",
 						"언제까지 기다릴지 한도를 두고, 넘으면 무엇을 기다렸는지가 담긴 오류를 낸다",
 						"확인할 값은 매번 새로 읽는다 — 미리 담아두면 낡은 값을 본다",
 					],
 				},
+				options: [
+					{
+						value: "어떤 일이 일어나기를 기다릴 때",
+						character: "그 일이 기록에 남았는지 확인한다",
+					},
+					{
+						value: "어떤 상태가 되기를 기다릴 때",
+						character: "상태 값이 원하는 값과 같아졌는지 확인한다",
+					},
+					{
+						value: "개수가 차기를 기다릴 때",
+						character: "모인 개수가 기준을 넘었는지 확인한다",
+					},
+					{
+						value: "파일이 생기기를 기다릴 때",
+						character: "그 경로에 파일이 있는지 확인한다",
+					},
+					{
+						value: "조건이 여럿일 때",
+						character:
+							"여러 조건을 함께 확인한다 — 하나만 보고 넘어가지 않는다",
+					},
+				],
+				examples: [
+					{
+						polarity: "bad",
+						text: "정해둔 시간만큼 기다린 다음 값을 읽는다 — 느린 환경에서 아직 준비되지 않은 값을 읽는다",
+					},
+					{
+						polarity: "good",
+						text: "값이 준비됐는지를 조건으로 걸고, 참이 될 때까지 기다린 다음 읽는다",
+					},
+					{
+						polarity: "bad",
+						text: "확인을 지나치게 자주 되풀이한다 — 짧은 간격을 두는 것으로 충분하다",
+					},
+				],
 				exception:
 					"시간에 따라 달라지는 동작 자체를 확인할 때는 시간을 정해 기다려도 된다. 단 세 가지를 지킨다 — 먼저 시작 조건을 기다리고, 아는 주기에 근거해 값을 정하고, 왜 그 값인지 적는다.",
-				auditIds: ["SD-43", "SD-44", "SD-49"],
+				auditIds: [
+					"SD-43",
+					"SD-44",
+					"SD-45",
+					"SD-46",
+					"SD-47",
+					"SD-48",
+					"SD-49",
+				],
 				verifyHint: "금지만 적는지, 예외 조건까지 같이 적는지",
 				sourceIds: ["sp-systematic-debugging"],
 			},
