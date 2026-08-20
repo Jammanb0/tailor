@@ -2152,12 +2152,23 @@ export const referenceCategories: ReferenceCategory[] = [
 		id: "baseline",
 		label: "공통 기본 (모든 스킬)",
 		alwaysApply: true,
+		// 2026-08-20 채우기. 두 번째 출처는 별개 스킬이 아니라 systematic-debugging의
+		// 제작 기록이다. 감사에서 D 갈래로 갈린 7개(SD-51~57)가 디버깅 내용이 아니라
+		// "스킬을 어떻게 쓰는가"였고, 그 자리가 여기다.
 		sources: [
 			{
 				id: "sp-writing-skills",
 				name: "writing-skills (superpowers)",
 				author: "Jesse Vincent",
 				url: "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+				license: "MIT",
+				collectedAt: "2026-08-12",
+			},
+			{
+				id: "sp-systematic-debugging-log",
+				name: "systematic-debugging 제작 기록 (superpowers)",
+				author: "Jesse Vincent",
+				url: "https://github.com/obra/superpowers/blob/main/skills/systematic-debugging/CREATION-LOG.md",
 				license: "MIT",
 				collectedAt: "2026-08-12",
 			},
@@ -2355,6 +2366,335 @@ export const referenceCategories: ReferenceCategory[] = [
 				sourceIds: ["sp-writing-skills"],
 			},
 			{
+				id: "when-not-to-create",
+				summary: "스킬로 만들 것과 만들지 말 것을 먼저 가른다",
+				detail:
+					"기계로 강제할 수 있는 제약은 문서가 아니라 검사기가 맡는다. 정규식이나 검증으로 잡히는 것을 문서로 적으면, 지켜지지 않아도 아무도 모르는 규칙이 하나 늘 뿐이다. 문서는 판단이 필요한 것에 쓴다.",
+				role: "trigger",
+				kind: "process",
+				options: [
+					{
+						value: "만든다 — 나에게 직관적으로 명백하지 않았던 기법",
+						character: "알아내는 데 시간이 걸렸다면 남에게도 그렇다",
+					},
+					{
+						value: "만든다 — 프로젝트를 옮겨가며 다시 참조할 것",
+						character: "한 저장소 안에서만 쓸 것이면 해당 없다",
+					},
+					{
+						value: "만든다 — 넓게 적용되는 패턴",
+						character: "특정 프로젝트 사정에 매여 있지 않다",
+					},
+					{
+						value: "만든다 — 남에게도 도움이 될 것",
+						character: "나만 쓰는 개인 습관과 가른다",
+					},
+					{
+						value: "만들지 않는다 — 일회성 해결",
+						character: "다시 쓸 일이 없다",
+					},
+					{
+						value: "만들지 않는다 — 이미 잘 문서화된 표준 관행",
+						character: "찾으면 나오는 것을 옮겨 적는 셈이다",
+					},
+					{
+						value: "만들지 않는다 — 프로젝트 고유 관례",
+						character: "그 프로젝트의 지침 파일에 넣는다",
+					},
+					{
+						value: "만들지 않는다 — 기계적 제약",
+						character:
+							"정규식·검증으로 강제할 수 있으면 자동화한다. 문서는 판단이 필요한 것에 남긴다",
+					},
+				],
+				auditIds: ["W-04"],
+				sourceIds: ["sp-writing-skills"],
+			},
+			{
+				id: "one-excellent-example",
+				summary: "훌륭한 예시 하나가 그저 그런 여럿을 이긴다",
+				detail:
+					"주제에 가장 맞는 언어 하나를 골라 예시를 만든다 — 테스트 기법이면 TypeScript, 시스템 디버깅이면 셸이나 Python, 자료 처리면 Python 같은 식이다. 여러 언어로 같은 것을 구현하면 전부 그저 그런 품질이 되고 관리 부담만 는다. 읽는 쪽은 언어를 옮기는 데 능하므로 훌륭한 예시 하나면 충분하다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: {
+					sections: [
+						"완결돼 있고 실제로 돌아간다",
+						"왜 그렇게 하는지를 주석으로 설명한다",
+						"실제 상황에서 가져온 것이다",
+						"패턴이 분명히 드러난다",
+						"바로 고쳐 쓸 수 있다 — 범용 템플릿이 아니라",
+					],
+				},
+				examples: [
+					{
+						polarity: "bad",
+						text: "같은 것을 다섯 언어로 구현 — example-js.js, example-py.py, example-go.go",
+					},
+					{
+						polarity: "bad",
+						text: "빈칸 채우기 템플릿 — 무엇을 넣어야 하는지는 여전히 안 알려준다",
+					},
+					{
+						polarity: "bad",
+						text: "예시를 위해 지어낸 억지 상황 — 실제로 그렇게 쓰이지 않는다",
+					},
+				],
+				auditIds: ["W-09"],
+				sourceIds: ["sp-writing-skills"],
+			},
+			{
+				id: "flowchart-when",
+				summary: "순서도는 판단이 갈리는 자리에만 쓴다",
+				detail:
+					"순서도는 자리를 많이 차지하고 복사해 쓸 수 없다. 그래서 정보를 보여주는 용도가 아니라 잘못 갈 수 있는 결정에만 값을 한다. 그 조건에 맞으면 본문 안에 작게 넣고, 아니면 마크다운으로 쓴다. 노드 라벨에는 의미를 담는다 — step1, helper2 같은 이름은 순서도를 그리기 전보다 나은 것이 없다.",
+				role: "output-rule",
+				kind: "artifact",
+				options: [
+					{
+						value: "쓴다 — 자명하지 않은 결정 지점",
+						character: "고민 없이 답이 나오는 갈림길이면 필요 없다",
+					},
+					{
+						value: "쓴다 — 너무 일찍 멈출 수 있는 반복",
+						character: "언제까지 도느냐가 흐릿한 곳",
+					},
+					{
+						value: "쓴다 — A와 B 중 무엇을 쓸지 고르는 결정",
+						character: "둘 다 그럴듯해 보일 때",
+					},
+					{
+						value: "쓰지 않는다 — 참조 자료",
+						character: "표나 목록이 낫다",
+					},
+					{
+						value: "쓰지 않는다 — 코드 예시",
+						character:
+							"마크다운 코드블록으로. 순서도 안의 코드는 복사도 안 되고 읽기도 어렵다",
+					},
+					{
+						value: "쓰지 않는다 — 직선으로 이어지는 지시",
+						character: "번호 목록이면 충분하다",
+					},
+					{
+						value: "쓰지 않는다 — 의미 없는 라벨",
+						character: "step1, helper2처럼 이름이 아무것도 말해주지 않는 경우",
+					},
+				],
+				auditIds: ["W-08"],
+				sourceIds: ["sp-writing-skills"],
+			},
+			{
+				id: "skill-type-testing",
+				summary: "스킬 유형마다 시험 방법과 통과 기준이 다르다",
+				detail:
+					"검증했다는 말은 유형을 밝히지 않으면 뜻이 없다. 규율형에서 통하는 시험(압박을 걸어 어기는지 본다)은 참조형에서 아무것도 재지 못하고, 참조형의 시험(찾아 쓰는지 본다)은 규율형의 실패를 못 잡는다. 만든 스킬이 어느 유형인지 먼저 정하고 그 줄의 시험을 돌린다. 압박 시험은 선택지를 A·B·C로 강제하고, 가정적인 질문(무엇을 해야 하는가)이 아니라 무엇을 하겠는가로 묻는다 — 그래야 도망갈 자리가 없다.",
+				role: "verification",
+				// 시험 방법이라 완성된 문서에는 흔적이 남지 않는다.
+				kind: "process",
+				format: {
+					count: "유형 4종 × (시험 방법 3~4 + 통과 기준 1)",
+					sections: [
+						"규율형(지켜야 할 원칙) — 학술 질문으로 규칙을 아는지 · 압박 시나리오로 지키는지 · 압박 3종 이상 조합(시간+매몰비용+피로) · 나온 변명마다 명시적 반박 추가. 통과 기준: 최대 압박에서도 규칙을 지킨다",
+						"기법형(방법 안내) — 적용 시나리오 · 변형 시나리오(가장자리 경우) · 정보 누락 시험(지시에 빈틈이 있는지). 통과 기준: 새 상황에 기법을 제대로 적용한다",
+						"패턴형(사고 틀) — 인식 시나리오(언제 쓸지 알아채는가) · 적용 시나리오 · 반례(언제 쓰지 말아야 하는지 아는가). 통과 기준: 쓸 때와 안 쓸 때를 가른다",
+						"참조형(자료·API) — 검색 시나리오(맞는 항목을 찾는가) · 적용 시나리오 · 빈틈 시험(흔한 용례가 덮이는가). 통과 기준: 찾아서 올바로 적용한다",
+					],
+				},
+				// SD 제작 기록의 부하 시험 4종(SD-55·57)이 위 규율형 줄의 실제 사례다.
+				// 원저자는 학술 / 시간 압박 + 쉬워 보이는 임시 수정 / 복잡한 다층 시스템 /
+				// 첫 수정 실패의 네 가지로 돌렸고 전부 통과했다.
+				auditIds: ["W-14", "W-17", "SD-55", "SD-57"],
+				sourceIds: ["sp-writing-skills", "sp-systematic-debugging-log"],
+			},
+			{
+				id: "bulletproofing-toolkit",
+				summary: "규율형 스킬은 압박 아래 뚫리지 않도록 따로 손봐야 한다",
+				detail:
+					"규율을 요구하는 스킬은 똑똑한 독자가 압박 아래 빠져나갈 구멍을 찾는다는 전제로 쓴다. 적용 범위를 헷갈리지 말 것 — 이 도구들은 규칙을 알면서 압박에 밀려 건너뛰는 실패에만 쓴다. 출력 모양이 틀리거나 요소를 빠뜨리는 실패에는 금지문 기반 방탄이 역효과다(form-matches-failure를 볼 것). 값을 담는 자리는 이미 있다 — 변명 표의 형식은 rationalization-table이, 위험 신호 목록의 형식은 red-flags-list가 든다. 여기서는 그 둘을 포함한 방어 수단 전체를 어떻게 배치하는지를 정한다.",
+				role: "constraint",
+				kind: "artifact",
+				options: [
+					{
+						value: "우회로를 하나씩 이름 붙여 막는다",
+						character:
+							"테스트 전에 코드를 썼으면 지운다로 끝내지 않는다. 참고용으로 남기지 마라 / 테스트 쓰면서 손보지 마라 / 쳐다보지 마라 / 지우라면 지우는 것이다까지 적는다",
+					},
+					{
+						value: "문자 대 정신 논변을 미리 끊는다",
+						character:
+							"규칙의 문자를 어기는 것이 곧 정신을 어기는 것이다를 앞쪽에 원칙으로 박는다. 나는 정신을 따르고 있다는 부류의 합리화를 통째로 차단한다",
+					},
+					{
+						value: "변명 표를 만든다",
+						character:
+							"기준 시험에서 실제로 나온 변명을 전부 모아 넣는다. 형식은 rationalization-table",
+					},
+					{
+						value: "위험 신호 목록을 만든다",
+						character:
+							"스스로 알아챌 수 있게 짧은 신호로. 형식은 red-flags-list",
+					},
+					{
+						value: "위반 직전의 증상을 description에 넣는다",
+						character:
+							"규칙을 어기려는 순간의 상황을 트리거로 적어두면 그 순간에 스킬이 호출된다",
+					},
+					{
+						value: "핵심 지시를 여러 자리에 일부러 반복한다",
+						character:
+							"중복은 낭비가 아니라 설계다. 원저자는 근본 원인 지시를 개요·언제 쓰나·1단계·구현 규칙 네 곳에 두고, 증상을 고치지 마라를 서로 다른 맥락에서 네 번 반복했다",
+					},
+					{
+						value: "압박에 견디는 어휘를 쓴다",
+						character:
+							"should나 try to가 아니라 ALWAYS·NEVER. 그리고 압박 상황을 문장에 직접 넣는다 — 더 빠르더라도, 내가 급해 보이더라도, 멈추고 다시 분석하라",
+					},
+					{
+						value: "구조로 막는다 — 문서 형태 자체가 지름길을 없앤다",
+						character:
+							"1단계를 필수로 두어 구현으로 건너뛸 수 없게 · 가설은 한 번에 하나만(산탄식 수정 차단) · 실패 모드를 명시하고 그때 할 일을 못박기 · 안티패턴 절을 따로 두기",
+					},
+				],
+				// SD-56 — 원저자가 직접 "가장 중요한 방탄 요소"로 꼽은 것이 안티패턴
+				// 절이다. 지름길을 떠올리는 순간 그 문장이 목록에 있으면 인지적 마찰이
+				// 생긴다는 것이 근거다. 안티패턴 목록의 값 자체는 anti-patterns가 든다.
+				auditIds: ["W-15", "SD-52", "SD-53", "SD-54", "SD-56"],
+				sourceIds: ["sp-writing-skills", "sp-systematic-debugging-log"],
+			},
+			{
+				id: "keyword-coverage",
+				summary: "찾는 사람이 실제로 칠 법한 말을 본문에 흩어 둔다",
+				detail:
+					"스킬은 읽히기 전에 찾아져야 한다. 개념을 정확한 용어로만 적어두면, 정작 문제를 겪는 순간에 떠오르는 말(에러 문구, 증상을 부르는 속어)로는 검색되지 않는다. 이름도 마찬가지다 — 하는 일을 능동태 동사로 앞세운다.",
+				role: "trigger",
+				kind: "artifact",
+				format: {
+					sections: [
+						"에러 메시지 — 실제로 화면에 뜨는 문구 그대로",
+						"증상 — 사람들이 그 상태를 부르는 말",
+						"동의어 — 같은 것을 가리키는 다른 표현들을 함께",
+						"도구 — 실제 명령어, 라이브러리 이름, 파일 종류",
+					],
+				},
+				examples: [
+					{
+						polarity: "good",
+						text: '에러 메시지: "Hook timed out", "ENOTEMPTY", "race condition"',
+					},
+					{
+						polarity: "good",
+						text: '증상: "flaky", "hanging", "zombie", "pollution" — 정확한 용어가 아니라 부르는 말',
+					},
+					{
+						polarity: "good",
+						text: '동의어: "timeout/hang/freeze", "cleanup/teardown/afterEach"를 함께 적어 어느 말로 찾아도 걸리게',
+					},
+					{
+						polarity: "good",
+						text: "이름은 동사를 앞세운다 — creating-skills(○) / skill-creation(✕), condition-based-waiting(○) / async-test-helpers(✕)",
+					},
+				],
+				auditIds: ["W-11"],
+				sourceIds: ["sp-writing-skills"],
+			},
+			{
+				id: "no-force-load-links",
+				summary:
+					"다른 스킬은 이름으로 가리키고, 참조가 곧 로드가 되지 않게 한다",
+				detail:
+					"다른 문서를 가리키는 방식 중에는 가리키는 순간 그 파일을 통째로 읽어 들이는 것이 있다. 그런 참조를 쓰면 아직 필요하지도 않은 내용이 먼저 자리를 차지해, 정작 일할 때 쓸 여유가 줄어든다. 참조는 이름으로 하고, 그것이 필수인지 배경 지식인지를 표시로 밝힌다 — 표시가 없으면 읽는 쪽이 꼭 봐야 하는지 판단할 수 없어 결국 둘 다 실패한다(안 읽거나, 다 읽거나).",
+				role: "output-rule",
+				kind: "artifact",
+				// 원문의 금지 대상은 특정 런타임의 @ 링크 문법이다. 그 문법은 다른
+				// 환경 사용자에게 뜻이 통하지 않으므로(감사 9-4), 규정의 알맹이인
+				// "참조가 즉시 로드를 일으키지 않게 한다"만 옮겼다.
+				adapted: true,
+				examples: [
+					{
+						polarity: "good",
+						text: "**필수 하위 스킬:** test-driven-development를 사용한다 — 이름으로 가리키고 필수임을 밝혔다",
+					},
+					{
+						polarity: "good",
+						text: "**필수 배경:** systematic-debugging을 이해하고 있어야 한다",
+					},
+					{
+						polarity: "bad",
+						text: "skills/testing/test-driven-development 참고 — 꼭 봐야 하는 것인지 알 수 없다",
+					},
+					{
+						polarity: "bad",
+						text: "파일 경로를 즉시 로드되는 형태로 삽입하는 것 — 필요해지기 전에 컨텍스트를 태운다",
+					},
+				],
+				auditIds: ["W-21"],
+				sourceIds: ["sp-writing-skills"],
+			},
+			{
+				id: "anti-patterns",
+				summary: "안티패턴 절에 지름길의 실제 모습을 그대로 적어 둔다",
+				detail:
+					"원저자가 방탄 장치 중 가장 중요한 것으로 꼽은 것이 이 절이다. 근거는 인지적 마찰이다 — 이번만 이렇게 하자고 생각하는 순간, 바로 그 문장이 하지 말 것 목록에 적혀 있는 것을 보게 된다. 그래서 안티패턴은 추상적인 원칙이 아니라 실제로 그렇게 쓰인 모습으로 적어야 한다. 각 항목에는 왜 나쁜지를 한 줄로 붙인다.",
+				role: "constraint",
+				kind: "artifact",
+				format: {
+					count: "원문의 문서 작성 안티패턴은 4종",
+					template: "❌ <지름길의 실제 모습> — 왜 나쁜가: <한 줄>",
+				},
+				examples: [
+					{
+						polarity: "bad",
+						text: '서사형 예시 — "2025-10-03 세션에서 projectDir이 비어 있어…" · 너무 구체적이라 다시 쓸 수 없다',
+					},
+					{
+						polarity: "bad",
+						text: "다국어 희석 — example-js.js, example-py.py, example-go.go · 전부 그저 그런 품질이 되고 관리 부담만 는다",
+					},
+					{
+						polarity: "bad",
+						text: "순서도 안의 코드 — 복사해 쓸 수 없고 읽기도 어렵다",
+					},
+					{
+						polarity: "bad",
+						text: "무의미한 라벨 — helper1, helper2, step3, pattern4 · 라벨에는 뜻이 담겨야 한다",
+					},
+				],
+				auditIds: ["W-20", "SD-56"],
+				sourceIds: ["sp-writing-skills", "sp-systematic-debugging-log"],
+			},
+			{
+				id: "iron-law-edits-too",
+				summary: "철칙은 새로 만들 때만이 아니라 고칠 때도 적용된다",
+				detail:
+					"실패를 먼저 확인하지 않고 쓴 스킬은 무엇을 고치는지 모르는 채로 쓴 것이다. 이 원칙은 새 스킬에만 걸리는 것으로 읽히기 쉬운데, 원문은 기존 스킬 수정에도 똑같이 적용된다고 못박는다. 그리고 예외가 될 법한 것들을 하나씩 이름 붙여 막는다 — 이름 붙이지 않으면 각각이 자기만의 예외로 통과한다. 스킬 하나를 끝내기 전에 다음 것으로 넘어가지 않는다. 여러 개를 몰아 만들고 나중에 한꺼번에 검증하는 방식은 금지다 — 검증 안 한 스킬을 배포하는 것은 검증 안 한 코드를 배포하는 것과 같다.",
+				role: "constraint",
+				kind: "artifact",
+				format: {
+					count: "봉쇄 6항목",
+					sections: [
+						"간단한 추가라서 예외가 아니다",
+						"섹션 하나 더 붙이는 것도 예외가 아니다",
+						"문서 갱신도 예외가 아니다",
+						"검증 안 한 변경을 참고용으로 남기지 않는다",
+						"시험 도중에 손보지 않는다",
+						"지우라면 지우는 것이다",
+					],
+				},
+				examples: [
+					{
+						polarity: "good",
+						text: "핵심 문장을 한 줄로 박아 둔다 — 실패하는 시험 없이는 스킬도 없다",
+					},
+					{
+						polarity: "bad",
+						text: "스킬 여러 개를 몰아 만들고 검증은 나중에 한꺼번에 — 몰아서 하는 게 효율적이라는 이유가 가장 흔하다",
+					},
+				],
+				auditIds: ["W-10", "W-19"],
+				sourceIds: ["sp-writing-skills"],
+			},
+			{
 				id: "skills-are-reusable-techniques",
 				summary: "스킬은 재사용 가능한 검증된 기법이지 일회성 서사가 아니다",
 				detail:
@@ -2363,6 +2703,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				// "무엇을 스킬로 만들 것인가"에 대한 메타 규칙 — 결과물에 문장으로
 				// 드러나지 않는다.
 				kind: "process",
+				auditIds: ["W-02"],
 				sourceIds: ["sp-writing-skills"],
 			},
 		],
