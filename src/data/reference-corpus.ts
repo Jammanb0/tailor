@@ -824,6 +824,198 @@ export const referenceCategories: ReferenceCategory[] = [
 				sourceIds: ["sp-systematic-debugging"],
 			},
 			{
+				// 감사 8-3: "압박 저항 장치가 통째로 빠졌다". 원문에서 SD-05·06·22·24를
+				// 합치면 SKILL.md의 27.7%인데 코퍼스에는 하나도 없었다. 이 스킬은 문서
+				// 전체가 "급할 때 무너지는 것"을 막으려고 쓰였으므로, 그 장치가 빠지면
+				// 남는 것은 절차뿐이고 절차는 급할 때 제일 먼저 버려진다.
+				//
+				// 값 리터럴을 옮긴다 — 소스가 MIT로 확인됐다(정책 B 등급 1).
+				id: "debug-applies-to",
+				summary: "이 절차를 어떤 문제에 쓰는지 목록으로 정해둔다",
+				detail:
+					"'기술적 문제'라고만 적으면 각자 다르게 읽는다. 종류를 열거해두면 '이건 해당 안 되겠지'로 빠져나갈 자리가 줄어든다.",
+				role: "trigger",
+				kind: "artifact",
+				format: {
+					count: "6종",
+					sections: [
+						"테스트 실패",
+						"운영 중인 버그",
+						"예상 밖의 동작",
+						"성능 문제",
+						"빌드 실패",
+						"연동 문제",
+					],
+				},
+				auditIds: ["SD-04"],
+				verifyHint:
+					"적용 대상을 열거하는지, '기술적 문제 전반'으로 뭉뚱그리는지",
+				sourceIds: ["sp-systematic-debugging"],
+			},
+			{
+				id: "debug-especially-when",
+				summary: "건너뛰고 싶어지는 상황을 오히려 '반드시 쓸 때'로 못박는다",
+				detail:
+					"절차는 여유 있을 때가 아니라 급할 때 필요하다. 그런데 급할 때가 정확히 건너뛰고 싶어지는 때다. 그래서 '이럴 때는 특히'를 따로 적어 그 순간을 미리 가로막는다.",
+				role: "trigger",
+				kind: "artifact",
+				format: {
+					count: "5종",
+					sections: [
+						"시간에 쫓길 때 — 급하면 찍어보고 싶어진다",
+						"'딱 하나만 빨리 고치면 될 것' 같아 보일 때",
+						"이미 여러 번 고쳐봤을 때",
+						"직전 수정이 안 먹혔을 때",
+						"문제를 온전히 이해하지 못했을 때",
+					],
+				},
+				auditIds: ["SD-05"],
+				verifyHint: "'특히 이럴 때'가 따로 있는지, 적용 대상 목록만 있는지",
+				sourceIds: ["sp-systematic-debugging"],
+			},
+			{
+				// 형식(사유 없이 짧게 + 끝에 처방 한 줄)은 testing의 red-flags-list가
+				// 담는다. 여기는 그 형식에 넣을 실제 값이다 — banned-phrases와
+				// banned-phrase-defaults의 관계와 같다.
+				id: "debug-red-flag-defaults",
+				summary: "위험 신호는 행동이 아니라 '떠오른 생각' 그대로 적는다",
+				detail:
+					"'추측하지 마라'처럼 행동으로 적으면 이미 추측하고 있는 사람은 자기가 해당된다고 못 느낀다. 머릿속에 떠오른 문장을 그대로 적어두면 그 문장을 떠올리는 순간 걸린다. 아래는 원문이 제시한 열한 가지다.",
+				role: "constraint",
+				kind: "artifact",
+				format: { count: "11항목 + 닫는 처방 한 줄" },
+				examples: [
+					{ polarity: "bad", text: '"일단 빨리 고치고 조사는 나중에"' },
+					{ polarity: "bad", text: '"X를 한번 바꿔보고 되는지 보자"' },
+					{ polarity: "bad", text: '"여러 군데 고치고 테스트를 돌리자"' },
+					{ polarity: "bad", text: '"테스트는 건너뛰고 내가 직접 확인하지"' },
+					{ polarity: "bad", text: '"아마 X일 테니 그것부터 고치자"' },
+					{
+						polarity: "bad",
+						text: '"온전히 이해하진 못했지만 이러면 될 것 같다"',
+					},
+					{
+						polarity: "bad",
+						text: '"참고한 방식은 X라는데 나는 다르게 응용하겠다"',
+					},
+					{
+						polarity: "bad",
+						text: '"주요 문제는 이것들입니다 — 조사 없이 고칠 것부터 늘어놓는다"',
+					},
+					{
+						polarity: "bad",
+						text: "값이 어디서 왔는지 따라가기 전에 해결책부터 내놓는다",
+					},
+					{
+						polarity: "bad",
+						text: '"한 번만 더 고쳐보자" — 이미 두 번 이상 시도한 뒤라면',
+					},
+					{
+						polarity: "bad",
+						text: "고칠 때마다 엉뚱한 곳에서 새 문제가 나온다",
+					},
+				],
+				exception:
+					"닫는 처방을 반드시 붙인다 — 하나라도 해당하면 멈추고 조사 단계로 돌아간다. 세 번 이상 실패했으면 구조를 의심한다",
+				auditIds: ["SD-22"],
+				verifyHint: "신호를 '생각의 형태'로 적는지, 끝에 처방 한 줄이 붙는지",
+				sourceIds: ["sp-systematic-debugging"],
+			},
+			{
+				// 형식은 testing의 rationalization-table이 담는다. 여기는 값이다.
+				// SD-06(건너뛰면 안 되는 때 3종 + 사유)이 이 표의 1·2행과 같은 내용이라
+				// 별도 패턴으로 만들지 않고 여기에 함께 담는다.
+				id: "debug-rationalization-defaults",
+				summary: "절차를 건너뛸 때 나오는 변명과 그 각각에 대한 반박",
+				detail:
+					"아래는 원문이 표로 제시한 여덟 가지다. 반박은 예의나 원칙이 아니라 인과로 되받는다 — 그래야 급한 사람에게 통한다.",
+				role: "output-rule",
+				kind: "artifact",
+				format: { count: "8행" },
+				examples: [
+					{
+						polarity: "bad",
+						text: '"간단한 문제라 절차까지는 필요 없다" — 간단한 문제에도 원인은 있다. 절차는 간단한 버그에서 오히려 빠르다',
+					},
+					{
+						polarity: "bad",
+						text: '"급한 상황이라 절차 밟을 시간이 없다" — 체계적으로 하는 쪽이 찍어보며 헤매는 것보다 빠르다',
+					},
+					{
+						polarity: "bad",
+						text: '"일단 이것부터 해보고 그다음 조사하자" — 첫 수정이 방식을 정한다. 처음부터 제대로 한다',
+					},
+					{
+						polarity: "bad",
+						text: '"수정이 되는지 확인하고 테스트는 나중에 쓰겠다" — 확인 안 된 수정은 남지 않는다. 테스트를 먼저 써야 증명된다',
+					},
+					{
+						polarity: "bad",
+						text: '"여러 개를 한꺼번에 고치면 시간이 절약된다" — 무엇이 들었는지 가릴 수 없고 새 버그를 만든다',
+					},
+					{
+						polarity: "bad",
+						text: '"참고할 코드가 너무 길어서 요령껏 응용하겠다" — 반쯤 이해한 채로 쓰면 버그가 확정된다. 끝까지 읽는다',
+					},
+					{
+						polarity: "bad",
+						text: '"문제가 보이니 바로 고치겠다" — 증상이 보이는 것과 원인을 아는 것은 다르다',
+					},
+					{
+						polarity: "bad",
+						text: '"한 번만 더 고쳐보자" — 두 번 이상 실패했다면 구조 문제다. 또 고치지 말고 방식을 의심한다',
+					},
+				],
+				auditIds: ["SD-06", "SD-24"],
+				verifyHint: "변명을 1인칭 속말로 적는지, 반박이 인과로 되받는지",
+				sourceIds: ["sp-systematic-debugging"],
+			},
+			{
+				id: "say-what-you-dont-know",
+				summary: "모르는 것은 모른다고 적고 넘어가지 않는다",
+				detail:
+					"아는 척하고 넘어간 자리가 나중에 원인 불명으로 돌아온다. 모른다고 말하는 것 자체를 절차의 한 항목으로 둔다.",
+				role: "constraint",
+				kind: "artifact",
+				format: {
+					count: "4항목",
+					sections: [
+						"'X를 모르겠다'고 그대로 말한다",
+						"아는 척하지 않는다",
+						"도움을 요청한다",
+						"더 조사한다",
+					],
+				},
+				auditIds: ["SD-17"],
+				sourceIds: ["sp-systematic-debugging"],
+			},
+			{
+				// 원문은 실행 스크립트(find-polluter.sh)로 제공한다. 산출물에 스크립트를
+				// 넣을 수는 없지만 기법 자체는 옮길 수 있다 — 감사 3-5의 판단.
+				id: "bisect-to-find-polluter",
+				summary: "무엇이 다른 것을 망가뜨리는지는 반씩 갈라 좁힌다",
+				detail:
+					"따로 돌리면 통과하는데 같이 돌리면 깨지는 경우, 범인을 눈으로 찾으려 들면 개수만큼 걸린다. 절반씩 잘라 어느 쪽에 있는지만 확인하면 훨씬 적은 횟수로 좁혀진다.",
+				role: "workflow-step",
+				kind: "artifact",
+				adapted: true,
+				flow: [
+					{ id: "confirm", label: "혼자 돌렸을 때는 통과하는지 먼저 확인한다" },
+					{ id: "half", label: "후보를 절반으로 나눠 앞쪽만 함께 돌린다" },
+					{
+						id: "narrow",
+						label: "깨지는 쪽을 골라 다시 절반으로 나눈다",
+						branches: [{ when: "후보가 하나 남을 때까지", goto: "narrow" }],
+					},
+					{
+						id: "found",
+						label: "남은 하나가 원인이다 — 거기서 조사를 시작한다",
+					},
+				],
+				auditIds: ["SD-32"],
+				sourceIds: ["sp-systematic-debugging"],
+			},
+			{
 				// 원문 Phase 2. 감사 「잃은 것」 표 9번에 미복원(✗)으로 적혀 있었고,
 				// 2026-08-20 A/B에서 이 단계가 생성물에 나오는지가 6 대 0으로 갈렸다.
 				// 그때는 four-phase-debugging-order의 label 한 줄뿐이었고 원문의 네
