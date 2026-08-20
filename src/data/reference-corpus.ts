@@ -479,10 +479,28 @@ export const referenceCategories: ReferenceCategory[] = [
 					"테스트는 특정한 고장을 잡으려고 존재한다. 그 고장을 말로 못 하면 그 테스트는 아직 잡을 것이 없는 상태다. 기대값도 손으로 구해야 한다 — 검사 대상 코드로 기대값을 만들면 그 코드가 무슨 짓을 해도 통과한다.",
 				role: "workflow-step",
 				kind: "artifact",
-				format: {
-					template:
-						"테스트 본문을 쓰기 전에: 이 테스트를 실패시킬 제품 코드 변경을 말한다 → 말 못 하겠으면 눈에 보이는 동작을 기준으로 다시 설계한다 → '원문 글자가 바뀜'이면 산출물을 실행해 결과를 단언한다 → 의도적으로 정한 값만 실패시킬 수 있으면 그 값에 기대는 동작을 대신 잰다",
-				},
+				flow: [
+					{
+						id: "name",
+						label:
+							"테스트 본문을 쓰기 전에, 이 테스트를 실패시킬 제품 코드 변경을 말한다",
+						branches: [
+							{
+								when: "말 못 하겠다 — 눈에 보이는 동작을 기준으로 다시 설계한다",
+								goto: "name",
+							},
+							{
+								when: "'원문 글자가 바뀜'뿐이다 — 산출물을 실행해 결과를 단언한다",
+								goto: "name",
+							},
+							{
+								when: "의도적으로 정한 값만 실패시킨다 — 그 값에 기대는 동작을 대신 잰다",
+								goto: "name",
+							},
+						],
+					},
+					{ id: "write", label: "그제서야 테스트 본문을 쓴다" },
+				],
 				examples: [
 					{
 						polarity: "bad",
@@ -733,18 +751,39 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "root-cause-first",
 				summary: "증상이 아니라 근본 원인부터 조사한다",
 				detail:
-					"조사를 끝내기 전에는 고칠 방법을 제안하지 않는다. 다섯 가지를 순서대로 밟는데, 각 단계마다 볼 것이 따로 있다. 재현이 안 되면 추측으로 넘어가지 말고 자료를 더 모은다.",
+					"조사를 끝내기 전에는 고칠 방법을 제안하지 않는다. 증상을 건드리면 원인은 그대로 남아 같은 문제가 다시 나온다.",
 				role: "workflow-step",
 				kind: "artifact",
-				format: {
-					sections: [
-						"에러 메시지를 끝까지 읽는다 — 줄 번호·경로·오류 코드까지",
-						"일관되게 재현한다 — 정확한 단계는 무엇이고 매번 재현되는가",
-						"최근 바뀐 것을 확인한다 — 변경 이력, 새로 들어온 의존성, 설정",
-						"여러 조각으로 이뤄진 시스템이면 경계마다 증거를 남긴다",
-						"잘못된 값이 어디서 왔는지 거슬러 올라간다",
-					],
-				},
+				flow: [
+					{
+						id: "read-error",
+						label: "에러 메시지를 끝까지 읽는다 — 줄 번호·경로·오류 코드까지",
+					},
+					{
+						id: "reproduce",
+						label: "일관되게 재현한다 — 정확한 단계는 무엇이고 매번 재현되는가",
+						branches: [
+							{
+								when: "재현이 안 된다 — 추측하지 말고 자료를 더 모은다",
+								goto: "reproduce",
+							},
+						],
+					},
+					{
+						id: "recent-changes",
+						label:
+							"최근 바뀐 것을 확인한다 — 변경 이력, 새로 들어온 의존성, 설정",
+					},
+					{
+						id: "instrument",
+						label: "여러 조각으로 이뤄진 시스템이면 경계마다 증거를 남긴다",
+						patternId: "instrument-component-boundaries",
+					},
+					{
+						id: "trace-back",
+						label: "잘못된 값이 어디서 왔는지 거슬러 올라간다",
+					},
+				],
 				auditIds: ["SD-02", "SD-08", "SD-09", "SD-10"],
 				verifyHint: "단계 이름만 나열하는지, 단계마다 무엇을 볼지가 붙는지",
 				sourceIds: ["sp-systematic-debugging"],
@@ -754,13 +793,26 @@ export const referenceCategories: ReferenceCategory[] = [
 				summary:
 					"여러 조각을 거치는 문제는 경계마다 자국을 남겨 어디서 깨지는지부터 본다",
 				detail:
-					"어느 조각이 문제인지 모르는 채로 고치기 시작하면 멀쩡한 곳을 계속 건드리게 된다. 먼저 경계마다 기록을 남기고 한 번 돌려서 증거를 모은 다음, 그 증거로 깨진 조각을 특정하고, 그제서야 그 조각만 파고든다. 순서가 핵심이다 — 증거 없이 조각을 고르면 그냥 찍는 것이다.",
+					"어느 조각이 문제인지 모르는 채로 고치기 시작하면 멀쩡한 곳을 계속 건드리게 된다. 증거 없이 조각을 고르면 그냥 찍는 것이다.",
 				role: "workflow-step",
 				kind: "artifact",
 				format: {
-					template:
-						"각 경계마다: 무엇이 들어왔는지 기록 → 무엇이 나갔는지 기록 → 설정·환경이 넘어갔는지 확인 → 그 층의 상태 확인. 한 번 돌려 증거를 모은다 → 증거로 깨진 조각을 특정한다 → 그 조각만 조사한다",
+					sections: [
+						"무엇이 들어왔는지 기록",
+						"무엇이 나갔는지 기록",
+						"설정·환경이 넘어갔는지 확인",
+						"그 층의 상태 확인",
+					],
 				},
+				flow: [
+					{
+						id: "mark",
+						label: "경계마다 위 네 가지를 기록으로 남긴다",
+					},
+					{ id: "collect", label: "한 번 돌려 증거를 모은다" },
+					{ id: "locate", label: "증거로 깨진 조각을 특정한다" },
+					{ id: "dig", label: "그 조각만 조사한다" },
+				],
 				examples: [
 					{
 						polarity: "good",
@@ -838,13 +890,30 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "three-fix-rule",
 				summary: "고친 횟수를 세고, 세 번째부터는 구조를 의심한다",
 				detail:
-					"수정이 안 먹혔으면 먼저 몇 번째인지 센다. 세 번 미만이면 조사 단계로 돌아가 새로 알게 된 것을 반영한다. 세 번 이상이면 멈추고 구조를 의심하며, 그 논의 없이 네 번째 수정을 시도하지 않는다. 구조 문제일 때의 표시가 따로 있다 — 고칠 때마다 엉뚱한 곳에서 새로운 얽힘이 나오고, 제대로 고치려면 대공사가 필요해 보이고, 하나 고치면 다른 데서 증상이 생긴다. 이건 가설이 빗나간 것이 아니라 구조가 틀린 것이다.",
+					"같은 곳을 계속 고치는데 안 먹히면 가설이 빗나간 것이 아니라 구조가 틀린 것이다. 구조 문제일 때의 표시가 따로 있다 — 고칠 때마다 엉뚱한 곳에서 새로운 얽힘이 나오고, 제대로 고치려면 대공사가 필요해 보이고, 하나 고치면 다른 데서 증상이 생긴다.",
 				role: "constraint",
 				kind: "artifact",
-				format: {
-					template:
-						"안 먹혔다 → 몇 번째인지 센다 → 3회 미만이면 조사 단계로 복귀 → 3회 이상이면 멈추고 구조를 의심 → 논의 없이 4번째 시도 금지",
-				},
+				flow: [
+					{
+						id: "count",
+						label: "수정이 안 먹혔으면 먼저 몇 번째인지 센다",
+						branches: [
+							{ when: "3회 미만", goto: "back-to-investigation" },
+							{ when: "3회 이상", goto: "suspect-structure" },
+						],
+					},
+					{
+						id: "back-to-investigation",
+						label: "조사 단계로 돌아가 새로 알게 된 것을 반영한다",
+						patternId: "root-cause-first",
+						branches: [{ when: "반영해 다시 조사를 시작했다", goto: "done" }],
+					},
+					{
+						id: "suspect-structure",
+						label:
+							"멈추고 구조를 의심한다 — 그 논의 없이 네 번째 수정을 시도하지 않는다",
+					},
+				],
 				auditIds: ["SD-20", "SD-21"],
 				verifyHint:
 					"'가능성이 크다'는 소견으로 적는지, 세고 멈추는 규칙으로 적는지",
@@ -943,13 +1012,29 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "verify-before-done",
 				summary: "'됐다'고 말하기 전에 증명하는 명령을 새로 돌려 결과를 읽는다",
 				detail:
-					"지금 이 작업에서 직접 돌려보지 않았으면 통과한다고 말할 수 없다. 다섯 단계를 밟는데, 셋째 단계에서 볼 것이 세 가지다 — 출력 전체, 끝난 상태를 알려주는 값, 그리고 실패가 몇 건인지. 결과가 주장을 뒷받침하지 않으면 실제 상태를 증거와 함께 말하고, 뒷받침하면 주장을 증거와 함께 말한다. 어느 단계든 건너뛰면 확인한 것이 아니다.",
+					"지금 이 작업에서 직접 돌려보지 않았으면 통과한다고 말할 수 없다. 어느 단계든 건너뛰면 확인한 것이 아니다.",
 				role: "verification",
 				kind: "artifact",
-				format: {
-					template:
-						"무엇으로 증명되는지 정한다 → 그 명령을 처음부터 끝까지 새로 돌린다 → 출력 전체·종료 상태·실패 건수를 읽는다 → 결과가 주장을 뒷받침하는지 본다 → 그제서야 말한다",
-				},
+				flow: [
+					{ id: "define", label: "무엇으로 증명되는지 정한다" },
+					{ id: "rerun", label: "그 명령을 처음부터 끝까지 새로 돌린다" },
+					{
+						id: "read",
+						label: "출력 전체·종료 상태·실패 건수를 읽는다",
+						gate: "셋 중 하나라도 안 봤으면 다음으로 가지 않는다",
+					},
+					{
+						id: "judge",
+						label: "결과가 주장을 뒷받침하는지 본다",
+						branches: [
+							{
+								when: "뒷받침하지 않는다 — 주장 대신 실제 상태를 증거와 함께 말한다",
+								goto: "stop",
+							},
+						],
+					},
+					{ id: "say", label: "그제서야 주장을 증거와 함께 말한다" },
+				],
 				auditIds: ["V-04", "V-05", "V-06", "V-03"],
 				verifyHint:
 					"'실패 건수를 센다'까지 들어가는지, 뒷받침하지 않을 때의 처리가 있는지",
@@ -1027,10 +1112,18 @@ export const referenceCategories: ReferenceCategory[] = [
 					"테스트를 썼고 통과한다는 것만으로는 그 테스트가 문제를 잡을 수 있는지 알 수 없다. 고친 부분을 잠시 되돌려 실제로 실패하는지 보고, 다시 되살려 통과하는지 본다. 이 왕복이 없으면 재발 방지 테스트를 만들었다는 말은 증명되지 않은 주장이다.",
 				role: "verification",
 				kind: "artifact",
-				format: {
-					template:
-						"테스트를 쓴다 → 돌린다(통과) → 고친 것을 되돌린다 → 돌린다(반드시 실패) → 되살린다 → 돌린다(통과)",
-				},
+				flow: [
+					{ id: "write", label: "테스트를 쓴다" },
+					{ id: "run1", label: "돌린다 — 통과해야 한다" },
+					{ id: "revert", label: "고친 것을 잠시 되돌린다" },
+					{
+						id: "run2",
+						label: "돌린다 — 반드시 실패해야 한다",
+						gate: "여기서 실패하지 않으면 그 테스트는 문제를 잡지 못한다",
+					},
+					{ id: "restore", label: "고친 것을 되살린다" },
+					{ id: "run3", label: "돌린다 — 다시 통과해야 한다" },
+				],
 				auditIds: ["V-16"],
 				verifyHint: "되돌려 실패를 확인하는 단계가 있는지",
 				sourceIds: ["sp-verification-before-completion"],
@@ -1205,9 +1298,28 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "decompose-oversized-request",
 				summary: "요청이 여러 갈래면 세부를 묻기 전에 먼저 알린다",
 				detail:
-					"서로 독립된 갈래가 여러 개면 즉시 그 사실을 말한다. 나눠야 할 것의 세부를 다듬는 데 질문을 쓰지 않는다. 나눌 때는 세 가지를 함께 정한다 — 독립된 조각은 무엇인지, 서로 어떤 관계인지, 어떤 순서로 만들지. 그다음 첫 조각만 정상 흐름으로 진행한다. 조각마다 설계 → 계획 → 구현을 각각 한 벌씩 돈다.",
+					"나눠야 할 것의 세부를 다듬는 데 질문을 쓰지 않는다. 갈래가 여럿인 채로 세부를 파고들면 어느 갈래의 답인지 모르는 답이 쌓인다.",
 				role: "workflow-step",
 				kind: "artifact",
+				format: {
+					sections: [
+						"독립된 조각은 무엇인지",
+						"서로 어떤 관계인지",
+						"어떤 순서로 만들지",
+					],
+				},
+				flow: [
+					{
+						id: "tell",
+						label: "서로 독립된 갈래가 여러 개면 즉시 그 사실을 말한다",
+					},
+					{ id: "split", label: "나눌 때는 위 세 가지를 함께 정한다" },
+					{
+						id: "first",
+						label:
+							"첫 조각만 정상 흐름으로 진행한다 — 조각마다 설계·계획·구현을 각각 한 벌씩 돈다",
+					},
+				],
 				examples: [
 					{
 						polarity: "bad",
@@ -1357,9 +1469,16 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "bite-sized-tasks",
 				summary: "계획은 2~5분짜리 독립 작업 단위로 쪼갠다",
 				detail:
-					"한 단계는 하나의 행동이다. 검증부터 쓰기 → 실패하는지 확인 → 최소한으로 구현 → 통과하는지 확인 → 저장하기 흐름으로 나눈다. 코드가 필요한 단계에는 실제 코드를 적고, 실행할 명령과 기대하는 결과(실패인지 통과인지)를 함께 적는다.",
+					"한 단계는 하나의 행동이다. 코드가 필요한 단계에는 실제 코드를 적고, 실행할 명령과 기대하는 결과(실패인지 통과인지)를 함께 적는다.",
 				role: "workflow-step",
 				kind: "artifact",
+				flow: [
+					{ id: "write-check", label: "검증부터 쓴다" },
+					{ id: "see-fail", label: "실패하는지 확인한다" },
+					{ id: "minimal", label: "최소한으로 구현한다" },
+					{ id: "see-pass", label: "통과하는지 확인한다" },
+					{ id: "save", label: "저장한다" },
+				],
 				format: {
 					template:
 						"- [ ] 단계 N: 무엇을 한다 / 실행: <명령> / 기대: 실패 또는 통과",
@@ -2091,11 +2210,25 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "show-options-then-apply",
 				summary: "옵션을 먼저 보여주고 승인 후 일관 적용",
 				detail:
-					"선택지를 먼저 눈으로 보게 하고, 어느 것을 쓸지 묻고, 명시적 확인을 받은 뒤에 적용한다. 적용할 때는 대비·가독성을 지키며 전체에 일관되게 반영한다.",
+					"고르지 않은 안이 성급하게 적용되는 것을 막고, 정해진 방향을 전체에 일관되게 반영한다.",
 				role: "workflow-step",
 				kind: "artifact",
 				exception:
 					"보여주기용 자료(쇼케이스)는 보여주기만 하고 수정하지 않는다",
+				flow: [
+					{ id: "show", label: "선택지를 먼저 눈으로 보게 한다" },
+					{ id: "ask", label: "어느 것을 쓸지 묻는다" },
+					{
+						id: "wait",
+						label: "명시적 확인을 기다린다",
+						patternId: "wait-for-explicit-choice",
+						gate: "제시한 것만으로는 확인받은 것이 아니다",
+					},
+					{
+						id: "apply",
+						label: "적용한다 — 대비·가독성을 지키며 전체에 일관되게",
+					},
+				],
 				auditIds: ["T-02", "T-03", "T-05", "T-09", "T-10", "T-11"],
 				sourceIds: ["anthropic-theme-factory"],
 			},
@@ -2229,22 +2362,23 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "define-voice-profile",
 				summary: "말투를 먼저 '프로필'로 정의하고 일관 적용한다",
 				detail:
-					"정체성·핵심 신념·독자·보이스 특성·핵심 주제·선호/거부 어휘·금지 문구·채널별 규칙·예시 문단을 이 순서대로 받아 프로필로 정의하고, 이후 모든 글을 그 기준으로 쓴다. 순서에는 이유가 있다 — 앞의 것(정체성·신념·독자)이 뒤의 것(어휘·금지 문구·채널 규칙)을 정하는 근거가 된다. 질문 문장은 그때그때 지어내지 말고 항목마다 미리 정해두고, 받은 답은 항목별 파일로 저장해 다음 세션에도 남게 한다.",
+					"아홉 항목을 프로필로 정의하고 이후 모든 글을 그 기준으로 쓴다. 순서에는 이유가 있다 — 앞의 것(정체성·신념·독자)이 뒤의 것(어휘·금지 문구·채널 규칙)을 정하는 근거가 된다. 질문 문장은 그때그때 지어내지 말고 항목마다 미리 정해두고, 받은 답은 항목별 파일로 저장해 다음 세션에도 남게 한다.",
 				role: "workflow-step",
 				kind: "artifact",
-				format: {
-					sections: [
-						"정체성 — 배경과 지금 하는 일",
-						"핵심 신념 — 쓰는 글 전부를 관통하는 하나",
-						"독자 — 인구통계가 아니라 사람",
-						"보이스 특성 — 무엇을 쓰는지가 아니라 어떻게 들리는지",
-						"핵심 주제 — 늘 돌아오는 것들",
-						"어휘 — 쓰는 말과 안 쓰는 말",
-						"금지 문구 — 보면 지우는 것들",
-						"채널 — 매체별 규칙",
-						"예시 문단 — 이후의 기준 표본",
-					],
-				},
+				flow: [
+					{ id: "identity", label: "정체성 — 배경과 지금 하는 일" },
+					{ id: "belief", label: "핵심 신념 — 쓰는 글 전부를 관통하는 하나" },
+					{ id: "reader", label: "독자 — 인구통계가 아니라 사람" },
+					{
+						id: "traits",
+						label: "보이스 특성 — 무엇을 쓰는지가 아니라 어떻게 들리는지",
+					},
+					{ id: "themes", label: "핵심 주제 — 늘 돌아오는 것들" },
+					{ id: "words", label: "어휘 — 쓰는 말과 안 쓰는 말" },
+					{ id: "banned", label: "금지 문구 — 보면 지우는 것들" },
+					{ id: "channels", label: "채널 — 매체별 규칙" },
+					{ id: "sample", label: "예시 문단 — 이후의 기준 표본" },
+				],
 				auditIds: ["TV-03", "TV-04", "TV-05"],
 				verifyHint: "아홉 항목의 순서와 항목별 저장이 살아 있는지",
 				sourceIds: ["tone-of-voice"],
