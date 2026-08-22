@@ -446,3 +446,18 @@ curl -sS "https://api.github.com/repos/entpnomad/tone-of-voice/git/trees/main?re
 스냅샷은 저장소 밖 `corpus-sources/entpnomad-tone-of-voice/`에 있고 md5는
 `MANIFEST.json`에 기록돼 있다. `SKILL.md`가
 `846c4e236bbe18174152b992113a7696`이면 이 감사와 같은 판본이다.
+
+---
+
+## [2026-08-21] TV-06 · TV-23은 담지 않는다 — E 갈래
+
+**TV-06(메모리 파일 frontmatter 형식 — `type` / `description`)**은 그 스킬이
+값을 저장하는 파일의 형식이다. 어디에 어떻게 저장할지는 **사용자 환경마다 다르고**,
+형식만 옮기면 그 환경에 없는 규약을 따르라는 지시가 된다. 저장 자체의 필요는
+`define-voice-profile`이 "항목별 파일로 저장해 다음 세션에도 남게 한다"로 담고
+있다.
+
+**TV-23(동반 스킬이 이 스킬을 역참조해 재작성 중 보이스를 보존한다)**은 그
+저장소가 스킬 두 개를 짝지어 배포한다는 **구성 사정**이다. 스킬 하나를 만드는
+Tailor 사용자에게는 짝이 되는 스킬이 없다. 상호 참조의 일반 규정은 baseline의
+`no-force-load-links`가 담는다.

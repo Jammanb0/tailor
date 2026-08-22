@@ -1634,7 +1634,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "classify-before-process",
 				summary: "일을 시작하기 전에 요청의 무게부터 분류한다",
 				detail:
-					"세 갈래 중 어디인지 먼저 정하고, 그 분류를 말로 밝힌다 — 사용자가 뒤집을 수 있어야 하기 때문이다. 분류에 따라 만드는 문서와 다음 단계가 달라진다. 둘 사이에서 망설이면 무거운 쪽을 고른다. 그리고 이 톱니는 한 방향이다: 하다가 숨은 복잡도가 드러나면 멈추고 말한 뒤 위 단계로 올린다. 내려가는 일은 없다.",
+					"세 갈래 중 어디인지 먼저 정하고, 그 분류를 말로 밝힌다 — 사용자가 뒤집을 수 있어야 하기 때문이다. 분류에 따라 만드는 문서와 다음 단계가 달라진다. 둘 사이에서 망설이면 무거운 쪽을 고른다. 그리고 이 톱니는 한 방향이다: 하다가 숨은 복잡도가 드러나면 멈추고 말한 뒤 위 단계로 올린다. 내려가는 일은 없다. **분류가 끝나면 그 경로의 할 일을 목록으로 만들어 하나씩 닫는다** — 읽고 넘어가면 중간에 빠지고, 빠진 것은 끝나고 나서야 드러난다.",
 				role: "workflow-step",
 				kind: "artifact",
 				options: [
@@ -1654,7 +1654,7 @@ export const referenceCategories: ReferenceCategory[] = [
 							"새 프로젝트, 새 하위 갈래, 남이 의존하는 접점을 바꾸는 것. 질문 → 접근안 → 절 단위 설계 → 문서로 남기기 → 검토까지 전 과정을 밟는다",
 					},
 				],
-				auditIds: ["B-02", "B-03", "B-04", "B-05", "B-06", "B-08"],
+				auditIds: ["B-02", "B-03", "B-04", "B-05", "B-06", "B-07", "B-08"],
 				verifyHint:
 					"생성된 SKILL.md가 모든 요청에 같은 절차를 붙이는지, 요청 크기에 따라 갈래를 나누는지",
 				sourceIds: ["sp-brainstorming"],
@@ -1875,8 +1875,10 @@ export const referenceCategories: ReferenceCategory[] = [
 				role: "workflow-step",
 				kind: "artifact",
 				format: { template: "<날짜>-<주제>.md" },
-				auditIds: ["B-18"],
-				sourceIds: ["sp-brainstorming"],
+				// W-03(계획 저장 경로 규칙 — 날짜 + 기능명)이 같은 규칙이다.
+				// 두 소스가 같은 말을 하므로 출처를 함께 적는다.
+				auditIds: ["B-18", "W-03"],
+				sourceIds: ["sp-brainstorming", "sp-writing-plans"],
 			},
 			{
 				id: "show-a-picture-only-when-it-helps",
@@ -3071,6 +3073,16 @@ export const referenceCategories: ReferenceCategory[] = [
 						"불충분한 것 — 증거처럼 보이지만 아닌 것",
 					],
 				},
+				examples: [
+					{
+						polarity: "good",
+						text: "맞는 쪽은 밟을 단계로 적는다 — '계획을 다시 읽는다 → 점검표를 만든다 → 항목마다 확인한다 → 못 채운 것을 보고한다'",
+					},
+					{
+						polarity: "bad",
+						text: '틀린 쪽은 실제로 나올 법한 발언을 그대로 적는다 — "테스트 통과했고 단계 완료입니다". 요약하면 자기가 그 말을 하고 있다는 것을 못 알아본다',
+					},
+				],
 				options: [
 					{
 						value: "테스트가 통과한다",
@@ -3107,14 +3119,16 @@ export const referenceCategories: ReferenceCategory[] = [
 				// 없는 경우를 이미 다루지만, 그것을 "문서·설명 스킬은 자기가 적어둔
 				// 기준을 점검표로 쓴다"로 넓힌 것은 원문에 없는 판단이다.
 				adapted: true,
-				auditIds: ["V-07", "V-08", "V-14", "V-17"],
+				// V-15(맞는 쪽은 단계로, 틀린 쪽은 실제 발언 문자열로)를 examples의
+				// 표기 규약으로 담았다.
+				auditIds: ["V-07", "V-08", "V-14", "V-15", "V-17"],
 				sourceIds: ["sp-verification-before-completion"],
 			},
 			{
 				id: "verify-before-done",
 				summary: "'됐다'고 말하기 전에 증명하는 명령을 새로 돌려 결과를 읽는다",
 				detail:
-					"지금 이 작업에서 직접 돌려보지 않았으면 통과한다고 말할 수 없다. 어느 단계든 건너뛰면 확인한 것이 아니다.",
+					"**주장보다 증거가 먼저다 — 언제나.** 지금 이 작업에서 직접 돌려보지 않았으면 통과한다고 말할 수 없다. 어느 단계든 건너뛰면 확인한 것이 아니다. **이 규칙은 '됐다'는 말에만 걸리는 것이 아니다** — 완료를 뜻하는 모든 표현, 만족을 드러내는 말, 상태에 대한 긍정, 마무리·제출·다음 일로 넘어가는 순간, 그리고 맡긴 일의 결과를 전할 때까지 전부 포함한다. 문언을 피해 가는 것은 정신을 어기는 것이다.",
 				role: "verification",
 				kind: "artifact",
 				flow: [
@@ -3137,7 +3151,10 @@ export const referenceCategories: ReferenceCategory[] = [
 					},
 					{ id: "say", label: "그제서야 주장을 증거와 함께 말한다" },
 				],
-				auditIds: ["V-04", "V-05", "V-06", "V-03"],
+				// V-01(주장보다 증거가 먼저) · V-02(문언을 어기면 정신을 어긴 것) ·
+				// V-19(적용 시점 6종)를 detail 한 문단에 담았다. baseline에 실리는
+				// 패턴이라 항목마다 새 패턴을 만들지 않는다.
+				auditIds: ["V-01", "V-02", "V-03", "V-04", "V-05", "V-06", "V-19"],
 				verifyHint:
 					"'실패 건수를 센다'까지 들어가는지, 뒷받침하지 않을 때의 처리가 있는지",
 				sourceIds: ["sp-verification-before-completion"],
@@ -3191,7 +3208,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "no-success-words-before-run",
 				summary: "돌려보기 전에는 성공을 암시하는 말 자체를 쓰지 않는다",
 				detail:
-					"막으려는 것은 기술적 실수가 아니라 말버릇이다. '아마', '~인 것 같다', '될 겁니다' 같은 표현이 첫 번째 신호이고, 확인 전에 '좋아요', '완벽합니다', '끝났습니다' 같은 만족 표현을 쓰는 것이 두 번째다. 목록에 없는 표현으로 새어나가지 않게, 마지막에는 열어두는 조항을 붙인다 — 확인하지 않은 채 성공을 암시하는 모든 표현이 여기 해당한다. 정확한 문구뿐 아니라 바꿔 말한 것, 돌려 말한 것, 완료를 시사하는 모든 말에 같은 규칙이 걸린다.",
+					"막으려는 것은 기술적 실수가 아니라 말버릇이다. '아마', '~인 것 같다', '될 겁니다' 같은 표현이 첫 번째 신호이고, 확인 전에 '좋아요', '완벽합니다', '끝났습니다' 같은 만족 표현을 쓰는 것이 두 번째다. 목록에 없는 표현으로 새어나가지 않게, 마지막에는 열어두는 조항을 붙인다 — 확인하지 않은 채 성공을 암시하는 모든 표현이 여기 해당한다. 정확한 문구뿐 아니라 바꿔 말한 것, 돌려 말한 것, 완료를 시사하는 모든 말에 같은 규칙이 걸린다. **여기 붙이는 변명 표는 짧게 되받는다** — 이미 동의한 규칙을 지키게 하는 자리라 길게 논증할 것이 없다. 하기 싫은 일을 설득해야 하는 자리(테스트 먼저 쓰기 같은)에서는 반박이 길어야 하지만, 여기서는 한 구절이면 된다.",
 				role: "constraint",
 				kind: "artifact",
 				examples: [
@@ -3203,7 +3220,10 @@ export const referenceCategories: ReferenceCategory[] = [
 						text: "'34개 중 34개 통과를 확인했습니다 — 모두 통과합니다'",
 					},
 				],
-				auditIds: ["V-10", "V-11", "V-12", "V-20"],
+				// V-13(변명 표 8행)의 값은 담지 않았다 — 같은 표를 testing·debugging·
+				// baseline이 이미 셋 들고 있어 네 번째는 중복이다. 대신 이 소스만의
+				// 형식 관찰(반박이 한 구절씩 짧다)을 detail에 남겼다.
+				auditIds: ["V-10", "V-11", "V-12", "V-13", "V-20"],
 				verifyHint: "금지 표현 목록에 열어두는 조항이 붙는지",
 				sourceIds: ["sp-verification-before-completion"],
 			},
