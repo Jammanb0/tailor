@@ -143,6 +143,24 @@ counts and md5 hashes.
 
 </details>
 
+## What got written down along the way
+
+To avoid judging quality by eye, what changed and what came of it was recorded
+as it happened.
+
+- **`docs/corpus/`** — **11 audits**, one per source, checking the corpus
+  against the original. They record which files were read and how far, down to
+  file lists, byte counts and md5 hashes
+- **`docs/experiments/`** — **9 write-ups** plus raw data: model and setting
+  comparisons, whether filling a corpus category actually changed the output,
+  and a blind scoring pass on whether the attributions a generation reports are
+  really present in what it produced
+
+Conclusions later overturned are **left in place**; a correction note is
+appended at the top instead. Editing the body would change what the record says
+was measured. So before quoting a conclusion, **read the top of that document
+first.**
+
 ## Project layout
 
 <details>
@@ -164,11 +182,6 @@ docs/corpus/                source audit records
 docs/experiments/           generation-quality experiments + raw data
 ```
 
-Before quoting a conclusion from `docs/experiments/`, **read the correction note
-at the top of that document first.** Some conclusions were later overturned, and
-rather than editing the body — which would change what the record says was
-measured — corrections are appended.
-
 </details>
 
 ## Stack
@@ -182,3 +195,14 @@ The reference corpus distills patterns from **public skills other people
 wrote**. Each source's author and license are recorded in
 `src/data/reference-corpus.ts`, and the audits in `docs/corpus/`. The result
 screen credits the sources behind the patterns actually used in that generation.
+
+## License
+
+© 2026 Guhn Park
+
+The code is public, but no open-source license is granted. You are welcome to
+read it and learn from it; for anything beyond that, please get in touch.
+
+The patterns distilled into the reference corpus **remain under their own
+sources' licenses** — authors and licenses are recorded in
+`src/data/reference-corpus.ts` and `docs/corpus/`.
