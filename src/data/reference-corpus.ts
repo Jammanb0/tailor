@@ -2578,7 +2578,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "skill-creation-checklist",
 				summary: "스킬을 배포하기 전 다섯 단계 점검을 통과시킨다",
 				detail:
-					"스킬 쓰기는 문서에 적용한 TDD다 — 가이드 없이 먼저 실패를 관찰하고, 그 실패를 겨냥해 쓰고, 다시 돌려 확인한다. 점검 항목은 읽고 넘어가는 것이 아니라 항목마다 할 일로 만들어 하나씩 닫는다. 검증하지 않은 스킬을 배포하는 것은 검증하지 않은 코드를 배포하는 것과 같다.",
+					"스킬 쓰기는 문서에 적용한 TDD다 — 가이드 없이 먼저 실패를 관찰하고, 그 실패를 겨냥해 쓰고, 다시 돌려 확인한다. 그래서 TDD를 이해하고 있는 것이 이 절차의 전제다. 점검 항목은 읽고 넘어가는 것이 아니라 항목마다 할 일로 만들어 하나씩 닫는다. 검증하지 않은 스킬을 배포하는 것은 검증하지 않은 코드를 배포하는 것과 같다. **문구를 미세 검증할 때는 분산을 지표로 본다** — 가이드가 실제로 구속력이 있으면 반복이 같은 모양으로 수렴한다. 다섯 번이 다섯 갈래로 갈리면 그 문구는 아무것도 붙들지 못한 것이다.",
 				role: "verification",
 				kind: "process",
 				// 2026-08-21 축 1(게이트를 절차에 연결). 다섯 단계는 순서이고
@@ -2633,7 +2633,11 @@ export const referenceCategories: ReferenceCategory[] = [
 				// 저장소 고유 절차(포크에 push)는 사용자 환경에 없으므로 "버전 관리에
 				// 커밋"으로 옮겼고, 단계 이름도 한국어 맥락에 맞게 풀었다.
 				adapted: true,
-				auditIds: ["W-18"],
+				// W-01(스킬 쓰기 = 문서에 적용한 TDD, TDD가 필수 배경)과
+				// W-16(문구 마이크로 테스트)은 위 detail·format이 이미 담고 있어
+				// 패턴을 새로 만들지 않고 번호만 보탠다. W-16의 "분산이 지표"만은
+				// 빠져 있어 detail에 한 줄 넣었다.
+				auditIds: ["W-01", "W-16", "W-18"],
 				sourceIds: ["sp-writing-skills"],
 			},
 			{
@@ -2775,7 +2779,11 @@ export const referenceCategories: ReferenceCategory[] = [
 				// SD 제작 기록의 부하 시험 4종(SD-55·57)이 위 규율형 줄의 실제 사례다.
 				// 원저자는 학술 / 시간 압박 + 쉬워 보이는 임시 수정 / 복잡한 다층 시스템 /
 				// 첫 수정 실패의 네 가지로 돌렸고 전부 통과했다.
-				auditIds: ["W-14", "W-17", "SD-55", "SD-57"],
+				// W-05(스킬 유형 3종과 각각의 예)는 위 sections가 유형별로 갈라 담고
+				// 있어 번호만 보탠다. 원문은 기법·패턴·참조 3종인데 여기는 규율형이
+				// 하나 더 있다 — 규율형은 시험 방법이 가장 다르고, 우리 축 1의 골격
+				// 4종과도 맞는다.
+				auditIds: ["W-05", "W-14", "W-17", "SD-55", "SD-57"],
 				sourceIds: ["sp-writing-skills", "sp-systematic-debugging-log"],
 			},
 			{
@@ -2837,7 +2845,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "keyword-coverage",
 				summary: "찾는 사람이 실제로 칠 법한 말을 본문에 흩어 둔다",
 				detail:
-					"스킬은 읽히기 전에 찾아져야 한다. 개념을 정확한 용어로만 적어두면, 정작 문제를 겪는 순간에 떠오르는 말(에러 문구, 증상을 부르는 속어)로는 검색되지 않는다. 이름도 마찬가지다 — 하는 일을 능동태 동사로 앞세운다.",
+					"스킬은 읽히기 전에 찾아져야 한다. 개념을 정확한 용어로만 적어두면, 정작 문제를 겪는 순간에 떠오르는 말(에러 문구, 증상을 부르는 속어)로는 검색되지 않는다. 이름도 마찬가지다 — 하는 일을 능동태 동사로 앞세운다. **검색어를 앞쪽에 자주 두는 데는 이유가 있다** — 찾는 쪽은 문제를 만나고 → 설명으로 훑어 고르고 → 개요만 읽고 관련 있는지 판정하고 → 그다음에야 본문을 읽는다. 뒤쪽에만 있는 말은 그 판정을 통과하기 전에는 읽히지 않으므로 없는 것과 같다.",
 				role: "trigger",
 				kind: "artifact",
 				format: {
@@ -2866,7 +2874,10 @@ export const referenceCategories: ReferenceCategory[] = [
 						text: "이름은 동사를 앞세운다 — creating-skills(○) / skill-creation(✕), condition-based-waiting(○) / async-test-helpers(✕)",
 					},
 				],
-				auditIds: ["W-11"],
+				// W-22(발견 흐름 6단계)는 흐름 자체를 단계로 담지 않았다 — 그것은
+				// 읽는 쪽의 행동이지 사용자가 만들 스킬이 시키는 일이 아니다. 대신
+				// 그 흐름이 근거가 되는 규정("앞쪽에 자주")을 detail에 담았다.
+				auditIds: ["W-11", "W-22"],
 				sourceIds: ["sp-writing-skills"],
 			},
 			{
