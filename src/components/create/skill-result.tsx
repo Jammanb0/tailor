@@ -46,11 +46,6 @@ function downloadSkillMarkdown(content: string) {
 function SourceRow({ source }: { source: ReferencedSource }) {
 	return (
 		<li className="flex flex-wrap items-center gap-x-2 gap-y-1">
-			{source.self && (
-				<span className="rounded-full bg-accent/15 px-2 py-0.5 font-semibold text-accent text-xs">
-					Tailor-made
-				</span>
-			)}
 			{source.url && !source.self ? (
 				<a
 					href={source.url}
@@ -63,10 +58,12 @@ function SourceRow({ source }: { source: ReferencedSource }) {
 			) : (
 				<span className="font-medium text-foreground">{source.name}</span>
 			)}
+			{/* 모든 행이 `이름 + 부가정보` 한 형태다. 자체 제작만 뱃지를 이름 앞에
+			    달았더니 그 줄만 다른 것처럼 보였다. 부가정보 자리에 "우리가 만든
+			    방식"이라고 풀어 쓰던 것도 Tailor-made로 통일한다 — 밖에서 온 것과
+			    같은 자리에, 같은 무게로 적힌다. */}
 			<span className="text-muted text-xs">
-				{source.self
-					? "우리가 만든 방식"
-					: `${source.author} · ${source.license}`}
+				{source.self ? "Tailor-made" : `${source.author} · ${source.license}`}
 			</span>
 			{/* 원문 그대로가 아니라 Tailor가 손봐서 담은 내용. 계보(원 소스)는 위에
 			    그대로 밝히고, 손댔다는 사실만 덧붙인다. */}
@@ -179,6 +176,44 @@ export function SkillResult({
 				</p>
 			</div>
 
+			{/* 이 페이지에서 사용자 행동을 요구하는 것은 이것뿐이라 맨 위에 둔다.
+			    종전에는 미리보기·점검내용·출처 아래에 있어 화면을 한참 내려야
+			    보였고, 질문이 하나뿐일 때는 그대로 지나치기 쉬웠다.
+			    질문 내용까지 여기서 보여준다 — 무엇을 묻는지 알려고 한 번 더
+			    누르게 하지 않는다. */}
+			{hasPendingQuestions && (
+				<button
+					type="button"
+					onClick={jumpToRefineButton}
+					className="flex flex-col gap-2 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 text-left transition-colors hover:border-accent"
+				>
+					<span className="flex items-center justify-between gap-3">
+						<span className="font-medium text-foreground text-sm">
+							Tailor가 궁금한 점이 있어요
+							{result.clarifyingQuestions.length > 1
+								? ` (${result.clarifyingQuestions.length}개)`
+								: ""}
+						</span>
+						<span aria-hidden className="shrink-0 text-accent">
+							↓
+						</span>
+					</span>
+					<ul className="flex flex-col gap-1 text-muted text-sm">
+						{result.clarifyingQuestions.map((question) => (
+							<li key={question} className="flex gap-2">
+								<span aria-hidden className="text-accent">
+									·
+								</span>
+								<span>{question}</span>
+							</li>
+						))}
+					</ul>
+					<span className="text-muted text-xs">
+						답하면 더 정확해져요. 그냥 넘어가도 괜찮아요.
+					</span>
+				</button>
+			)}
+
 			<div>
 				<h2 className="text-sm font-semibold text-muted">SKILL.md 미리보기</h2>
 				<div className="mt-2 max-h-96 overflow-hidden rounded-2xl border border-border bg-surface">
@@ -210,21 +245,6 @@ export function SkillResult({
 				referencedSources={result.referencedSources}
 				structureSources={result.structureSources}
 			/>
-
-			{hasPendingQuestions && (
-				<button
-					type="button"
-					onClick={jumpToRefineButton}
-					className="flex items-center justify-between gap-3 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 text-left transition-colors hover:border-accent"
-				>
-					<span className="text-sm text-foreground">
-						Tailor가 궁금한 점이 있어요 — 아래에서 답하면 더 정확해져요
-					</span>
-					<span aria-hidden className="shrink-0 text-accent">
-						↓
-					</span>
-				</button>
-			)}
 
 			<div>
 				<h2 className="text-sm font-semibold text-muted">설치 방법</h2>
