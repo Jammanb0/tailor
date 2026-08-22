@@ -1436,103 +1436,6 @@ export const referenceCategories: ReferenceCategory[] = [
 				sourceIds: ["sp-systematic-debugging"],
 			},
 			{
-				id: "verify-before-done",
-				summary: "'됐다'고 말하기 전에 증명하는 명령을 새로 돌려 결과를 읽는다",
-				detail:
-					"지금 이 작업에서 직접 돌려보지 않았으면 통과한다고 말할 수 없다. 어느 단계든 건너뛰면 확인한 것이 아니다.",
-				role: "verification",
-				kind: "artifact",
-				flow: [
-					{ id: "define", label: "무엇으로 증명되는지 정한다" },
-					{ id: "rerun", label: "그 명령을 처음부터 끝까지 새로 돌린다" },
-					{
-						id: "read",
-						label: "출력 전체·종료 상태·실패 건수를 읽는다",
-						gate: "셋 중 하나라도 안 봤으면 다음으로 가지 않는다",
-					},
-					{
-						id: "judge",
-						label: "결과가 주장을 뒷받침하는지 본다",
-						branches: [
-							{
-								when: "뒷받침하지 않는다 — 주장 대신 실제 상태를 증거와 함께 말한다",
-								goto: "stop",
-							},
-						],
-					},
-					{ id: "say", label: "그제서야 주장을 증거와 함께 말한다" },
-				],
-				auditIds: ["V-04", "V-05", "V-06", "V-03"],
-				verifyHint:
-					"'실패 건수를 센다'까지 들어가는지, 뒷받침하지 않을 때의 처리가 있는지",
-				sourceIds: ["sp-verification-before-completion"],
-			},
-			{
-				id: "what-is-not-evidence",
-				summary:
-					"주장마다 '무엇이 증거이고 무엇은 증거가 아닌지'를 나란히 적는다",
-				detail:
-					"무엇이 증거인지 아는 것보다 무엇이 증거가 아닌지 아는 쪽이 실제로 막아준다. 한 줄 규칙으로 뭉치면 이 구분이 통째로 사라진다.",
-				role: "output-rule",
-				kind: "artifact",
-				options: [
-					{
-						value: "테스트가 통과한다",
-						character:
-							"실패 0으로 끝난 실행 결과가 있어야 한다. 지난번 실행이나 '이제 될 것이다'는 안 된다",
-					},
-					{
-						value: "빌드가 된다",
-						character:
-							"빌드가 정상 종료했다는 것이 확인돼야 한다. 검사 도구가 통과했다거나 기록이 괜찮아 보인다는 것은 안 된다",
-					},
-					{
-						value: "버그를 고쳤다",
-						character:
-							"원래 증상을 다시 재현해 보고 통과해야 한다. 코드를 고쳤으니 됐겠지는 안 된다",
-					},
-					{
-						value: "재발 방지 테스트가 동작한다",
-						character:
-							"고친 것을 되돌렸을 때 실제로 실패하는 것까지 봐야 한다. 한 번 통과한 것으로는 안 된다",
-					},
-					{
-						value: "맡긴 작업이 끝났다",
-						character:
-							"변경 내역에 실제 변화가 보여야 한다. 끝냈다는 보고만으로는 안 된다",
-					},
-					{
-						value: "요구사항을 다 채웠다",
-						character:
-							"요구사항을 한 줄씩 대조한 목록이 있어야 한다. 테스트가 통과한다는 것으로는 안 된다",
-					},
-				],
-				auditIds: ["V-07", "V-08", "V-09"],
-				verifyHint:
-					"'무엇은 증거가 아닌지'가 주장마다 붙는지, 긍정형 지시만 남는지",
-				sourceIds: ["sp-verification-before-completion"],
-			},
-			{
-				id: "no-success-words-before-run",
-				summary: "돌려보기 전에는 성공을 암시하는 말 자체를 쓰지 않는다",
-				detail:
-					"막으려는 것은 기술적 실수가 아니라 말버릇이다. '아마', '~인 것 같다', '될 겁니다' 같은 표현이 첫 번째 신호이고, 확인 전에 '좋아요', '완벽합니다', '끝났습니다' 같은 만족 표현을 쓰는 것이 두 번째다. 목록에 없는 표현으로 새어나가지 않게, 마지막에는 열어두는 조항을 붙인다 — 확인하지 않은 채 성공을 암시하는 모든 표현이 여기 해당한다. 정확한 문구뿐 아니라 바꿔 말한 것, 돌려 말한 것, 완료를 시사하는 모든 말에 같은 규칙이 걸린다.",
-				role: "constraint",
-				kind: "artifact",
-				examples: [
-					{ polarity: "bad", text: "'이제 잘 될 겁니다'" },
-					{ polarity: "bad", text: "확인 전에 '완벽합니다'" },
-					{ polarity: "bad", text: "맡긴 쪽이 됐다고 하니 됐다고 전한다" },
-					{
-						polarity: "good",
-						text: "'34개 중 34개 통과를 확인했습니다 — 모두 통과합니다'",
-					},
-				],
-				auditIds: ["V-10", "V-11", "V-12", "V-20"],
-				verifyHint: "금지 표현 목록에 열어두는 조항이 붙는지",
-				sourceIds: ["sp-verification-before-completion"],
-			},
-			{
 				id: "red-green-regression-proof",
 				summary: "재발 방지 테스트는 고친 것을 되돌려 실패시켜 봐야 증명된다",
 				detail:
@@ -1553,16 +1456,6 @@ export const referenceCategories: ReferenceCategory[] = [
 				],
 				auditIds: ["V-16"],
 				verifyHint: "되돌려 실패를 확인하는 단계가 있는지",
-				sourceIds: ["sp-verification-before-completion"],
-			},
-			{
-				id: "verify-delegated-work",
-				summary: "맡긴 작업은 보고가 아니라 실제 변경 내역으로 확인한다",
-				detail:
-					"끝냈다는 보고와 실제로 바뀐 것은 다를 수 있다. 보고를 받으면 변경 내역을 열어 무엇이 어떻게 바뀌었는지 직접 보고, 그 실제 상태를 전한다.",
-				role: "verification",
-				kind: "artifact",
-				auditIds: ["V-18"],
 				sourceIds: ["sp-verification-before-completion"],
 			},
 		],
@@ -2405,6 +2298,14 @@ export const referenceCategories: ReferenceCategory[] = [
 				license: "MIT",
 				collectedAt: "2026-08-12",
 			},
+			{
+				id: "sp-verification-before-completion",
+				name: "verification-before-completion (superpowers)",
+				author: "Jesse Vincent",
+				url: "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+				license: "MIT",
+				collectedAt: "2026-08-12",
+			},
 		],
 		patterns: [
 			{
@@ -2975,6 +2876,176 @@ export const referenceCategories: ReferenceCategory[] = [
 				],
 				auditIds: ["W-10", "W-19"],
 				sourceIds: ["sp-writing-skills"],
+			},
+			// ── 완료 검증 (2026-08-21 승격) ─────────────────────────────
+			//
+			// 아래 다섯은 `debugging`에 있었다. 옮긴 근거는 실측이다 — 시나리오
+			// 11종 × 2회로 만들어진 22건 중 **완료 확인 절이 붙은 것은 8건(36%)뿐**이고,
+			// 붙은 쪽은 대부분 테스트·디버깅 계열이었다. 계획·코드리뷰·디자인·문서·
+			// 설명·엑셀 정리는 두 번 다 없었다.
+			//
+			// **`red-green-regression-proof`는 옮기지 않았다** — "고친 것을 되돌려
+			// 실패시켜 본다"는 버그를 고친 뒤에만 성립한다. 모든 스킬에 실릴 성질이
+			// 아니라 `debugging`에 남긴다.
+			{
+				id: "evidence-matches-the-claim",
+				summary: "무엇을 주장하느냐에 따라 필요한 증거가 다르다",
+				detail:
+					"'끝났다'를 선언하기 전에 증거를 본다는 원칙은 어떤 스킬에나 걸리지만, **무엇이 증거인지는 주장마다 다르다.** 원문은 주장별로 필요한 것과 불충분한 것을 짝지어 표로 규정한다. **여기서 특히 볼 것은 「요구사항을 다 채웠다」 줄이다** — 돌려볼 명령이 없는 주장인데도 확인 방법이 있다. 계획을 다시 읽어 한 줄씩 점검표를 만들고 항목마다 확인한 뒤 **못 채운 것을 보고한다.** 문서·설명·기획처럼 돌릴 것이 없는 스킬은 이 줄을 따른다 — 그 스킬이 스스로 적어둔 지켜야 할 것·형식 규정·금지 목록이 그대로 점검표가 된다. 이 구분을 안 하면 돌릴 것이 없는 스킬에 '명령을 돌려 확인하라'가 박혀 실행할 수 없는 지시가 된다.",
+				role: "verification",
+				kind: "artifact",
+				format: {
+					sections: [
+						"주장 — 무엇을 다 했다고 말하려는가",
+						"필요한 것 — 그 주장을 뒷받침하는 증거",
+						"불충분한 것 — 증거처럼 보이지만 아닌 것",
+					],
+				},
+				options: [
+					{
+						value: "테스트가 통과한다",
+						character:
+							"필요: 테스트 명령 출력에 실패 0 / 불충분: 이전 실행 결과, '통과할 것이다'",
+					},
+					{
+						value: "검사기가 깨끗하다",
+						character:
+							"필요: 검사기 출력에 에러 0 / 불충분: 일부만 보고 미루어 짐작",
+					},
+					{
+						value: "빌드가 된다",
+						character:
+							"필요: 빌드 명령의 종료 코드 0 / 불충분: 검사기가 통과함, 로그가 괜찮아 보임",
+					},
+					{
+						value: "버그를 고쳤다",
+						character:
+							"필요: 원래 증상을 재현하던 것이 통과 / 불충분: 코드를 바꿨으니 됐겠지",
+					},
+					{
+						value: "맡긴 작업이 끝났다",
+						character:
+							"필요: 실제 변경 내역을 열어 확인 / 불충분: 맡은 쪽이 '됐다'고 보고함",
+					},
+					{
+						value: "요구사항을 다 채웠다",
+						character:
+							"필요: 한 줄씩 점검표를 만들어 항목마다 확인하고 못 채운 것을 보고 / 불충분: 테스트가 통과함",
+					},
+				],
+				// 원문의 표는 코드 작업을 전제로 쓰였다. 마지막 줄(요구사항)이 돌릴 것이
+				// 없는 경우를 이미 다루지만, 그것을 "문서·설명 스킬은 자기가 적어둔
+				// 기준을 점검표로 쓴다"로 넓힌 것은 원문에 없는 판단이다.
+				adapted: true,
+				auditIds: ["V-07", "V-08", "V-14", "V-17"],
+				sourceIds: ["sp-verification-before-completion"],
+			},
+			{
+				id: "verify-before-done",
+				summary: "'됐다'고 말하기 전에 증명하는 명령을 새로 돌려 결과를 읽는다",
+				detail:
+					"지금 이 작업에서 직접 돌려보지 않았으면 통과한다고 말할 수 없다. 어느 단계든 건너뛰면 확인한 것이 아니다.",
+				role: "verification",
+				kind: "artifact",
+				flow: [
+					{ id: "define", label: "무엇으로 증명되는지 정한다" },
+					{ id: "rerun", label: "그 명령을 처음부터 끝까지 새로 돌린다" },
+					{
+						id: "read",
+						label: "출력 전체·종료 상태·실패 건수를 읽는다",
+						gate: "셋 중 하나라도 안 봤으면 다음으로 가지 않는다",
+					},
+					{
+						id: "judge",
+						label: "결과가 주장을 뒷받침하는지 본다",
+						branches: [
+							{
+								when: "뒷받침하지 않는다 — 주장 대신 실제 상태를 증거와 함께 말한다",
+								goto: "stop",
+							},
+						],
+					},
+					{ id: "say", label: "그제서야 주장을 증거와 함께 말한다" },
+				],
+				auditIds: ["V-04", "V-05", "V-06", "V-03"],
+				verifyHint:
+					"'실패 건수를 센다'까지 들어가는지, 뒷받침하지 않을 때의 처리가 있는지",
+				sourceIds: ["sp-verification-before-completion"],
+			},
+			{
+				id: "what-is-not-evidence",
+				summary:
+					"주장마다 '무엇이 증거이고 무엇은 증거가 아닌지'를 나란히 적는다",
+				detail:
+					"무엇이 증거인지 아는 것보다 무엇이 증거가 아닌지 아는 쪽이 실제로 막아준다. 한 줄 규칙으로 뭉치면 이 구분이 통째로 사라진다.",
+				role: "output-rule",
+				kind: "artifact",
+				options: [
+					{
+						value: "테스트가 통과한다",
+						character:
+							"실패 0으로 끝난 실행 결과가 있어야 한다. 지난번 실행이나 '이제 될 것이다'는 안 된다",
+					},
+					{
+						value: "빌드가 된다",
+						character:
+							"빌드가 정상 종료했다는 것이 확인돼야 한다. 검사 도구가 통과했다거나 기록이 괜찮아 보인다는 것은 안 된다",
+					},
+					{
+						value: "버그를 고쳤다",
+						character:
+							"원래 증상을 다시 재현해 보고 통과해야 한다. 코드를 고쳤으니 됐겠지는 안 된다",
+					},
+					{
+						value: "재발 방지 테스트가 동작한다",
+						character:
+							"고친 것을 되돌렸을 때 실제로 실패하는 것까지 봐야 한다. 한 번 통과한 것으로는 안 된다",
+					},
+					{
+						value: "맡긴 작업이 끝났다",
+						character:
+							"변경 내역에 실제 변화가 보여야 한다. 끝냈다는 보고만으로는 안 된다",
+					},
+					{
+						value: "요구사항을 다 채웠다",
+						character:
+							"요구사항을 한 줄씩 대조한 목록이 있어야 한다. 테스트가 통과한다는 것으로는 안 된다",
+					},
+				],
+				auditIds: ["V-07", "V-08", "V-09"],
+				verifyHint:
+					"'무엇은 증거가 아닌지'가 주장마다 붙는지, 긍정형 지시만 남는지",
+				sourceIds: ["sp-verification-before-completion"],
+			},
+			{
+				id: "no-success-words-before-run",
+				summary: "돌려보기 전에는 성공을 암시하는 말 자체를 쓰지 않는다",
+				detail:
+					"막으려는 것은 기술적 실수가 아니라 말버릇이다. '아마', '~인 것 같다', '될 겁니다' 같은 표현이 첫 번째 신호이고, 확인 전에 '좋아요', '완벽합니다', '끝났습니다' 같은 만족 표현을 쓰는 것이 두 번째다. 목록에 없는 표현으로 새어나가지 않게, 마지막에는 열어두는 조항을 붙인다 — 확인하지 않은 채 성공을 암시하는 모든 표현이 여기 해당한다. 정확한 문구뿐 아니라 바꿔 말한 것, 돌려 말한 것, 완료를 시사하는 모든 말에 같은 규칙이 걸린다.",
+				role: "constraint",
+				kind: "artifact",
+				examples: [
+					{ polarity: "bad", text: "'이제 잘 될 겁니다'" },
+					{ polarity: "bad", text: "확인 전에 '완벽합니다'" },
+					{ polarity: "bad", text: "맡긴 쪽이 됐다고 하니 됐다고 전한다" },
+					{
+						polarity: "good",
+						text: "'34개 중 34개 통과를 확인했습니다 — 모두 통과합니다'",
+					},
+				],
+				auditIds: ["V-10", "V-11", "V-12", "V-20"],
+				verifyHint: "금지 표현 목록에 열어두는 조항이 붙는지",
+				sourceIds: ["sp-verification-before-completion"],
+			},
+			{
+				id: "verify-delegated-work",
+				summary: "맡긴 작업은 보고가 아니라 실제 변경 내역으로 확인한다",
+				detail:
+					"끝냈다는 보고와 실제로 바뀐 것은 다를 수 있다. 보고를 받으면 변경 내역을 열어 무엇이 어떻게 바뀌었는지 직접 보고, 그 실제 상태를 전한다.",
+				role: "verification",
+				kind: "artifact",
+				auditIds: ["V-18"],
+				sourceIds: ["sp-verification-before-completion"],
 			},
 			{
 				id: "skills-are-reusable-techniques",
