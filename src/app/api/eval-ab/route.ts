@@ -41,7 +41,9 @@ import {
 } from "../generate-skill/prompt";
 
 export const runtime = "nodejs";
-export const maxDuration = 800;
+// maxDuration은 두지 않는다. 이 라우트는 배포 환경에서 404로 막히므로 값이
+// 쓰일 자리가 없고, 종전 값 800은 Hobby 상한(300초)을 넘어 배포만 막을 수
+// 있었다. 로컬 실행에는 이 설정이 적용되지 않는다.
 
 const SONNET = "claude-sonnet-5";
 const HAIKU = "claude-haiku-4-5";
