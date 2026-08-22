@@ -179,17 +179,37 @@ export function buildUserContent(
 		.join("\n");
 }
 
+// 여는 태그는 **줄 머리에 있는 것만** 진짜로 본다.
+//
+// 모델이 검토 메모 안에서 태그 이름을 산문으로 언급하는 일이 있다 — 실제로
+// "실제 사용 시 다를 수 있어 <questions>에 확인을 요청했습니다"라고 쓴 응답이
+// 있었다. 줄 머리 조건이 없으면 파서가 **그 문장 속 태그**를 여는 자리로 잡아,
+// 되물음 목록의 첫 항목이 "에 확인을 요청했습니다."가 되고 그 뒤로 `</review>`와
+// `<questions>`가 항목으로 딸려 들어온다. 화면에 그대로 노출됐다.
+// (2,588건 중 4건. 재현율은 낮지만 나오면 눈에 띈다.)
+//
+// 출력 형식이 태그를 각자의 줄에 두게 지시하므로 줄 머리 조건은 안전하다.
+// 그래도 형식이 흔들린 응답에서 통째로 놓치지는 않도록, 못 찾으면 종전 방식으로
+// 한 번 더 찾는다.
 export function extractTag(text: string, tag: string): string | null {
-	const match = text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
+	const atLineStart = text.match(
+		new RegExp(`^[ \\t]*<${tag}>([\\s\\S]*?)</${tag}>`, "m"),
+	);
+	const match =
+		atLineStart ?? text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
 	return match ? match[1].trim() : null;
 }
+
+/** 태그 하나만 있는 줄 — 잘라낸 블록에 섞여 들어온 잔해다. */
+const TAG_ONLY_LINE = /^<\/?[a-z_][a-z0-9_]*>$/;
 
 export function extractListTag(text: string, tag: string): string[] {
 	const block = extractTag(text, tag) ?? "";
 	return block
 		.split("\n")
 		.map((line) => line.replace(/^[-*]\s*/, "").trim())
-		.filter(Boolean);
+		.filter(Boolean)
+		.filter((line) => !TAG_ONLY_LINE.test(line));
 }
 
 // 모델이 id를 어떻게 감싸 보고하든 순수 id만 남긴다.
