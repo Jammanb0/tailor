@@ -329,6 +329,12 @@ B축(용어를 뺄수록 점수가 오르던 것)과 같은 종류의 오류다.
 | TD-31 | mock 설정이 테스트 로직보다 커지면 **진짜 컴포넌트로 통합 테스트** 전환 | 전환 조건 3 | artifact | wgt L130–134 |
 | TD-32 | 돌연변이 점검 **5종**. 하나도 못 잡으면 그 행동이 무방비이거나 테스트가 항진명제 | 목록 5 | artifact | wgt L157–170 |
 | TD-33 | 빠른 참조 표 **10행** (상황 → 처방) | 표 10행 | artifact | wgt L171–185 |
+
+> **[2026-08-21] TD-33은 담지 않는다 — E 갈래.** 열 줄을 하나씩 대조한 결과
+> **전부 다른 항목이 이미 담고 있다**(name-the-break 2 · what-earns-a-test 2 ·
+> no-mock-assertions 2 · fakes-are-specific 2 · no-test-only-methods-in-production 1 ·
+> mutation-check 1). 이 표는 원문 안에서 앞 내용을 요약하는 장치이지 새 규정이
+> 아니다. 표째로 옮기면 같은 말이 두 군데 살게 된다.
 | TD-34 | 경고 신호 **11항목** | 목록 11 | artifact | wgt L186–199 |
 
 ## 7. 현 코퍼스와의 대조

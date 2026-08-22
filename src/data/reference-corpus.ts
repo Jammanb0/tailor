@@ -534,11 +534,40 @@ export const referenceCategories: ReferenceCategory[] = [
 						branches: [{ when: "못 채운 항목이 있으면", goto: "red" }],
 					},
 				],
+				examples: [
+					{
+						polarity: "bad",
+						text: "테스트보다 코드를 먼저 썼다 — 지우고 다시 시작한다",
+					},
+					{
+						polarity: "bad",
+						text: "지운 코드를 '참고용'으로 남겨둔다",
+					},
+					{
+						polarity: "bad",
+						text: "테스트를 쓰면서 그 코드를 곁눈질해 맞춰 간다",
+					},
+					{
+						polarity: "bad",
+						text: "지우라고 했는데 주석 처리만 한다 — 지우는 것은 지우는 것이다",
+					},
+				],
 				exception:
 					"버리는 프로토타입·생성된 코드·설정 파일은 예외로 둘 수 있다. 다만 예외로 할지는 혼자 정하지 말고 사람에게 묻는다.",
 				// TD-18(최종 규칙 — 사람 파트너 승인 없이 예외 없음)은 위 exception이
 				// 이미 같은 말을 하고 있어 패턴을 새로 만들지 않고 번호만 보탠다.
-				auditIds: ["TD-01", "TD-02", "TD-04", "TD-06", "TD-18"],
+				// TD-14(버그픽스 실물 1벌 — RED → 검증 → GREEN → 검증 → REFACTOR)는
+				// 위 flow가 그 순서를 그대로 담고 있어 번호만 보탠다.
+				// TD-05(코드를 먼저 썼으면 지운다 + 봉쇄 4항목)는 위 examples가 담는다.
+				auditIds: [
+					"TD-01",
+					"TD-02",
+					"TD-04",
+					"TD-05",
+					"TD-06",
+					"TD-14",
+					"TD-18",
+				],
 				verifyHint:
 					"주기를 '빨강→초록→리팩터' 직선으로만 적는지, 되돌아오는 길 셋이 살아 있는지",
 				sourceIds: ["sp-tdd"],
@@ -662,7 +691,9 @@ export const referenceCategories: ReferenceCategory[] = [
 						text: "손으로 계산한 결과를 그대로 적어 비교한다",
 					},
 				],
-				auditIds: ["TD-20", "TD-21", "TD-22", "TD-25"],
+				// TD-19의 첫 원칙("모든 테스트는 자기가 잡는 파손을 명명한다")이
+				// 이 패턴 자체다. 둘째 원칙("진짜를 실행한다")은 no-mock-assertions가 든다.
+				auditIds: ["TD-19", "TD-20", "TD-21", "TD-22", "TD-25"],
 				verifyHint:
 					"'무엇이 망가지면 실패하는가'를 먼저 묻는 절차가 있는지, 기대값을 손으로 구하라는 규정이 있는지",
 				sourceIds: ["sp-tdd"],
@@ -718,6 +749,102 @@ export const referenceCategories: ReferenceCategory[] = [
 				],
 				auditIds: ["TD-26", "TD-27", "TD-29"],
 				verifyHint: "가짜를 어느 층에서 쓰는지에 대한 기준이 있는지",
+				sourceIds: ["sp-tdd"],
+			},
+			{
+				id: "what-earns-a-test",
+				summary: "무엇에 테스트를 붙이고 무엇에 안 붙이는지 선을 긋는다",
+				detail:
+					"테스트를 많이 쓰는 것이 목표가 아니다. **내 코드가 경계에서 맺는 계약**을 재고, 남의 것은 그쪽 관리자의 몫으로 둔다 — 등록한 경로, 내보내는 질의, 만들어내는 결과가 내 것이고, 라이브러리가 그 경로를 제대로 호출하는지는 그쪽 테스트다. 같은 선이 내 코드 안에도 그어진다. 그리고 **재는 대상은 글자가 아니라 행동이다** — 문서가 특정 줄을 담고 있는지 확인하는 것은 그 문서가 그 문서임을 증명할 뿐이다. 스크립트는 정해둔 입력으로 돌려 출력·부작용·종료 상태를 보고, 지시문은 그것을 읽는 쪽의 행동으로 잰다. **사람이 읽는 산문은 테스트 대상이 아니다.**",
+				role: "constraint",
+				kind: "artifact",
+				format: {
+					count: "테스트를 얻는 조건 6종",
+					sections: [
+						"값을 검증한다",
+						"형태를 고른다(정규화)",
+						"기본값을 채운다",
+						"다른 값을 이끌어낸다",
+						"규칙을 강제한다",
+						"바깥에 영향을 남긴다",
+					],
+				},
+				examples: [
+					{
+						polarity: "bad",
+						text: "생성자·게터·상수·단순 전달에 테스트를 붙인다 — 위 여섯 중 하나도 안 하면 안 붙이고, 그것에 기대는 첫 결과를 대신 잰다",
+					},
+					{
+						polarity: "bad",
+						text: "문서에 특정 문장이 들어 있는지 검사한다",
+					},
+					{
+						polarity: "good",
+						text: "남의 동작에 진짜로 놀랐다면, 그 전제를 이름에 담은 좁은 테스트를 하나만 남긴다",
+					},
+				],
+				auditIds: ["TD-23", "TD-24"],
+				sourceIds: ["sp-tdd"],
+			},
+			{
+				id: "fakes-are-specific",
+				summary: "가짜는 구체적으로 만들고, 커지면 진짜로 바꾼다",
+				detail:
+					"인자·호출 횟수·순서가 계약의 일부라면 그것까지 단언한다 — 무엇이든 받아주는 가짜는 아무것도 검증하지 않는다. 갈래마다(성공·에러·형식 오류) 각자의 자료를 두고, 가짜 응답은 진짜 구조를 빠짐없이 흉내 낸다. **그리고 가짜를 언제 그만둘지도 정해져 있다** — 가짜를 차리는 코드가 테스트 본문보다 커지거나, 진짜에는 있는데 가짜에는 없는 것이 나오거나, 가짜를 고칠 때마다 테스트가 깨지면 진짜 부품을 쓰는 통합 테스트로 바꾼다.",
+				role: "constraint",
+				kind: "artifact",
+				format: {
+					count: "통합 테스트로 넘어갈 신호 3종",
+					sections: [
+						"가짜 차리는 코드가 테스트 본문보다 커진다",
+						"진짜에는 있는 것이 가짜에 없다",
+						"가짜를 고치면 테스트가 깨진다",
+					],
+				},
+				auditIds: ["TD-28", "TD-31"],
+				sourceIds: ["sp-tdd"],
+			},
+			{
+				id: "no-test-only-methods-in-production",
+				summary: "테스트만 쓰는 것을 제품 코드에 두지 않는다",
+				detail:
+					"테스트에서만 필요한 뒷정리를 제품 클래스의 메서드로 만들지 않는다. 그런 것은 테스트 쪽 도구에 둔다. 판정은 두 질문으로 한다 — 이 메서드를 테스트에서만 부르는가, 이 클래스가 그 자원의 수명을 쥐고 있는가. 답이 「테스트에서만」이고 「아니오」면 테스트 도구로 옮긴다.",
+				role: "constraint",
+				kind: "artifact",
+				auditIds: ["TD-30"],
+				sourceIds: ["sp-tdd"],
+			},
+			{
+				id: "hard-to-test-is-a-design-signal",
+				summary: "테스트가 어렵다는 것은 테스트의 문제가 아니라 설계의 신호다",
+				detail:
+					"막혔을 때 테스트 쪽을 비틀어 맞추지 말고 무엇이 그렇게 만들었는지 본다. 이 표는 그 신호를 읽는 법이다.",
+				role: "workflow-step",
+				// 막혔을 때 어느 쪽을 손댈지 고르는 규칙이라 완성된 문서에
+				// 흔적이 남는다 — 이 표가 그대로 실린다.
+				kind: "artifact",
+				format: { count: "표 4행 (증상 → 무엇을 고칠 것인가)" },
+				options: [
+					{
+						value: "어떻게 테스트할지 모르겠다",
+						character:
+							"바라는 모양의 사용법을 먼저 써 본다 · 단언부터 쓴다 · 사람에게 묻는다",
+					},
+					{
+						value: "테스트가 너무 복잡하다",
+						character: "설계가 복잡한 것이다. 접점을 단순하게 만든다",
+					},
+					{
+						value: "전부 가짜로 바꿔야만 돌아간다",
+						character: "코드가 지나치게 얽혀 있다. 의존을 밖에서 넣어준다",
+					},
+					{
+						value: "차리는 코드가 거대하다",
+						character:
+							"도우미로 뽑아낸다. 그래도 복잡하면 설계를 단순하게 한다",
+					},
+				],
+				auditIds: ["TD-16"],
 				sourceIds: ["sp-tdd"],
 			},
 			{
@@ -1273,8 +1400,10 @@ export const referenceCategories: ReferenceCategory[] = [
 					"테스트가 없으면 고쳤다는 것을 증명할 방법이 없고 나중에 같은 문제가 돌아와도 알 수 없다. 가장 단순하게 재현되는 형태로 만들고, 자동화할 수 있으면 자동화하되 마땅한 틀이 없으면 일회용 스크립트라도 만든다. 그리고 고칠 때는 한 번에 하나만 고친다 — 온 김에 다른 것을 손보거나 정리 작업을 묶지 않는다.",
 				role: "workflow-step",
 				kind: "artifact",
-				auditIds: ["SD-18", "SD-19"],
-				sourceIds: ["sp-systematic-debugging"],
+				// TD-17(버그를 찾으면 재현 테스트부터, 테스트 없이 고치지 않는다)이
+				// 같은 규정이다. 두 소스가 같은 말을 하므로 출처를 함께 적는다.
+				auditIds: ["SD-18", "SD-19", "TD-17"],
+				sourceIds: ["sp-systematic-debugging", "sp-tdd"],
 			},
 			{
 				id: "three-fix-rule",
