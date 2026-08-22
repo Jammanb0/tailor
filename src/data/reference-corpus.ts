@@ -467,9 +467,57 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "test-first",
 				summary: "구현 코드보다 실패하는 테스트를 먼저 쓴다",
 				detail:
-					"새 기능·버그픽스·리팩터링·동작 변경 전에 실패하는 테스트를 먼저 쓰고, 그 테스트가 '기능이 없어서' 실패하는지 눈으로 확인한 뒤 통과할 최소 코드를 쓴다. 이 주기는 한 줄로 흐르지 않고 되돌아오는 길이 셋 있다 — 엉뚱한 이유로 실패했으면 테스트를 고쳐 다시 쓰고, 통과하지 않으면 코드를 고쳐 다시 돌리고, 정리한 뒤에는 여전히 통과하는지 다시 확인한다. 테스트를 나중에 쓰면 이미 짠 코드에 편향돼 '무엇을 하는가'만 검증하게 된다.",
+					"실패를 눈으로 보지 못했으면 그 테스트가 옳은 것을 재는지 알 수 없다. 나중에 쓴 테스트는 이미 짠 코드에 편향돼 '무엇을 해야 하는가'가 아니라 '무엇을 하는가'만 검증하게 되고, 그런 테스트는 통과해도 아무것도 증명하지 못한다. 신규 기능·버그픽스·리팩터링·동작 변경 전부에 걸린다. **이 주기는 한 줄로 흐르지 않는다** — 되돌아오는 길이 셋이고, 그것을 빼고 '빨강 → 초록 → 리팩터' 세 단어로 요약하면 주기의 알맹이가 사라진다.",
 				role: "workflow-step",
 				kind: "artifact",
+				// 2026-08-21 축 1(게이트를 절차에 연결). 순서와 되돌아감이 detail에
+				// 산문으로 들어 있었다 — 머리말이 "순서를 detail에 다시 적지 않는다"로
+				// 못박은 바로 그 형태다. 원문은 이 주기를 노드 6개 + 되돌아가는 화살표
+				// 3개의 상태 기계로 그린다(감사 TD-06).
+				flow: [
+					{
+						id: "red",
+						label: "실패하는 테스트를 쓴다",
+						patternId: "name-the-break",
+						gate: "한 행동만 검증하고, 이름이 무엇을 재는지 말해주고, 가짜가 아닌 진짜를 실행할 것",
+					},
+					{
+						id: "see-red",
+						label: "실패를 눈으로 확인한다",
+						patternId: "watch-it-fail-correctly",
+						gate: "기능이 없어서 실패하는가 — 오타·설정 오류로 실패한 것이 아닌가",
+						branches: [
+							{ when: "엉뚱한 이유로 실패했으면", goto: "red" },
+							{
+								when: "실패하지 않았으면 테스트가 아무것도 안 재는 것이므로",
+								goto: "red",
+							},
+						],
+					},
+					{
+						id: "green",
+						label: "통과시킬 최소 코드만 쓴다",
+						patternId: "minimal-green",
+					},
+					{
+						id: "see-green",
+						label: "통과를 확인한다",
+						patternId: "green-verification-gate",
+						gate: "통과했는가 — 실패했다면 테스트가 아니라 코드를 고친다",
+						branches: [{ when: "아직 실패하면", goto: "green" }],
+					},
+					{
+						id: "refactor",
+						label: "초록을 유지한 채 정리한다",
+						branches: [{ when: "정리했으면 반드시", goto: "see-green" }],
+					},
+					{
+						id: "next",
+						label: "다음 행동으로 넘어간다",
+						gate: "완료 점검을 과거형으로 통과했는가",
+						branches: [{ when: "못 채운 항목이 있으면", goto: "red" }],
+					},
+				],
 				exception:
 					"버리는 프로토타입·생성된 코드·설정 파일은 예외로 둘 수 있다. 다만 예외로 할지는 혼자 정하지 말고 사람에게 묻는다.",
 				auditIds: ["TD-01", "TD-02", "TD-04", "TD-06"],
@@ -1991,6 +2039,54 @@ export const referenceCategories: ReferenceCategory[] = [
 				auditIds: ["R-13"],
 				verifyHint:
 					"생성된 SKILL.md가 심각도 이름 3개만 나열하고 끝나는지, 각 단계에 무엇이 들어가는지까지 적는지",
+				sourceIds: ["sp-requesting-code-review"],
+			},
+			{
+				id: "review-request-flow",
+				summary: "넘길 것을 닫고 → 훑고 → 판정하고 → 심각도 순으로 처리한다",
+				detail:
+					"리뷰를 요청하는 쪽과 하는 쪽의 규정이 각각 다른 패턴으로 흩어져 있어, **판정이 무엇을 끝낸 뒤에 오는 것인지가 어디에도 없었다.** 이 흐름이 그 자리를 잇는다. 리뷰를 한 번의 지적으로 여기지 않고, 넘기는 것을 닫는 데서 시작해 심각도 순 처리로 닫히는 한 벌로 본다.",
+				role: "workflow-step",
+				kind: "artifact",
+				// 2026-08-21 축 1(게이트를 절차에 연결). merge-verdict-gate는 자기가
+				// 게이트라고만 말할 뿐 무엇을 끝낸 뒤의 게이트인지가 없었다.
+				//
+				// **되돌아가는 길은 넣지 않았다.** "고친 뒤 다시 판정받는다"가 실제로는
+				// 자연스러워 보이지만 원문에 그 규정이 없다. 원문에 없는 순서를 원 소스
+				// 크레딧이 붙은 자리에 지어 넣지 않는다 — lint 규칙 8-e가 막으려는
+				// 것이 정확히 이것이다(context-appropriate-theme 가필 사고).
+				flow: [
+					{
+						id: "when",
+						label: "리뷰를 걸 시점인지 본다",
+						patternId: "review-early-often",
+						gate: "작업 단위를 끝냈거나 · 주요 기능을 완료했거나 · 병합 직전이면 반드시 건다",
+					},
+					{
+						id: "handoff",
+						label: "리뷰하는 쪽에 넘길 것을 닫는다",
+						patternId: "isolated-reviewer-context",
+						gate: "정해진 네 가지만 넘긴다 — 이쪽 작업 대화의 내력은 넘기지 않는다",
+					},
+					{
+						id: "check",
+						label: "정해진 영역을 훑고 이슈를 적는다",
+						patternId: "review-checklist-areas",
+						gate: "이슈 한 건마다 필수 항목이 다 차 있는가",
+					},
+					{
+						id: "verdict",
+						label: "셋 중 하나로 판정하고 사유를 붙인다",
+						patternId: "merge-verdict-gate",
+					},
+					{
+						id: "act",
+						label: "심각도 순으로 처리한다",
+						patternId: "severity-ordered-fixes",
+						gate: "치명적인 것은 즉시 · 중요한 것은 다음으로 넘어가기 전에",
+					},
+				],
+				auditIds: ["R-03", "R-05", "R-07", "R-14"],
 				sourceIds: ["sp-requesting-code-review"],
 			},
 			{
