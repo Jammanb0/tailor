@@ -1,4 +1,4 @@
-// 생성 품질 평가 하네스 (개발 전용, 프로덕션 경로 아님).
+// 생성 품질 평가 하네스 (개발 전용 — 배포 환경에서는 404로 막힌다).
 //
 // POST /api/eval-ab  { "experiment": "model" | "effort" | "attribution", "runs": 3 }
 //
@@ -217,6 +217,14 @@ async function runOne(
 }
 
 export async function POST(request: Request) {
+	// 개발 전용 라우트. 배포된 환경에서는 존재하지 않는 것으로 응답한다 —
+	// 요청 1회가 AI를 39~63회 호출하므로(시나리오 4 x 설정 3 x 반복 3 + 예열),
+	// 밖에 열어두면 아무 값도 돌려주지 않으면서 비용만 나간다.
+	// corpus-snapshot/route.ts와 같은 가드다.
+	if (process.env.NODE_ENV === "production") {
+		return new Response("not found", { status: 404 });
+	}
+
 	const apiKey = process.env.ANTHROPIC_API_KEY;
 	if (!apiKey) {
 		return NextResponse.json({ error: "no api key" }, { status: 500 });
