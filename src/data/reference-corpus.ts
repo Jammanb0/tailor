@@ -851,6 +851,15 @@ export const referenceCategories: ReferenceCategory[] = [
 						label: "근본 원인 조사",
 						patternId: "root-cause-first",
 						gate: "증거를 다 모으기 전에는 고칠 방법을 제안하지 않는다",
+						// 조사가 끝나지 않는 것을 막는 유일한 출구다. 이 갈래가 없으면
+						// "원인을 못 찾았다"가 절차 안에 자리가 없어, 결국 조사를
+						// 슬그머니 그만두고 증상을 고치게 된다.
+						branches: [
+							{
+								when: "정해둔 조건을 다 채웠는데도 원인이 안 나오면",
+								goto: "stop",
+							},
+						],
 					},
 					{
 						id: "analyze",
@@ -873,6 +882,12 @@ export const referenceCategories: ReferenceCategory[] = [
 						label: "고친다",
 						patternId: "failing-test-before-fix",
 						gate: "문제가 사라지고 테스트가 통과해야 끝난 것이다",
+					},
+					{
+						id: "harden",
+						label: "값이 지나는 모든 층에 검사를 넣는다",
+						patternId: "defense-in-depth-layers",
+						gate: "원인을 찾은 뒤에만 한다 — 원인을 모른 채 층을 두르면 증상만 덮인다",
 					},
 				],
 				auditIds: ["SD-07", "SD-16", "SD-25"],
@@ -2557,6 +2572,44 @@ export const referenceCategories: ReferenceCategory[] = [
 					"스킬 쓰기는 문서에 적용한 TDD다 — 가이드 없이 먼저 실패를 관찰하고, 그 실패를 겨냥해 쓰고, 다시 돌려 확인한다. 점검 항목은 읽고 넘어가는 것이 아니라 항목마다 할 일로 만들어 하나씩 닫는다. 검증하지 않은 스킬을 배포하는 것은 검증하지 않은 코드를 배포하는 것과 같다.",
 				role: "verification",
 				kind: "process",
+				// 2026-08-21 축 1(게이트를 절차에 연결). 다섯 단계는 순서이고
+				// 되돌아가는 길도 있는데 `format.sections`에 평면 목록으로만 있었다.
+				//
+				// `flow`와 `format.sections`를 함께 두는 이유: 순서·게이트·되돌아감은
+				// `flow`가 갖고, 각 단계 안에 무엇이 들어가는지는 `sections`가 갖는다.
+				// 24개 항목을 단계 이름에 욱여넣으면 렌더가 읽히지 않는다.
+				flow: [
+					{
+						id: "red",
+						label: "가이드 없이 먼저 돌려 실패를 관찰한다",
+						gate: "대조군이 실패하지 않으면 고칠 것이 없다 — 멈추고 스킬을 쓰지 않는다",
+					},
+					{
+						id: "green",
+						label: "관찰한 실패를 겨냥해 최소한으로 쓴다",
+						patternId: "form-matches-failure",
+						gate: "가이드 형태가 그 실패 유형에 맞는가",
+					},
+					{
+						id: "verify",
+						label: "스킬을 붙이고 다시 돌려 달라지는지 본다",
+						patternId: "skill-type-testing",
+						gate: "유형에 맞는 시험을 돌렸는가 — 규율형에 참조형 시험을 돌리면 아무것도 재지 못한다",
+						branches: [{ when: "여전히 안 지키면", goto: "green" }],
+					},
+					{
+						id: "refactor",
+						label: "새로 나온 변명을 찾아 빠져나갈 구멍을 막는다",
+						patternId: "bulletproofing-toolkit",
+						branches: [{ when: "뚫리는 곳이 남아 있으면", goto: "verify" }],
+					},
+					{
+						id: "ship",
+						label: "품질 점검을 마치고 내보낸다",
+						patternId: "iron-law-edits-too",
+						gate: "스킬 하나를 끝내기 전에 다음 것으로 넘어가지 않는다",
+					},
+				],
 				format: {
 					count: "5단계 · 총 24항목",
 					sections: [
@@ -3246,9 +3299,21 @@ export const referenceCategories: ReferenceCategory[] = [
 				kind: "artifact",
 				exception:
 					"보여주기용 자료(쇼케이스)는 보여주기만 하고 수정하지 않는다",
+				// 2026-08-21 축 1. `custom-option-fallback`이 "같은 승인 절차를 다시
+				// 밟는다"고 스스로 적어두고도 그 되돌아감이 흐름에 없었다.
 				flow: [
 					{ id: "show", label: "선택지를 먼저 눈으로 보게 한다" },
-					{ id: "ask", label: "어느 것을 쓸지 묻는다" },
+					{
+						id: "ask",
+						label: "어느 것을 쓸지 묻는다",
+						branches: [{ when: "맞는 선택지가 없다고 하면", goto: "make" }],
+					},
+					{
+						id: "make",
+						label: "맞는 것이 없으면 새로 만든다",
+						patternId: "custom-option-fallback",
+						branches: [{ when: "만들었으면 다시", goto: "show" }],
+					},
 					{
 						id: "wait",
 						label: "명시적 확인을 기다린다",
