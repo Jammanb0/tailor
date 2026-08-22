@@ -1,0 +1,222 @@
+[
+  {
+    "label": "01-testing-run1",
+    "ok": false,
+    "ms": 495,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "01-testing-run2",
+    "ok": false,
+    "ms": 513,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "02-debugging-run1",
+    "ok": false,
+    "ms": 306,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "02-debugging-run2",
+    "ok": false,
+    "ms": 291,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "03-planning-run1",
+    "ok": false,
+    "ms": 280,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "03-planning-run2",
+    "ok": false,
+    "ms": 297,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "04-code-review-run1",
+    "ok": false,
+    "ms": 278,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "04-code-review-run2",
+    "ok": false,
+    "ms": 289,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "05-design-run1",
+    "ok": false,
+    "ms": 282,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "05-design-run2",
+    "ok": false,
+    "ms": 290,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "06-voice-run1",
+    "ok": false,
+    "ms": 317,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "06-voice-run2",
+    "ok": false,
+    "ms": 289,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "07-documentation-run1",
+    "ok": false,
+    "ms": 284,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "07-documentation-run2",
+    "ok": false,
+    "ms": 292,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "08-explanation-run1",
+    "ok": false,
+    "ms": 287,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "08-explanation-run2",
+    "ok": false,
+    "ms": 290,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "09-mismatch-office-run1",
+    "ok": false,
+    "ms": 300,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "09-mismatch-office-run2",
+    "ok": false,
+    "ms": 292,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "10-mismatch-setup-run1",
+    "ok": false,
+    "ms": 288,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "10-mismatch-setup-run2",
+    "ok": false,
+    "ms": 299,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "11-plan-document-run1",
+    "ok": false,
+    "ms": 279,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  },
+  {
+    "label": "11-plan-document-run2",
+    "ok": false,
+    "ms": 297,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요."
+    }
+  }
+]
