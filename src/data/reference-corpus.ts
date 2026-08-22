@@ -3365,15 +3365,15 @@ export const referenceCategories: ReferenceCategory[] = [
 				examples: [
 					{
 						polarity: "bad",
-						text: "따뜻한 크림 배경(#F4F1EA 근처) + 고대비 세리프 디스플레이 + 테라코타 액센트",
+						text: "따뜻한 크림 배경(#F4F1EA 근처) + 고대비 세리프 디스플레이(획 끝에 삐침이 있는 활자를 제목용 큰 크기로) + 테라코타 액센트(구운 흙빛 주황)",
 					},
 					{
 						polarity: "bad",
-						text: "니어블랙 배경 + 밝은 애시드 그린 또는 버밀리언 액센트 하나",
+						text: "니어블랙(완전한 검정보다 살짝 밝은 어두운 회색) 배경 + 밝은 애시드 그린(형광에 가까운 연둣빛) 또는 버밀리언(주홍) 액센트 하나",
 					},
 					{
 						polarity: "bad",
-						text: "헤어라인 괘선 + border-radius: 0 + 신문식 조밀 다단(브로드시트)",
+						text: "헤어라인 괘선(머리카락처럼 가는 구분선) + 모서리를 둥글리지 않음(border-radius: 0) + 신문처럼 좁은 단을 여럿 붙인 조밀한 배치",
 					},
 				],
 				exception:
@@ -3387,7 +3387,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "one-signature-element",
 				summary: "대담함은 한 곳에 집중하고 나머지는 절제한다",
 				detail:
-					"시그니처 요소 하나만 기억에 남게 하고 주변은 조용하고 규율 있게 두며, 브리프에 복무하지 않는 장식은 잘라낸다. 구조 장치(번호·아이브로우·구분선·라벨)는 내용에 관한 참인 무언가를 담아야 하고 장식이면 안 된다.",
+					"시그니처 요소 하나만 기억에 남게 하고 주변은 조용하고 규율 있게 두며, 브리프에 복무하지 않는 장식은 잘라낸다. 구조 장치(번호·아이브로우(제목 위에 작게 얹는 분류 표시)·구분선·라벨)는 내용에 관한 참인 무언가를 담아야 하고 장식이면 안 된다.",
 				role: "constraint",
 				kind: "artifact",
 				examples: [
