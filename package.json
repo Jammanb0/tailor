@@ -9,7 +9,8 @@
 		"lint": "biome check .",
 		"lint:corpus": "node --experimental-strip-types --no-warnings tools/lint-corpus.mjs",
 		"check:corpus-render": "node tools/check-corpus-render.mjs",
-		"format": "biome check --write ."
+		"format": "biome check --write .",
+		"count:audit": "node --experimental-strip-types --no-warnings tools/count-audit-coverage.mjs"
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.116.0",
