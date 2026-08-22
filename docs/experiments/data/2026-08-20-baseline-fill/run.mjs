@@ -1,9 +1,19 @@
-// baseline 1차 채우기 후 생성 확인 — 회차식 실험이 아니라 눈으로 보기 위한 소량 실행.
-// 코퍼스 렌더 93,845바이트 조건(직전 84,980). 시나리오는 3차 회차 것을 그대로 쓴다.
+// 코퍼스를 고친 뒤 생성물을 눈으로 보기 위한 실행기.
+// 회차식 실험(30건 + 블라인드 채점)이 아니라 소량 확인용이다.
 // 앱이 실제로 쓰는 /api/generate-skill 을 그대로 호출한다.
 //
-// 사용: node run.mjs [runs] [concurrency]
-//       기본 3회 × 시나리오 10종 = 30건, 동시 3건.
+// 사용: node run.mjs <출력폴더> [runs] [concurrency] [시나리오id,...]
+//
+//   node run.mjs round21                     12종 × 1회, 전부
+//   node run.mjs round21 2                   12종 × 2회
+//   node run.mjs round21 1 3 05-design,08-explanation   두 종만
+//
+// **시나리오를 좁혀 쓸 것.** 조건부 카테고리 하나를 고쳤으면 그 카테고리 시나리오
+// 하나에 대조 한둘이면 충분하다. 12종 전부는 공통 칸(baseline)이나 골격을
+// 건드렸을 때만 — 매번 전부 돌리면 API 비용이 그만큼 든다(2026-08-21 기록).
+//
+// 이 파일이 유일한 실행기다. **사본을 만들지 말 것** — 한때 run2~run20까지
+// 스무 개가 출력 폴더만 다른 채로 쌓여 어느 것이 기준인지 흐려졌다.
 //
 // 동시 실행을 넣은 이유: 순차로 30건이면 대기가 길다. 다만 2026-08-18 headings
 // 실험에서 한도 소진으로 30건 중 22건이 invalid_request_error로 깨진 적이 있어,
@@ -16,15 +26,39 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const RUNS = Number(process.argv[2] ?? 3);
-const CONCURRENCY = Number(process.argv[3] ?? 3);
+const OUT = process.argv[2];
+if (!OUT) {
+	console.error("출력 폴더를 주세요: node run.mjs <출력폴더> [runs] [concurrency] [시나리오id,...]");
+	process.exit(1);
+}
+const RUNS = Number(process.argv[3] ?? 1);
+const CONCURRENCY = Number(process.argv[4] ?? 3);
+const ONLY = process.argv[5]
+	? new Set(process.argv[5].split(",").map((x) => x.trim()))
+	: null;
 const ENDPOINT = "http://localhost:3000/api/generate-skill";
 
-const scenarios = JSON.parse(readFileSync(join(HERE, "..", "2026-08-19-expand3", "scenarios.json"), "utf8"));
+// 3차 회차의 시나리오 10종은 그 실험의 자료이므로 건드리지 않는다. 여기서 보탠
+// 것은 scenarios-extra.json에 따로 두고 이어 붙인다.
+//
+// 보탠 두 종은 **그것을 시키는 시나리오가 없어 확인이 불가능했던** 자리다 —
+// 계획 문서 쓰기(7차에서 드러남)와 좋은 테스트 쓰기(16차). 한 소스에 성격이
+// 다른 두 덩어리가 있으면 시나리오도 둘이어야 한다.
+const all = [
+	...JSON.parse(
+		readFileSync(join(HERE, "..", "2026-08-19-expand3", "scenarios.json"), "utf8"),
+	),
+	...JSON.parse(readFileSync(join(HERE, "scenarios-extra.json"), "utf8")),
+];
+const scenarios = ONLY ? all.filter((x) => ONLY.has(x.id)) : all;
+if (!scenarios.length) {
+	console.error(`고른 시나리오가 없습니다. 있는 것: ${all.map((x) => x.id).join(", ")}`);
+	process.exit(1);
+}
 
 // 채점자에게 보일 것 / 정답지를 물리적으로 분리한다.
-const VISIBLE = join(HERE, "for-grader");
-const KEY = join(HERE, "answer-key");
+const VISIBLE = join(HERE, OUT, "for-grader");
+const KEY = join(HERE, OUT, "answer-key");
 mkdirSync(VISIBLE, { recursive: true });
 mkdirSync(KEY, { recursive: true });
 
@@ -131,7 +165,7 @@ writeFileSync(
 	"utf8",
 );
 writeFileSync(
-	join(HERE, "raw-results.json"),
+	join(HERE, OUT, "raw-results.json"),
 	JSON.stringify(raw, null, 2),
 	"utf8",
 );
