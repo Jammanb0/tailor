@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 const HANDOFF_PROMPT = [
-	"초심자를 위한 Claude Code Skill(SKILL.md)을 만드는 걸 도와줘.",
+	"자기만의 Claude Code Skill(SKILL.md)을 만드는 걸 도와줘.",
 	"",
 	"네가 실제 프로젝트 파일을 보고 있으니, 아래 내용을 자연스러운 대화로",
 	"물어봐줘. 이미 답이 명백해 보이는 게 있으면 굳이 다시 묻지 말고 확인만",
@@ -11,7 +11,6 @@ const HANDOFF_PROMPT = [
 	"",
 	"[꼭 파악할 것]",
 	"- 어떤 상황에서, 어떤 일을 하게 하고 싶은지 (순서가 있다면 순서까지)",
-	"- 속도·품질·비용 중 뭘 더 중요하게 볼지",
 	"- 참고할 만한 비슷한 스킬이나 예시가 있는지 (없어도 됨)",
 	"- 완성된 스킬을 한국어/영어 중 어떤 언어로 쓸지 (한국어 추천)",
 	"",
@@ -30,6 +29,11 @@ const HANDOFF_PROMPT = [
 	"- frontmatter에 name과 description(이 스킬을 언제 써야 하는지 트리거",
 	"  조건)을 담아줘",
 	"- 본문에는 실행 절차를 구체적인 단계로 적어줘",
+	"- 마지막에 '완료 전 확인' 절을 넣어줘 — 무엇이 있어야 '끝났다'고 말할 수",
+	"  있는지. 돌려볼 것이 있으면 돌려서 결과를 읽고, 없으면 앞에 적어둔",
+	"  조건을 한 줄씩 짚게 해줘",
+	"- 쉽게 쓴다고 기술 용어나 구체적인 값을 빼지는 마. 대신 처음 나오는",
+	"  용어에 짧은 풀이를 붙여줘",
 	"",
 	"[진행 순서]",
 	"1. 위 내용을 다 들은 다음 SKILL.md 초안을 보여줘. 내가 괜찮다고 할",
@@ -37,6 +41,8 @@ const HANDOFF_PROMPT = [
 	"2. 승인하면 어디에 저장할지 물어봐 (개인용: ~/.claude/skills/,",
 	"   프로젝트 공유용: 해당 프로젝트의 .claude/skills/).",
 	"3. 저장 직전에 한 번 더 확인받고 나서만 파일을 만들어줘.",
+	"4. 저장한 뒤에는 이 스킬이 실제로 불려 나오는지 확인하는 방법을 짧게",
+	"   알려줘 — 어떻게 말을 걸면 이 스킬이 뜨는지, 안 뜨면 뭘 볼지.",
 ].join("\n");
 
 const encodedPrompt = encodeURIComponent(HANDOFF_PROMPT);
@@ -63,6 +69,25 @@ export function HandoffPanel({ onBack }: { onBack: () => void }) {
 				<p className="mt-1.5 text-muted">
 					아래 버튼으로 내 Claude를 열면, 그 안에서 질문에 답하며 스킬을 만들 수
 					있어요.
+				</p>
+			</div>
+
+			{/* 두 경로의 차이를 고르기 전에 알린다. "성능이 낮다"고만 적으면 무엇이
+			    어떻게 다른지 알 수 없어 판단에 쓸 수 없으므로, 빠지는 것과 대신
+			    얻는 것을 같이 적는다. */}
+			<div className="rounded-2xl border border-border bg-surface px-5 py-4 text-muted text-sm">
+				<p>
+					<span className="font-medium text-foreground">
+						문서의 짜임새는 웹에서 만드는 쪽이 대체로 낫습니다.
+					</span>{" "}
+					Tailor가 공개 스킬에서 정리해 둔 참고 패턴과 문서 골격은 링크 하나에
+					담기엔 너무 커서, 이 경로로는 함께 넘기지 못해요. 결과에 출처 표기도
+					붙지 않습니다.
+				</p>
+				<p className="mt-2">
+					대신 이쪽은 Claude가{" "}
+					<span className="text-foreground">실제 프로젝트 파일을 보면서</span>{" "}
+					물어볼 수 있고, 만드는 데 드는 비용도 본인 Claude 계정으로 나갑니다.
 				</p>
 			</div>
 
