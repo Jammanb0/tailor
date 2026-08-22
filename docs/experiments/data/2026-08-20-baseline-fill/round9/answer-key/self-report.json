@@ -1,0 +1,506 @@
+[
+  {
+    "label": "01-testing-run1",
+    "category": "testing",
+    "referencedSources": [
+      {
+        "name": "test-driven-development (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "test-driven-development (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "systematic-debugging (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "02-debugging-run1",
+    "category": "debugging",
+    "referencedSources": [
+      {
+        "name": "test-driven-development (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "systematic-debugging (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "test-driven-development (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "systematic-debugging (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "03-planning-run1",
+    "category": "planning",
+    "referencedSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "tone-of-voice (Claude Code skill)",
+        "author": "entpnomad",
+        "url": "https://github.com/entpnomad/tone-of-voice",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "확인되지 않음",
+        "self": false,
+        "adapted": true
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "확인되지 않음",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "04-code-review-run1",
+    "category": "code-review",
+    "referencedSources": [
+      {
+        "name": "requesting-code-review (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/requesting-code-review",
+        "license": "MIT",
+        "self": false,
+        "adapted": true
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "확인되지 않음",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "05-design-run1",
+    "category": "design",
+    "referencedSources": [
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "frontend-design (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": true
+      },
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": true
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "frontend-design (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "tone-of-voice (Claude Code skill)",
+        "author": "entpnomad",
+        "url": "https://github.com/entpnomad/tone-of-voice",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "06-voice-run1",
+    "category": "voice",
+    "referencedSources": [
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "tone-of-voice (Claude Code skill)",
+        "author": "entpnomad",
+        "url": "https://github.com/entpnomad/tone-of-voice",
+        "license": "MIT",
+        "self": false,
+        "adapted": true
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "frontend-design (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "tone-of-voice (Claude Code skill)",
+        "author": "entpnomad",
+        "url": "https://github.com/entpnomad/tone-of-voice",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "07-documentation-run1",
+    "category": "documentation",
+    "referencedSources": [
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "확인되지 않음",
+        "self": false,
+        "adapted": true
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "확인되지 않음",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "08-explanation-run1",
+    "category": "explanation",
+    "referencedSources": [
+      {
+        "name": "writing-skills (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "Tailor 용어사전 방식 (자체)",
+        "author": "Tailor",
+        "url": "",
+        "license": "자체 (프로젝트 내부)",
+        "self": true,
+        "adapted": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "Tailor 용어사전 방식 (자체)",
+        "author": "Tailor",
+        "url": "",
+        "license": "자체 (프로젝트 내부)",
+        "self": true,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "09-mismatch-office-run1",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "test-driven-development (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "requesting-code-review (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/requesting-code-review",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "theme-factory (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "frontend-design (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+        "license": "Apache-2.0",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "tone-of-voice (Claude Code skill)",
+        "author": "entpnomad",
+        "url": "https://github.com/entpnomad/tone-of-voice",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  },
+  {
+    "label": "10-mismatch-setup-run1",
+    "category": "(none)",
+    "referencedSources": [
+      {
+        "name": "test-driven-development (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "verification-before-completion (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      }
+    ],
+    "structureSources": [
+      {
+        "name": "brainstorming (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "writing-plans (superpowers)",
+        "author": "Jesse Vincent",
+        "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+        "license": "MIT",
+        "self": false,
+        "adapted": false
+      },
+      {
+        "name": "doc-coauthoring (Anthropic skills)",
+        "author": "Anthropic",
+        "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+        "license": "확인되지 않음",
+        "self": false,
+        "adapted": false
+      }
+    ]
+  }
+]
