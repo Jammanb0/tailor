@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
 	title: "Tailor",
-	description: "초심자를 위한 Claude Code Skill 생성 서비스",
+	description: "AI의 도움으로 나만의 Claude Code Skill을 만드는 웹 서비스",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
