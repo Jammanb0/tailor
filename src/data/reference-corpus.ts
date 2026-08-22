@@ -1605,6 +1605,72 @@ export const referenceCategories: ReferenceCategory[] = [
 				sourceIds: ["sp-brainstorming"],
 			},
 			{
+				id: "plan-writing-flow",
+				summary:
+					"범위를 가르고 → 파일 구조부터 그리고 → 작업으로 쪼개고 → 스스로 점검한 뒤 넘긴다",
+				detail:
+					"계획 쓰기의 규정이 열댓 개 패턴으로 흩어져 있어, **어느 것이 어느 것보다 먼저인지가 어디에도 없었다.** 특히 두 자리가 순서에 걸려 있다. 하나는 파일 구조다 — 작업을 정의하기 전에 그려야 한다. 거기서 분해가 확정되기 때문이고, 작업부터 쪼개고 나중에 구조를 그리면 이미 나눈 것에 구조를 끼워 맞추게 된다. 다른 하나는 자기 점검이다 — 남에게 넘기기 전에 직접 하는 것이지 검토자를 부르는 단계가 아니다.",
+				role: "workflow-step",
+				kind: "artifact",
+				// 2026-08-21 축 1(게이트를 절차에 연결).
+				//
+				// 원문이 실제로 규정한 순서만 담았다(감사 W-04·05·13·14·16).
+				// 자기 점검의 종료 규칙(W-14)이 특히 값이 크다 — "찾으면 인라인으로
+				// 고치고 재검토는 없다"가 검토 루프가 무한히 늘어나는 것을 막는다.
+				// 그 한 줄이 없으면 점검 단계에 종료 조건이 없어진다.
+				flow: [
+					{
+						id: "scope",
+						label: "범위를 가른다",
+						gate: "독립적인 하위 시스템이 여럿이면 계획을 나눈다 — 계획 하나는 그 자체로 돌아가는 것을 내놓아야 한다",
+					},
+					{
+						id: "structure",
+						label: "파일 구조를 그린다",
+						patternId: "file-structure-first",
+						gate: "여기서 분해가 확정된다. 작업을 정의하기 전이어야 한다",
+					},
+					{
+						id: "tasks",
+						label: "작업 단위로 쪼갠다",
+						patternId: "bite-sized-tasks",
+						gate: "경계는 남이 하나만 반려할 수 있는 지점에서 긋는다",
+					},
+					{
+						id: "self-review",
+						label:
+							"직접 점검한다 — 명세를 다 덮었나 · 자리표시자가 남았나 · 타입이 앞뒤로 맞나",
+						patternId: "plan-self-review",
+						gate: "문제를 찾으면 그 자리에서 고친다. **재검토 라운드를 다시 돌지 않는다**",
+					},
+					{
+						id: "user-gate",
+						label: "사용자에게 읽어달라고 요청하고 멈춘다",
+						patternId: "user-review-gate",
+						branches: [{ when: "변경 요청이 오면", goto: "self-review" }],
+					},
+					{
+						id: "how-to-run",
+						label: "어떻게 실행할지 사용자가 고르게 한다",
+						patternId: "let-user-pick-execution",
+					},
+				],
+				auditIds: ["W-04", "W-05", "W-13", "W-14", "W-16"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
+				id: "let-user-pick-execution",
+				summary: "계획을 어떻게 실행할지는 사용자가 고른다",
+				detail:
+					"계획을 다 쓴 뒤 곧바로 실행에 들어가지 않는다. 맡겨서 돌릴지, 같이 한 단계씩 밟을지를 사용자가 고르게 한다. 어느 쪽이 맞는지는 계획의 성질이 아니라 **사용자가 지금 얼마나 개입하고 싶은가**로 갈리는데, 그건 물어보지 않으면 알 수 없다.",
+				role: "workflow-step",
+				// 실행 방식을 고르게 하는 것은 진행 방식의 문제라 완성된 계획 문서에는
+				// 흔적이 남지 않는다.
+				kind: "process",
+				auditIds: ["W-16"],
+				sourceIds: ["sp-writing-plans"],
+			},
+			{
 				id: "approval-gate-never-shrinks",
 				summary: "절차는 줄여도 승인 받는 지점은 줄이지 않는다",
 				detail:
@@ -3290,13 +3356,32 @@ export const referenceCategories: ReferenceCategory[] = [
 					"말투 스킬은 한 가지 일만 하는 것이 아니라 두 가지 일을 한다 — 처음 한 번은 사용자에게서 값을 받아 저장하고, 그 뒤로는 저장된 값을 적용한다. 그래서 문서의 첫 자리는 절차도 규칙도 아니라 **분기 판정**이다. 이 게이트가 없으면 이미 프로필이 있는 사용자에게 설정 질문을 다시 묻게 된다.",
 				role: "workflow-step",
 				kind: "artifact",
-				format: {
-					sections: [
-						"저장된 프로필 파일이 있는지 찾는다",
-						"있으면: 불러와서 집행 모드로 간다",
-						"없으면: 수집 절차를 먼저 돌린다",
-					],
-				},
+				// 2026-08-21 축 1(게이트를 절차에 연결). 갈림길이 format.sections에
+				// 평면 목록으로 들어 있었다 — 머리말의 판정 기준("1번을 끝내야 2번을
+				// 할 수 있나")으로 보면 이건 목록이 아니라 분기다. 그리고 갈라진 두
+				// 길이 각각 어느 패턴으로 이어지는지가 어디에도 없었다.
+				flow: [
+					{
+						id: "look",
+						label: "저장된 프로필이 있는지 먼저 찾는다",
+						gate: "찾기 전에는 어떤 질문도 하지 않는다 — 이미 답한 것을 다시 묻게 된다",
+						branches: [
+							{ when: "있으면 집행 모드로", goto: "enforce" },
+							{ when: "없으면 수집부터", goto: "collect" },
+						],
+					},
+					{
+						id: "collect",
+						label: "프로필 아홉 항목을 받아 항목별로 저장한다",
+						patternId: "define-voice-profile",
+						gate: "질문은 한 번에 하나씩 — 답마다 따로 저장해 중간에 끊겨도 남게 한다",
+					},
+					{
+						id: "enforce",
+						label: "저장된 프로필과 고정 규칙에 맞춰 쓰거나 고친다",
+						patternId: "voice-enforcement-checklist",
+					},
+				],
 				auditIds: ["TV-01"],
 				verifyHint:
 					"'처음 한 번'과 '매번'이 갈라지는지, 아니면 규칙만 평면으로 나열되는지",
