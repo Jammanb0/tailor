@@ -1858,6 +1858,37 @@ export const referenceCategories: ReferenceCategory[] = [
 				sourceIds: ["sp-brainstorming"],
 			},
 			{
+				id: "look-before-asking",
+				summary: "묻기 전에 지금 무엇이 있는지부터 본다",
+				detail:
+					"이미 알 수 있는 것을 묻는 것은 상대의 시간을 쓰는 일이고, 답을 듣고도 실물과 다르면 그 답을 못 쓴다. 그래서 질문을 만들기 전에 프로젝트의 현재 상태를 먼저 본다 — 어떤 파일이 있는지, 관련 문서가 있는지, 최근에 무엇이 바뀌었는지. 보고 나면 질문이 줄고, 남은 질문은 실물을 보고도 알 수 없는 것들만 남는다.",
+				role: "workflow-step",
+				kind: "process",
+				auditIds: ["B-10"],
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "agreement-goes-to-a-file",
+				summary: "합의한 것은 대화에 남기지 않고 파일로 남긴다",
+				detail:
+					"대화 안에만 있는 합의는 다음 사람도, 다음 세션도 못 본다. 정리가 끝나면 파일로 저장하고 버전 관리에 올린다. 이름에 날짜와 주제를 함께 넣으면 나중에 어느 시점의 무엇인지 찾을 수 있다.",
+				role: "workflow-step",
+				kind: "artifact",
+				format: { template: "<날짜>-<주제>.md" },
+				auditIds: ["B-18"],
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
+				id: "show-a-picture-only-when-it-helps",
+				summary: "그림은 말로 설명하기 어려워지는 순간에만 꺼낸다",
+				detail:
+					"그림을 미리 깔아두면 읽는 쪽이 그것부터 해석하느라 정작 물어본 것에 답하지 못한다. 말로 하기 어려운 질문이 **처음 나왔을 때** 제안하고, 그때도 다른 말에 섞지 말고 그것만 따로 낸다. 한 번 좋다고 했다고 그 뒤로 계속 그리지 않는다 — 질문마다 다시 판단한다.",
+				role: "constraint",
+				kind: "artifact",
+				auditIds: ["B-21"],
+				sourceIds: ["sp-brainstorming"],
+			},
+			{
 				id: "respect-existing-patterns",
 				summary: "이미 있는 코드에서는 관례를 먼저 읽는다",
 				detail:
@@ -2129,10 +2160,11 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "review-early-often",
 				summary: "자주, 일찍 리뷰한다",
 				detail:
-					"필수는 세 시점이다 — 작업 하나가 끝날 때마다, 주요 기능을 완성한 뒤, 본 줄기에 합치기 전. 여기에 선택 시점 셋이 더 있다: 막혔을 때(새 관점을 얻으려고), 구조를 크게 손보기 전(지금 상태를 기준선으로 잡으려고), 까다로운 버그를 고친 뒤. '간단한' 변경이라고 건너뛰지 않는다.",
+					"**이슈가 번져 나가기 전에 잡으려고 건다** — 늦게 잡을수록 고칠 것이 그 위에 쌓여 있다. 그래서 시점이 정해져 있다. 필수는 세 시점이다 — 작업 하나가 끝날 때마다, 주요 기능을 완성한 뒤, 본 줄기에 합치기 전. 여기에 선택 시점 셋이 더 있다: 막혔을 때(새 관점을 얻으려고), 구조를 크게 손보기 전(지금 상태를 기준선으로 잡으려고), 까다로운 버그를 고친 뒤. '간단한' 변경이라고 건너뛰지 않는다.",
 				role: "trigger",
 				kind: "artifact",
-				auditIds: ["R-02", "R-03", "R-04"],
+				// R-01(번져 나가기 전에 잡으려고 건다)이 detail 첫 문장이다.
+				auditIds: ["R-01", "R-02", "R-03", "R-04"],
 				sourceIds: ["sp-requesting-code-review"],
 			},
 			{
@@ -3265,6 +3297,45 @@ export const referenceCategories: ReferenceCategory[] = [
 				sourceIds: ["anthropic-frontend-design"],
 			},
 			{
+				id: "stance-instead-of-rules",
+				summary: "품질 기준을 규칙으로 나열하지 말고 상황으로 심는다",
+				detail:
+					"'좋게 만들어라'는 지킬 수도 어길 수도 없는 말이다. 대신 **누구를 위해, 어떤 처지에서 만드는지**를 한 문단으로 세워주면 이후의 모든 판단이 그 처지로 수렴한다. 원문은 작은 스튜디오의 디자인 담당이라는 자리를 주고, **그 고객은 이미 흔해 빠진 제안을 한 번 반려했다**는 사정을 붙인다. 그러면 '이걸 그 고객이 받아줄까'가 매 결정의 판정 기준이 된다. 규칙 스무 개보다 이 한 문단이 멀리 간다.",
+				role: "trigger",
+				kind: "artifact",
+				// 원문은 디자인 스튜디오라는 특정 설정을 쓴다. 그 설정 자체가 아니라
+				// **기준을 상황으로 심는 기법**을 옮겼다(감사 5-5의 분석).
+				adapted: true,
+				examples: [
+					{
+						polarity: "bad",
+						text: "'전문적이고 완성도 높은 결과물을 만드세요' — 무엇이 그런 것인지 판정할 수 없다",
+					},
+					{
+						polarity: "good",
+						text: "받는 사람이 어떤 처지이고 무엇에 이미 실망했는지를 적어준다 — 그러면 '이 사람이 받아줄까'로 판정된다",
+					},
+				],
+				auditIds: ["D-01"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
+				id: "critique-before-showing",
+				summary: "다듬는 과정은 안에서 돌리고, 볼 만해진 것만 내놓는다",
+				detail:
+					"덜 된 것을 계속 보여주면 받는 쪽은 매번 판단을 요구받고, 정작 봐야 할 때 지쳐 있다. 계획하고 고치는 일은 내부에서 돌리고, 스스로 만족한 뒤에 내놓는다. **내놓기 전에 자기 결과물을 직접 보고 비판한다** — 눈으로 확인할 수단이 있으면 실제로 띄워 보고, 시도한 것과 아직 안 된 것을 함께 적는다. 만든 사람이 안 본 것을 남에게 보게 하지 않는다.",
+				role: "workflow-step",
+				kind: "artifact",
+				// 원문은 특정 런타임의 thinking과 스크린샷 도구를 전제한다. 감사 3-4의
+				// 판단대로 버리지 않고 번역했다 — 알맹이는 "안에서 다듬고, 내기 전에
+				// 직접 본다"이다.
+				adapted: true,
+				exception:
+					"선택지를 고르게 하려고 보여주는 것은 다르다 — 그것은 덜 된 것이 아니라 물어보는 것이다",
+				auditIds: ["D-22", "D-25"],
+				sourceIds: ["anthropic-frontend-design"],
+			},
+			{
 				id: "avoid-ai-default-looks",
 				summary: "AI 디자인이 몰리는 세 가지 기본 룩을 알고 피한다",
 				detail:
@@ -3311,7 +3382,9 @@ export const referenceCategories: ReferenceCategory[] = [
 				],
 				exception:
 					"모험하지 않는 것 자체가 위험일 수 있다 — 절제가 무난함으로 흐르지 않게 한다",
-				auditIds: ["D-10", "D-11", "D-23"],
+				// D-02(정당화할 수 있는 모험을 하나는 감수한다)가 이 패턴의 앞면이다 —
+				// 대담함을 한 곳에 몰고 나머지를 절제한다는 말과 같다.
+				auditIds: ["D-02", "D-10", "D-11", "D-23"],
 				sourceIds: ["anthropic-frontend-design"],
 			},
 			{
@@ -3460,7 +3533,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				id: "ui-copy-is-design-material",
 				summary: "화면의 글도 디자인 재료로 다룬다",
 				detail:
-					"카피는 장식이 아니라 디자인 재료다. 사용자가 다루고 알아보는 이름으로 부르고 시스템 구현 방식으로 부르지 않는다. 능동태를 기본으로 하고, 한 동작은 흐름 전체에서 같은 이름을 유지한다. 실패와 빈 화면은 분위기가 아니라 방향을 주는 자리다 — 에러는 사과하지 않고 무엇이 잘못됐고 어떻게 고치는지 말한다.",
+					"카피는 장식이 아니라 디자인 재료다. **브리프에 실제 문구가 없으면 직접 쓴다** — 자리표시자를 남기면 그 자리가 끝까지 빈 채로 간다. 그리고 글도 디자인만큼 템플릿 느낌을 낸다. 어디서나 볼 법한 문구를 채워 넣으면 화면 전체가 흔한 것이 된다. 사용자가 다루고 알아보는 이름으로 부르고 시스템 구현 방식으로 부르지 않는다. 능동태를 기본으로 하고, 한 동작은 흐름 전체에서 같은 이름을 유지한다. 실패와 빈 화면은 분위기가 아니라 방향을 주는 자리다 — 에러는 사과하지 않고 무엇이 잘못됐고 어떻게 고치는지 말한다.",
 				role: "output-rule",
 				kind: "artifact",
 				examples: [
@@ -3476,7 +3549,8 @@ export const referenceCategories: ReferenceCategory[] = [
 					{ polarity: "good", text: '"알림을 관리" — 사람이 아는 말' },
 					{ polarity: "bad", text: '"웹훅 설정"을 관리 — 시스템 구현 용어' },
 				],
-				auditIds: ["D-26", "D-27", "D-28", "D-29", "D-30"],
+				// D-16(브리프에 카피가 없으면 직접 쓴다)을 detail에 넣었다.
+				auditIds: ["D-16", "D-26", "D-27", "D-28", "D-29", "D-30"],
 				sourceIds: ["anthropic-frontend-design"],
 			},
 			{
@@ -3493,7 +3567,8 @@ export const referenceCategories: ReferenceCategory[] = [
 						"맥락·청중에 맞는 시각 정체성",
 					],
 				},
-				auditIds: ["T-01"],
+				// T-07(각 테마는 hex 팔레트·폰트 짝·정체성의 완전 명세)이 위 sections 그대로다.
+				auditIds: ["T-01", "T-07"],
 				sourceIds: ["anthropic-theme-factory"],
 			},
 			{
@@ -3514,7 +3589,8 @@ export const referenceCategories: ReferenceCategory[] = [
 					],
 					template: "- **Deep Navy**: `#1B2A41` - 주 배경색",
 				},
-				auditIds: ["T-14", "T-15", "T-16", "T-17", "T-18"],
+				// T-06(10종을 이름 + 한 줄 성격으로 목록화)이 위 sections의 앞 두 줄이다.
+				auditIds: ["T-06", "T-14", "T-15", "T-16", "T-17", "T-18"],
 				verifyHint:
 					"생성된 SKILL.md가 값만 나열하는지, 이름·값·역할 3부를 갖춘 틀을 제시하는지",
 				sourceIds: ["anthropic-theme-factory"],
@@ -3676,7 +3752,8 @@ export const referenceCategories: ReferenceCategory[] = [
 						patternId: "voice-enforcement-checklist",
 					},
 				],
-				auditIds: ["TV-01"],
+				// TV-22의 '첫 사용 시 설정을 실행한다'가 이 분기다. 발동 조건을 콘텐츠 종류로 열거하는 쪽은 baseline의 trigger-first-description이 일반 규정으로 담는다.
+				auditIds: ["TV-01", "TV-22"],
 				verifyHint:
 					"'처음 한 번'과 '매번'이 갈라지는지, 아니면 규칙만 평면으로 나열되는지",
 				sourceIds: ["tone-of-voice"],
@@ -3723,7 +3800,8 @@ export const referenceCategories: ReferenceCategory[] = [
 					{ id: "channels", label: "채널 — 매체별 규칙" },
 					{ id: "sample", label: "예시 문단 — 이후의 기준 표본" },
 				],
-				auditIds: ["TV-03", "TV-04", "TV-05"],
+				// TV-08(핵심 신념 한 문장)과 TV-09(독자를 인구통계 아닌 사람으로)가 위 flow의 두 단계다.
+				auditIds: ["TV-03", "TV-04", "TV-05", "TV-08", "TV-09"],
 				verifyHint: "아홉 항목의 순서와 항목별 저장이 살아 있는지",
 				sourceIds: ["tone-of-voice"],
 			},
