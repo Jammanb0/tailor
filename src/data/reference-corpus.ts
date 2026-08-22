@@ -520,7 +520,9 @@ export const referenceCategories: ReferenceCategory[] = [
 				],
 				exception:
 					"버리는 프로토타입·생성된 코드·설정 파일은 예외로 둘 수 있다. 다만 예외로 할지는 혼자 정하지 말고 사람에게 묻는다.",
-				auditIds: ["TD-01", "TD-02", "TD-04", "TD-06"],
+				// TD-18(최종 규칙 — 사람 파트너 승인 없이 예외 없음)은 위 exception이
+				// 이미 같은 말을 하고 있어 패턴을 새로 만들지 않고 번호만 보탠다.
+				auditIds: ["TD-01", "TD-02", "TD-04", "TD-06", "TD-18"],
 				verifyHint:
 					"주기를 '빨강→초록→리팩터' 직선으로만 적는지, 되돌아오는 길 셋이 살아 있는지",
 				sourceIds: ["sp-tdd"],
