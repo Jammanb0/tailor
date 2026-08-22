@@ -23,9 +23,24 @@ Claude Code에는 `SKILL.md`라는 게 있습니다. "이런 상황에서는 이
 Tailor는 그 부분을 대신 물어봐 줍니다. 몇 가지 질문에 답하면 쓸 만한 초안이
 나오고, 그 초안이 왜 그렇게 생겼는지도 함께 보여줍니다.
 
-Claude Code가 처음인 분이 막히지 않도록 배려하지만, **초심자 전용 서비스는
-아닙니다.** 쉽게 만든다는 이유로 기술 용어나 구체적인 값을 빼지 않고, 대신
-처음 나오는 용어에 짧은 풀이를 붙이는 쪽을 택했습니다.
+Tailor는 Claude Code를 처음 접하는 사람부터 이미 스킬을 만들어 본 숙련된
+사용자까지 함께 쓸 수 있도록 설계했습니다. 기술 용어나 구체적인 값을 덜어내지
+않되, 처음 나오는 용어에는 짧은 풀이를 붙였습니다. 처음에는 쉽게 시작하고,
+익숙해진 뒤에도 필요한 만큼 구체적으로 다룰 수 있습니다.
+
+<div align="center">
+
+<img src="docs/images/tailor-skill-builder.png" alt="Tailor 스킬 생성기의 첫 번째 질문 화면" width="650">
+
+<sub>몇 가지 질문에 답하며 나에게 맞는 <code>SKILL.md</code> 초안을 만듭니다.</sub>
+
+<br><br>
+
+<img src="docs/images/tailor-generated-skill.png" alt="Tailor에서 실제로 생성된 README 검토 스킬 결과 화면" width="900">
+
+<sub>실제 생성 결과 — 완성된 <code>SKILL.md</code>와 AI 자체 점검을 함께 확인할 수 있습니다.</sub>
+
+</div>
 
 ## 무엇을 하나요
 
