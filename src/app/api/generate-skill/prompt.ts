@@ -5,6 +5,7 @@
 import {
 	commonSpine,
 	type FlowStep,
+	getSourceById,
 	type ReferencePattern,
 	referenceCategories,
 	structureArchetypes,
@@ -288,10 +289,38 @@ function buildCorpusSection(): string {
 				`### ${a.id} — ${a.label}\n언제: ${a.whenToUse}\n본문:\n${a.bodySections}`,
 		)
 		.join("\n\n");
+	// 카테고리 안을 출처별로 묶는다. 묶지 않으면 모델은 어느 패턴들이 한 스킬에서
+	// 함께 나왔는지 알 수 없다 — 같은 스킬의 규정끼리는 서로를 전제하는 경우가
+	// 많은데(원칙과 그 값, 규칙과 그 근거) 그 관계가 통째로 보이지 않는다.
+	//
+	// 묶는 기준은 첫 번째 sourceIds다. 두 출처에 걸친 패턴은 첫 번째 쪽에만 놓인다 —
+	// 프롬프트에서 필요한 것은 "어느 것끼리 한 집안인가"이고, 두 번째 출처까지
+	// 찍으면 묶음의 경계가 흐려진다. 계보 자체는 데이터의 sourceIds에 그대로 있고
+	// 결과 화면의 출처 표기는 거기서 만들어진다.
 	const categories = referenceCategories
 		.map((c) => {
-			const patterns = c.patterns.map(renderPattern).join("\n");
-			return `## ${c.label}${c.alwaysApply ? " (공통·항상 적용)" : ""}\n${patterns}`;
+			const groups = new Map<string, ReferencePattern[]>();
+			for (const pattern of c.patterns) {
+				const key = pattern.sourceIds[0] ?? "";
+				const bucket = groups.get(key);
+				if (bucket) bucket.push(pattern);
+				else groups.set(key, [pattern]);
+			}
+			const body = [...groups.entries()]
+				.map(([sourceId, patterns], index) => {
+					// 출처 **이름**은 찍지 않는다. 필요한 신호는 "이 항목들이 한 스킬에서
+					// 함께 나왔다"까지이고, 이름까지 주면 모델이 그것을 이름 재료로 쓴다.
+					// 2026-08-21에 이름을 찍어보고 2회 확인한 결과 생성된 스킬의 name이
+					// 원본 스킬 이름 그대로 나왔고(systematic-debugging이 2회 다 일치),
+					// 한국어 이름이 3개에서 1개로 줄었다. 사용자 상황에서 멀어지는 쪽이다.
+					const source = getSourceById(sourceId);
+					const heading = source
+						? `### ${index + 1}번째 묶음 — 아래는 한 스킬에서 함께 나온 것들입니다`
+						: "### 아래는 출처가 여럿에 걸친 것들입니다";
+					return `${heading}\n${patterns.map(renderPattern).join("\n")}`;
+				})
+				.join("\n\n");
+			return `## ${c.label}${c.alwaysApply ? " (공통·항상 적용)" : ""}\n${body}`;
 		})
 		.join("\n\n");
 	return `참고 자료 — 아래는 공개 스킬(및 Tailor 자체)에서 정리한 "좋은 패턴"과 문서 구조 골격입니다.
@@ -300,6 +329,10 @@ function buildCorpusSection(): string {
 말고, 처음 나오는 용어에는 짧은 풀이를 붙여 문서 안에서 뜻이 풀리게 하세요.
 작업이 단순하면 구조도 단순하게 — 불필요하게 길거나 과한 섹션을 넣지 말고
 필요한 만큼만 쓰세요. 규율형 골격은 지켜야 할 원칙이 핵심인 스킬에만 쓰세요.
+패턴은 출처별로 묶여 있습니다. 한 묶음 안의 항목들은 같은 스킬에서 나온 것이라
+서로를 전제하는 경우가 많습니다 — 원칙과 그 값, 규칙과 그 근거처럼요. 하나를 쓰기로
+했다면 같은 묶음에 짝이 있는지 보세요. 묶음 번호는 참고용이니 결과물에 적지 마세요.
+
 반드시 지킬 것: 실제로 참고·반영한 패턴의 [id]와 채택한 구조 골격 id 하나를 출력 형식의
 <used_patterns>·<archetype>에 보고하세요. 참고하지 않은 건 보고하지 마세요(정직).
 보고할 때는 대괄호나 설명을 붙이지 말고 id 문자열만 한 줄에 하나씩 적으세요.
