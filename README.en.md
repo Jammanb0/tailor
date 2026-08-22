@@ -215,8 +215,15 @@ screen credits the sources behind the patterns actually used in that generation.
 
 © 2026 Guhn Park
 
-The code is public, but no open-source license is granted. You are welcome to
-read it and learn from it; for anything beyond that, please get in touch.
+The code is public, but no open-source license is granted. You are very welcome
+to explore it on GitHub, experiment in a fork, or suggest a better approach
+through an issue or pull request. This is still a project I am learning through,
+and I would be grateful to learn from perspectives and improvements I have
+missed.
+
+Beyond viewing, forking, and proposing contributions through GitHub, please get
+in touch before reproducing, modifying, distributing, or otherwise using the
+code.
 
 The patterns distilled into the reference corpus **remain under their own
 sources' licenses** — authors and licenses are recorded in
