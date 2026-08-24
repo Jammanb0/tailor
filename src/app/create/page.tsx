@@ -136,6 +136,11 @@ export default function CreatePage() {
 	const [clarifications, setClarifications] = useState<
 		{ question: string; answer: string }[]
 	>([]);
+	// Tailor가 되물어서 답한 내용. 마법사 답변·수정 요청과 성격이 달라
+	// 따로 모아 "이전 답변 보기"에 제 구역으로 보여준다.
+	const [clarifyHistory, setClarifyHistory] = useState<
+		{ question: string; answer: string }[]
+	>([]);
 	const [refineHistory, setRefineHistory] = useState<
 		{ question: string; answer: string }[]
 	>([]);
@@ -304,6 +309,7 @@ export default function CreatePage() {
 		setGenerationError(null);
 		setPendingClarification(null);
 		setClarifications([]);
+		setClarifyHistory([]);
 		setRefineHistory([]);
 		setRefineFeedbackHistory([]);
 		goTo(0, -1);
@@ -346,9 +352,11 @@ export default function CreatePage() {
 		const answered = result.answeredQuestions.filter((a) => a.answer.trim());
 		const origin = pendingClarification?.originRefinement ?? null;
 		setPendingClarification(null);
+		// 되물음은 수정 요청 도중에 나오든 처음 생성에서 나오든 같은 성격이다.
+		// 어느 쪽으로 들어와도 한 곳에 쌓아야 패널에서 빠지지 않는다.
+		setClarifyHistory((prev) => [...prev, ...answered]);
 
 		if (origin) {
-			setRefineHistory((prev) => [...prev, ...answered]);
 			handleGenerate({
 				refinement: {
 					...origin,
@@ -571,6 +579,7 @@ export default function CreatePage() {
 					answers={answers}
 					wantsAdvanced={wantsAdvanced === true}
 					refineHistory={refineHistory}
+					clarifyHistory={clarifyHistory}
 					refineFeedbackHistory={refineFeedbackHistory}
 				/>
 				<ScrollToTopButton />
@@ -637,6 +646,7 @@ export default function CreatePage() {
 					answers={answers}
 					wantsAdvanced={wantsAdvanced === true}
 					refineHistory={refineHistory}
+					clarifyHistory={clarifyHistory}
 					refineFeedbackHistory={refineFeedbackHistory}
 				/>
 				<ScrollToTopButton />
@@ -686,6 +696,7 @@ export default function CreatePage() {
 					answers={answers}
 					wantsAdvanced={wantsAdvanced === true}
 					refineHistory={refineHistory}
+					clarifyHistory={clarifyHistory}
 					refineFeedbackHistory={refineFeedbackHistory}
 				/>
 				<ScrollToTopButton />

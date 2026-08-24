@@ -38,6 +38,8 @@ type AnswersSidePanelProps = {
 	wantsAdvanced: boolean;
 	refineHistory: RefineHistoryEntry[];
 	refineFeedbackHistory: string[];
+	/** Tailor가 되물어서 답한 내용 — 마법사 답변과 성격이 달라 따로 보여준다. */
+	clarifyHistory: RefineHistoryEntry[];
 };
 
 const PANEL_WIDTH = 380;
@@ -59,6 +61,7 @@ export function AnswersSidePanel({
 	wantsAdvanced,
 	refineHistory,
 	refineFeedbackHistory,
+	clarifyHistory,
 }: AnswersSidePanelProps) {
 	useEffect(() => {
 		const root = document.documentElement;
@@ -95,6 +98,12 @@ export function AnswersSidePanel({
 			"",
 			...questions.map((q) => `- ${q.title}\n  ${formatAnswer(q, answers)}`),
 		];
+		if (clarifyHistory.length > 0) {
+			lines.push("", "Tailor가 물어봐서 답한 내용");
+			for (const entry of clarifyHistory) {
+				lines.push(`- ${entry.question}\n  ${entry.answer || "(입력 안 함)"}`);
+			}
+		}
 		if (refineHistory.length > 0 || refineFeedbackHistory.length > 0) {
 			lines.push("", "수정 요청에서 답한 내용");
 			for (const entry of refineHistory) {
@@ -138,6 +147,22 @@ export function AnswersSidePanel({
 						</div>
 					))}
 				</dl>
+
+				{clarifyHistory.length > 0 && (
+					<div className="mt-6 border-border border-t pt-4">
+						<h3 className="text-sm text-muted">Tailor가 물어봐서 답한 내용</h3>
+						<dl className="mt-3 flex flex-col gap-4">
+							{clarifyHistory.map((entry) => (
+								<div key={entry.question}>
+									<dt className="text-sm text-muted">{entry.question}</dt>
+									<dd className="select-text text-foreground">
+										{entry.answer || "(입력 안 함)"}
+									</dd>
+								</div>
+							))}
+						</dl>
+					</div>
+				)}
 
 				{(refineHistory.length > 0 || refineFeedbackHistory.length > 0) && (
 					<div className="mt-6 border-border border-t pt-4">
