@@ -122,6 +122,9 @@ export default function CreatePage() {
 	const [editSnapshot, setEditSnapshot] = useState<EditSnapshot | null>(null);
 	const [openGlossarySlug, setOpenGlossarySlug] = useState<string | null>(null);
 	const [confirmingRestart, setConfirmingRestart] = useState(false);
+	// 게이트에서 고른 값. 다른 질문과 흐름을 맞추려고, 카드를 누르면 선택만 되고
+	// 실제 진행은 "다음"이 맡는다.
+	const [gateChoice, setGateChoice] = useState<boolean | null>(null);
 	const [generationResult, setGenerationResult] =
 		useState<GenerationResult | null>(null);
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -727,10 +730,17 @@ export default function CreatePage() {
 								</div>
 								<button
 									type="button"
-									onClick={() => handleGateChoice(true)}
-									className="flex w-full flex-col gap-1 rounded-2xl border border-accent bg-accent/10 px-6 py-5 text-left transition-colors hover:bg-accent/15"
+									onClick={() => setGateChoice(true)}
+									aria-pressed={gateChoice === true}
+									className={`flex w-full flex-col gap-1 rounded-2xl border px-6 py-5 text-left transition-colors ${
+										gateChoice === true
+											? "border-accent bg-accent/10"
+											: "border-border bg-surface hover:border-accent/40"
+									}`}
 								>
-									<span className="font-semibold text-accent">
+									<span
+										className={`font-semibold ${gateChoice === true ? "text-accent" : "text-foreground"}`}
+									>
 										고급 질문 계속하기
 									</span>
 									<span className="text-sm text-muted">
@@ -739,10 +749,17 @@ export default function CreatePage() {
 								</button>
 								<button
 									type="button"
-									onClick={() => handleGateChoice(false)}
-									className="flex w-full flex-col gap-1 rounded-2xl border border-border bg-surface px-6 py-5 text-left transition-colors hover:border-accent"
+									onClick={() => setGateChoice(false)}
+									aria-pressed={gateChoice === false}
+									className={`flex w-full flex-col gap-1 rounded-2xl border px-6 py-5 text-left transition-colors ${
+										gateChoice === false
+											? "border-accent bg-accent/10"
+											: "border-border bg-surface hover:border-accent/40"
+									}`}
 								>
-									<span className="font-semibold text-foreground">
+									<span
+										className={`font-semibold ${gateChoice === false ? "text-accent" : "text-foreground"}`}
+									>
 										이대로 완료
 									</span>
 									<span className="text-sm text-muted">
@@ -760,6 +777,31 @@ export default function CreatePage() {
 							/>
 						)}
 					</StepTransition>
+
+					{/* 게이트도 다른 질문과 같은 흐름을 쓴다 — 카드는 고르기만 하고
+					    진행은 "다음"이 맡는다. */}
+					{step.kind === "gate" && (
+						<div className="mt-6 flex justify-between">
+							<button
+								type="button"
+								onClick={handleBack}
+								className="rounded-full px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+							>
+								이전
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									if (gateChoice === null) return;
+									handleGateChoice(gateChoice);
+								}}
+								disabled={gateChoice === null}
+								className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+							>
+								다음
+							</button>
+						</div>
+					)}
 
 					{step.kind === "question" && (
 						<div className="mt-6 flex justify-between">
