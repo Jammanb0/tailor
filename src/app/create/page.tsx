@@ -725,7 +725,8 @@ export default function CreatePage() {
 										고급 질문에 답해서 더 정확하게 만들까요?
 									</h1>
 									<p className="mt-1.5 text-muted">
-										6개 질문이 더 있어요. 건너뛰어도 스킬은 만들어져요.
+										{advancedQuestions.length}개 질문이 더 있어요. 건너뛰어도
+										스킬은 만들어져요.
 									</p>
 								</div>
 								<button
