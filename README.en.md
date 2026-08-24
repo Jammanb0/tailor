@@ -150,7 +150,7 @@ Only the `baseline` category is injected regardless of what is being requested.
 
 The rules themselves live in the header comment of
 `src/data/reference-corpus.ts`; the vetting procedure is in
-`.claude/rules/corpus-sources.md`. Whether the corpus represents each source
+`docs/corpus-sources.md`. Whether the corpus represents each source
 faithfully is recorded per source under `docs/corpus/`, down to file lists, byte
 counts and md5 hashes.
 

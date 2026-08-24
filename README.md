@@ -145,7 +145,7 @@ pnpm check:parser    # 모델 응답 태그 파서 회귀
   수 없는 항목은 출처 크레딧에 넣지 않습니다.
 
 규칙 본문은 `src/data/reference-corpus.ts` 머리 주석에, 소스 검증 절차는
-`.claude/rules/corpus-sources.md`에 있습니다. 코퍼스가 원문을 제대로 옮겼는지는
+`docs/corpus-sources.md`에 있습니다. 코퍼스가 원문을 제대로 옮겼는지는
 `docs/corpus/`에 소스별 감사 기록으로 남깁니다 — 파일 목록·바이트·md5까지
 적습니다.
 
