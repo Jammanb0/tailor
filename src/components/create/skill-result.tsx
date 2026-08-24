@@ -214,6 +214,15 @@ export function SkillResult({
 				</button>
 			)}
 
+			{/* 질문이 없을 때 이 자리를 비워두면 Tailor가 아무 말도 안 한 것처럼
+			    보인다. 물어볼 게 없었다는 것도 결과의 일부라 한 줄로 알린다. */}
+			{!hasPendingQuestions && (
+				<p className="rounded-2xl border border-border px-5 py-4 text-muted text-sm">
+					Tailor가 이번엔 따로 확인하고 싶은 부분이 없었어요. 고치고 싶은 곳이
+					있으면 아래 "수정 요청하기"로 알려주세요.
+				</p>
+			)}
+
 			<div>
 				<h2 className="text-sm font-semibold text-muted">SKILL.md 미리보기</h2>
 				<div className="mt-2 max-h-96 overflow-hidden rounded-2xl border border-border bg-surface">
