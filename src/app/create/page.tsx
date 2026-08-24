@@ -76,6 +76,11 @@ function buildSteps(wantsAdvanced: boolean | null): Step[] {
 	];
 }
 
+function phaseOf(step: Step) {
+	if (step.kind === "gate") return "옵션 선택";
+	return step.question.mode === "advanced" ? "고급 질문" : "필수 질문";
+}
+
 function isAnswerFilled(value: string | string[] | undefined) {
 	if (Array.isArray(value)) return value.length > 0;
 	return typeof value === "string" && value.trim().length > 0;
@@ -686,12 +691,12 @@ export default function CreatePage() {
 	}
 
 	// stage === "form"
-	const phaseLabel =
-		step.kind === "gate"
-			? "옵션 선택"
-			: step.question.mode === "advanced"
-				? "고급 질문"
-				: "필수 질문";
+	// 진행 표시는 구간(필수 / 옵션 선택 / 고급) 안에서 센다. 전체 기준으로 세면
+	// 라벨은 "고급 질문"인데 숫자는 "6/12"가 되어 서로 어긋나고, 고급 질문을
+	// 선택하는 순간 분모가 5에서 12로 뛰어 결승선이 멀어진 것처럼 보인다.
+	const phaseLabel = phaseOf(step);
+	const phaseSteps = steps.filter((s) => phaseOf(s) === phaseLabel);
+	const phaseIndex = phaseSteps.indexOf(step) + 1;
 
 	return (
 		<div className="flex min-h-screen overflow-x-clip">
@@ -700,8 +705,8 @@ export default function CreatePage() {
 					<HomeLink />
 					<div className="mb-8">
 						<WizardProgress
-							current={index + 1}
-							total={steps.length}
+							current={phaseIndex}
+							total={phaseSteps.length}
 							label={phaseLabel}
 						/>
 					</div>
