@@ -26,6 +26,9 @@ export type Refinement = {
 	answeredQuestions: AnsweredQuestion[];
 };
 
+/** 되물음 상한. 프롬프트 지시와 응답 자르기가 같은 값을 쓰도록 한 곳에 둔다. */
+export const MAX_CLARIFYING_QUESTIONS = 3;
+
 const INSUFFICIENT_INPUT_RULE = `사용자가 답한 내용이 너무 부실해서 의미 있는 SKILL.md를 도저히 쓸 수 없다면,
 지어내지 말고 <skill_md>를 비운 채 무엇이 더 필요한지를 <questions>에 적으세요.
 단 이건 예외적인 경우입니다 — 웬만하면 주어진 내용으로 만들고, 더 정확해질
@@ -51,7 +54,11 @@ const OUTPUT_FORMAT = `${INSUFFICIENT_INPUT_RULE}
 </review>
 <questions>
 (사용자에게 되물으면 더 정확해질 부분이 있다면, 한 줄에 하나씩 질문을 적으세요.
-확신이 충분하다면 이 태그 안을 비워두세요. 최대 3개까지만 적으세요. 항상 한국어)
+확신이 충분하다면 이 태그 안을 비워두세요. 최대 ${MAX_CLARIFYING_QUESTIONS}개까지만
+적으세요. 항상 한국어.
+한 줄에 질문 하나를 완결해서 쓰세요 — 물어볼 내용과 보기를 두 줄로 나누거나,
+같은 것을 문장만 바꿔 다시 묻지 마세요. 줄마다 별개 질문으로 취급되어 사용자가
+같은 질문에 두 번 답하게 됩니다.)
 </questions>
 <filename>
 (name과 동일한 kebab-case 문자열, 확장자 없이)

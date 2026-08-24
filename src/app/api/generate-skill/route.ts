@@ -15,6 +15,7 @@ import {
 	extractListTag,
 	extractTag,
 	extractUsedPatternIds,
+	MAX_CLARIFYING_QUESTIONS,
 	REFINE_SYSTEM_PROMPT,
 	type Refinement,
 	SYSTEM_PROMPT,
@@ -132,7 +133,13 @@ export async function POST(request: Request) {
 
 	const skillMarkdown = extractTag(text, "skill_md");
 	const reviewNotes = extractListTag(text, "review");
-	const clarifyingQuestions = extractListTag(text, "questions");
+	// 프롬프트로 최대 3개를 걸어두지만 모델이 넘겨 보내는 일이 있다 — 실제로
+	// 같은 질문을 문장만 바꿔 두 번 적고 4개를 낸 응답이 있었다. 사용자는 같은
+	// 것에 두 번 답하게 되므로 여기서 잘라 상한을 지킨다.
+	const clarifyingQuestions = extractListTag(text, "questions").slice(
+		0,
+		MAX_CLARIFYING_QUESTIONS,
+	);
 
 	if (!skillMarkdown) {
 		// 입력이 부실하면 모델은 <skill_md>를 비우고 <questions>로 되묻는다.
