@@ -11,8 +11,12 @@ import { referenceCategories } from "@/data/reference-corpus";
 export type GallerySkill = {
 	id: string;
 	name: string;
-	/** 표시용 카테고리(그룹핑/검색용) */
-	category: string;
+	/**
+	 * 표시용 카테고리(그룹핑/검색용). 한 스킬이 여러 카테고리에 속할 수 있어
+	 * 배열이다 — 예를 들어 verification-before-completion은 "디버깅"이면서
+	 * "공통 기본"이기도 하다.
+	 */
+	categories: string[];
 	/** 한 줄 설명 — 이게 무슨 스킬인지 */
 	description: string;
 	/** 핵심 좋은 점(펼침 시 표시) */
@@ -51,17 +55,31 @@ const sourceDescriptions: Record<string, string> = {
 		"문서를 단계별로 함께 써 내려가는 공동작성 워크플로.",
 };
 
+// 한 소스가 여러 카테고리에 등록돼 있을 수 있다(정상). 그때 카드를 두 번
+// 만들지 않고 하나로 합치되, 속한 카테고리와 좋은 점은 모두 모은다.
 function externalSkills(): GallerySkill[] {
-	const skills: GallerySkill[] = [];
+	const byId = new Map<string, GallerySkill>();
 	for (const category of referenceCategories) {
 		for (const source of category.sources) {
 			const goodPoints = category.patterns
 				.filter((pattern) => pattern.sourceIds.includes(source.id))
 				.map((pattern) => pattern.summary);
-			skills.push({
+			const existing = byId.get(source.id);
+			if (existing) {
+				if (!existing.categories.includes(category.label)) {
+					existing.categories.push(category.label);
+				}
+				for (const point of goodPoints) {
+					if (!existing.goodPoints.includes(point)) {
+						existing.goodPoints.push(point);
+					}
+				}
+				continue;
+			}
+			byId.set(source.id, {
 				id: source.id,
 				name: source.name,
-				category: category.label,
+				categories: [category.label],
 				description: sourceDescriptions[source.id] ?? "",
 				goodPoints,
 				author: source.author,
@@ -71,7 +89,7 @@ function externalSkills(): GallerySkill[] {
 			});
 		}
 	}
-	return skills;
+	return [...byId.values()];
 }
 
 // ── Tailor 자체 제작 시드 스킬(다운로드 제공) ─────────────────────────
@@ -207,7 +225,7 @@ export const tailorSeedSkills: GallerySkill[] = [
 	{
 		id: "tailor-library-explainer",
 		name: "라이브러리 설명 스킬",
-		category: "설명형 (쉽게 설명)",
+		categories: ["설명형 (쉽게 설명)"],
 		description:
 			"GitHub 링크·라이브러리 이름을 주면 초보 눈높이로 무엇인지·어떻게 쓰는지 설명해줘요.",
 		goodPoints: [
@@ -223,7 +241,7 @@ export const tailorSeedSkills: GallerySkill[] = [
 	{
 		id: "tailor-explanation-style",
 		name: "설명 말투 스타일 스킬",
-		category: "설명형 (쉽게 설명)",
+		categories: ["설명형 (쉽게 설명)"],
 		description:
 			"어떤 개념이든 일상 비유로 쉽고 친근하게 설명하도록 말투를 잡아줘요.",
 		goodPoints: [
@@ -239,7 +257,7 @@ export const tailorSeedSkills: GallerySkill[] = [
 	{
 		id: "tailor-verification-method",
 		name: "검증 방법 스킬",
-		category: "검증·신뢰성",
+		categories: ["검증·신뢰성"],
 		description:
 			"추측이 아니라 실제 근거(공식 문서·원본 코드)로 확인하고 나서 답하도록 해줘요.",
 		goodPoints: [
@@ -255,7 +273,7 @@ export const tailorSeedSkills: GallerySkill[] = [
 	{
 		id: "tailor-natural-korean",
 		name: "자연스러운 한국어 쓰기 스킬",
-		category: "설명형 (쉽게 설명)",
+		categories: ["설명형 (쉽게 설명)"],
 		description:
 			"영어를 그대로 옮긴 듯한 번역투를 걸러내고 우리말답게 쓰도록 말투를 잡아줘요.",
 		goodPoints: [

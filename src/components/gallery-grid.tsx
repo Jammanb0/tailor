@@ -42,7 +42,9 @@ function GalleryCard({
 						</span>
 					)}
 					<span className="font-semibold text-foreground">{skill.name}</span>
-					<span className="text-muted text-xs">{skill.category}</span>
+					<span className="text-muted text-xs">
+						{skill.categories.join(" · ")}
+					</span>
 					<span className="text-foreground/80 text-sm">
 						{skill.description}
 					</span>
@@ -110,7 +112,7 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 		const q = query.trim().toLowerCase();
 		if (!q) return skills;
 		return skills.filter((skill) =>
-			[skill.name, skill.description, skill.category, skill.author]
+			[skill.name, skill.description, ...skill.categories, skill.author]
 				.filter(Boolean)
 				.some((field) => field.toLowerCase().includes(q)),
 		);
@@ -120,7 +122,9 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 	const categories = useMemo(() => {
 		const seen: string[] = [];
 		for (const skill of byQuery) {
-			if (!seen.includes(skill.category)) seen.push(skill.category);
+			for (const label of skill.categories) {
+				if (!seen.includes(label)) seen.push(label);
+			}
 		}
 		return seen;
 	}, [byQuery]);
@@ -132,7 +136,7 @@ export function GalleryGrid({ skills }: { skills: GallerySkill[] }) {
 			: null;
 
 	const filtered = activeCategory
-		? byQuery.filter((skill) => skill.category === activeCategory)
+		? byQuery.filter((skill) => skill.categories.includes(activeCategory))
 		: byQuery;
 
 	// 한쪽 카드가 펼쳐져도 반대쪽 칸이 재배치되지 않도록 두 칸으로 미리 나눔.
