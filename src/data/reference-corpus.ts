@@ -101,7 +101,7 @@
 // 2026-08-19에 두 소스가 연달아 걸리면서(doc-coauthoring, writing-skills의
 // anthropic-best-practices.md) 따져본 결과, 그 규칙은 법이 요구하는 선보다
 // 엄격한 자기 규율이었고 **쓸 수 있는 개념까지 통째로 버리고 있었다.**
-// 상세 판단은 `.claude/plans/open-questions.md`의 해결된 미결 사항에 있다.
+// 상세 판단은 `.agents/plans/open-questions.md`의 해결된 미결 사항에 있다.
 
 /** 정리 파일이 유래한 실제 스킬/저장소. 출처·저작자·라이선스·수집시점을 담는다. */
 export type ReferenceSource = {
