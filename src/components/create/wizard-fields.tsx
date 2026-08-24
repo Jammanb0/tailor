@@ -67,12 +67,25 @@ export function CheckboxField({
 }: CheckboxFieldProps) {
 	const selectedValues = value ?? [];
 
+	const exclusiveValues = options
+		.filter((option) => option.exclusive)
+		.map((option) => option.value);
+
 	const toggle = (optionValue: string) => {
 		if (selectedValues.includes(optionValue)) {
 			onChange(selectedValues.filter((v) => v !== optionValue));
-		} else {
-			onChange([...selectedValues, optionValue]);
+			return;
 		}
+		// "필요 없음" 같은 배타 항목은 나머지를 지우고 혼자 남는다.
+		if (exclusiveValues.includes(optionValue)) {
+			onChange([optionValue]);
+			return;
+		}
+		// 반대로 일반 항목을 고르면 배타 항목이 해제된다.
+		onChange([
+			...selectedValues.filter((v) => !exclusiveValues.includes(v)),
+			optionValue,
+		]);
 	};
 
 	return (

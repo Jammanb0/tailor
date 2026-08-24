@@ -4,6 +4,11 @@ export type WizardOption = {
 	value: string;
 	label: string;
 	hint?: string;
+	/**
+	 * 체크박스에서 다른 선택지와 함께 고를 수 없는 항목("필요 없음" 등).
+	 * 이걸 고르면 나머지가 해제되고, 나머지를 고르면 이게 해제된다.
+	 */
+	exclusive?: boolean;
 };
 
 export type WizardNote = {
@@ -168,6 +173,12 @@ export const advancedQuestions: WizardQuestion[] = [
 			{ value: "read", label: "파일 읽기" },
 			{ value: "edit", label: "파일 수정" },
 			{ value: "exec", label: "명령 실행", hint: "터미널 명령 등" },
+			{
+				value: "none",
+				label: "필요 없음",
+				hint: "파일이나 명령은 건드리지 않고, 말투·형식·판단 기준만 잡아주는 스킬",
+				exclusive: true,
+			},
 		],
 	},
 	{
