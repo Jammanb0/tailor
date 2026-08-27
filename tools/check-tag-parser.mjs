@@ -34,7 +34,10 @@ const PROMPT = join(
 	"generate-skill",
 	"prompt.ts",
 );
-const src = readFileSync(PROMPT, "utf8");
+// 줄바꿈을 LF로 맞춰 읽는다. 아래에서 함수 끝을 `\n}\n`로 찾는데, Windows
+// 체크아웃(core.autocrlf)에서는 작업 트리가 CRLF라 그대로 두면 하나도 못 찾고
+// 시험이 통째로 죽는다.
+const src = readFileSync(PROMPT, "utf8").replace(/\r\n/g, "\n");
 
 const grab = (name) => {
 	const i = src.indexOf(`export function ${name}(`);
