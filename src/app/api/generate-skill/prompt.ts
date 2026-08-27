@@ -204,7 +204,37 @@ export function extractTag(text: string, tag: string): string | null {
 	);
 	const match =
 		atLineStart ?? text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
-	return match ? match[1].trim() : null;
+	if (match) return match[1].trim();
+	return extractUnclosedTag(text, tag);
+}
+
+/** 출력 형식의 최상위 태그. 닫는 태그가 없는 블록은 이 중 하나에서 끊는다. */
+const TOP_LEVEL_TAGS =
+	"skill_md|review|questions|filename|archetype|used_patterns";
+
+// 닫는 태그가 없을 때의 되돌림 경로.
+//
+// 모델이 <skill_md>를 열고 문서를 끝까지 다 쓴 뒤 </skill_md>를 닫지 않고 끝낸
+// 응답이 있었다(2026-08-27 측정, 3회 중 1회. stop_reason이 end_turn이었으므로
+// 길이에 잘린 것이 아니다). 짝이 맞아야만 본문을 꺼내던 탓에 다 쓴 문서를
+// 통째로 버리고 502를 냈다.
+//
+// **여는 태그가 줄 머리에 있을 때만** 인정한다. 이 조건이 a0a5c9b에서 고친
+// 결함 — 산문 속 태그 언급에 파서가 열리는 것 — 을 되살리지 않는 유일한
+// 장치다. 그 사례는 줄 가운데 있었으므로 여기서 걸러진다. 위 extractTag의 두
+// 번째 되돌림(아무 자리나 찾기)에는 이 경로를 붙이지 않는다.
+//
+// 끝은 다음 최상위 태그가 나오는 줄 머리, 없으면 문서 끝이다. 아무 `<...>`나
+// 경계로 잡으면 SKILL.md 본문의 코드 블록에서 멈춘다.
+function extractUnclosedTag(text: string, tag: string): string | null {
+	const opened = text.match(new RegExp(`^[ \\t]*<${tag}>[ \\t]*\\n?`, "m"));
+	if (!opened || opened.index === undefined) return null;
+
+	const rest = text.slice(opened.index + opened[0].length).split("\n");
+	const boundary = new RegExp(`^[ \\t]*</?(?:${TOP_LEVEL_TAGS})>`);
+	const end = rest.findIndex((line) => boundary.test(line));
+	const body = (end < 0 ? rest : rest.slice(0, end)).join("\n").trim();
+	return body || null;
 }
 
 /** 태그 하나만 있는 줄 — 잘라낸 블록에 섞여 들어온 잔해다. */
