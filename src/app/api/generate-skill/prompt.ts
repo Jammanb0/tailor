@@ -256,7 +256,7 @@ export function extractListTag(text: string, tag: string): string[] {
 // 출처를 찾으면 이런 응답에서 출처 표기가 통째로 사라지므로 여기서 정규화한다.
 // id는 kebab-case(`verify-before-done`)이므로 하이픈은 구분자가 아니다.
 // 감싸개(대괄호·따옴표·백틱)를 벗긴 뒤 첫 kebab-case 토큰만 취한다.
-function normalizeId(raw: string): string {
+export function normalizeId(raw: string): string {
 	const unwrapped = raw
 		.trim()
 		.replace(/^[-*\s]+/, "")
@@ -336,8 +336,16 @@ function renderPattern(p: ReferencePattern): string {
 	return lines.join("\n");
 }
 
-// 참고 코퍼스를 프롬프트용 텍스트로 렌더한다(정적 — 매 요청 동일해 캐싱 가능).
-function buildCorpusSection(): string {
+// 참고 코퍼스를 프롬프트용 텍스트로 렌더한다.
+//
+// `only`를 주면 그 안에 든 패턴만 찍고, 남는 패턴이 없는 카테고리는 통째로
+// 뺀다. 라우팅(선택 주입) 경로가 쓰는 길이다. 주지 않으면 전체를 찍는다 —
+// 이때의 결과는 라우팅 도입 전과 **바이트 단위로 같아야 한다**
+// (tools/check-corpus-render.mjs가 대조한다).
+//
+// 머리말·골격은 어느 쪽이든 같은 문자열이다. 요청마다 달라지는 것은 패턴
+// 목록뿐이므로, 나중에 캐시 지점을 잡을 때 앞부분을 그대로 쓸 수 있다.
+function buildCorpusSection(only?: ReadonlySet<string>): string {
 	// 공통 뼈대는 한 번만 찍고, 타입별로는 다른 본문만 찍는다. 4종에 같은 줄이
 	// 네 번 반복되던 것을 2026-08-20에 걷어냈다.
 	const archetypes = structureArchetypes
@@ -356,8 +364,12 @@ function buildCorpusSection(): string {
 	// 결과 화면의 출처 표기는 거기서 만들어진다.
 	const categories = referenceCategories
 		.map((c) => {
+			const patterns = only
+				? c.patterns.filter((pattern) => only.has(pattern.id))
+				: c.patterns;
+			if (!patterns.length) return null;
 			const groups = new Map<string, ReferencePattern[]>();
-			for (const pattern of c.patterns) {
+			for (const pattern of patterns) {
 				const key = pattern.sourceIds[0] ?? "";
 				const bucket = groups.get(key);
 				if (bucket) bucket.push(pattern);
@@ -379,6 +391,7 @@ function buildCorpusSection(): string {
 				.join("\n\n");
 			return `## ${c.label}${c.alwaysApply ? " (공통·항상 적용)" : ""}\n${body}`;
 		})
+		.filter((section): section is string => section !== null)
 		.join("\n\n");
 	return `참고 자료 — 아래는 공개 스킬(및 Tailor 자체)에서 정리한 "좋은 패턴"과 문서 구조 골격입니다.
 사용자 상황에 맞는 것을 스스로 골라 흡수해 스킬을 만들되, 여기 없는 내용도 필요하면 채우세요.
@@ -432,3 +445,13 @@ ${categories}`;
 }
 
 export const CORPUS_SECTION = buildCorpusSection();
+
+/**
+ * 선택된 패턴만 담은 코퍼스 섹션. 라우팅 경로의 생성 프롬프트가 쓴다.
+ *
+ * 순서는 넘겨준 순서가 아니라 코퍼스 선언 순서다. 선택 결과에 따라 줄 순서가
+ * 흔들리면 같은 조합인데도 캐시가 깨지고, 자료 대조도 번거로워진다.
+ */
+export function buildRoutedCorpusSection(patternIds: Iterable<string>): string {
+	return buildCorpusSection(new Set(patternIds));
+}
