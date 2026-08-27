@@ -235,6 +235,47 @@ export type FlowStep = {
 	}[];
 };
 
+/** 공통 기본 패턴을 온라인 생성에 어떻게 전달할지 정하는 실제 동작 모드. */
+export const baselineRoutingModes = [
+	"always",
+	"conditional",
+	"evaluation-only",
+] as const;
+
+export type BaselineRoutingMode = (typeof baselineRoutingModes)[number];
+
+export type BaselineRoutingAnswerSignal = {
+	/** 선택기가 받는 원시 WizardAnswers의 질문 id. */
+	questionId: string;
+	/** 화면 라벨이 아니라 option.value 원시 값. 하나라도 맞으면 신호가 켜진다. */
+	values: string[];
+};
+
+export type BaselineRouting =
+	| {
+			mode: "always";
+			/** 사람이 판정을 다시 검토할 때만 읽는다. 프롬프트에는 렌더하지 않는다. */
+			reviewReason: string;
+	  }
+	| {
+			mode: "conditional";
+			condition: {
+				/** 선택 모델이 사용자 요청에서 확인할 의미 조건. */
+				when: string;
+				/** 원시 설문 답으로 바로 판정할 수 있는 조건이 있을 때만 둔다. */
+				answerSignals?: BaselineRoutingAnswerSignal[];
+				/** answerSignals의 질문에 답이 없을 때 사용할 의미 조건. */
+				whenAnswersMissing?: string;
+			};
+			/** 사람이 판정을 다시 검토할 때만 읽는다. 프롬프트에는 렌더하지 않는다. */
+			reviewReason: string;
+	  }
+	| {
+			mode: "evaluation-only";
+			/** 사람이 판정을 다시 검토할 때만 읽는다. 프롬프트에는 렌더하지 않는다. */
+			reviewReason: string;
+	  };
+
 export type ReferencePattern = {
 	/** 안정적 참조 키 (kebab-case) — AI가 사용한 패턴을 되짚을 때 사용 */
 	id: string;
@@ -244,6 +285,8 @@ export type ReferencePattern = {
 	detail: string;
 	/** 이 패턴이 구조의 어느 자리에 들어가면 좋은지 */
 	role?: PatternRole;
+	/** 공통 기본 패턴의 전달 조건. baseline 카테고리에서만 사용한다. */
+	baselineRouting?: BaselineRouting;
 	/**
 	 * 결과물에 드러나는가(artifact) / 작성 과정에만 작용하는가(process). 기본 artifact.
 	 *
@@ -2482,6 +2525,11 @@ export const referenceCategories: ReferenceCategory[] = [
 		patterns: [
 			{
 				id: "trigger-first-description",
+				baselineRouting: {
+					mode: "always",
+					reviewReason:
+						"모든 SKILL.md는 description으로 호출 여부를 결정하므로 결과물 종류와 무관하게 필요하다.",
+				},
 				summary: "description은 'Use when...' 트리거 조건 중심으로",
 				detail:
 					"워크플로 요약이 아니라 '언제 쓰는지'(어떤 요청·상황·에러·도구에서 호출되는지)를 구체적으로 쓴다. 에이전트가 검색할 키워드를 넣는다. description은 에이전트가 스킬 호출 여부를 판단하는 가장 중요한 필드다. 3인칭으로 쓴다 — 시스템 프롬프트에 그대로 주입되기 때문이다. 증상은 언어에 매인 표현(setTimeout, sleep)이 아니라 문제 자체(경쟁 상태, 결과가 들쭉날쭉함)로 적고, 스킬이 특정 기술 전용일 때만 기술명을 트리거에 명시한다. 워크플로 요약을 금지하는 데는 확인된 근거가 있다 — 설명이 절차를 요약하면 에이전트가 본문을 읽지 않고 설명만 따른다. 원저자가 설명에 '작업 사이 코드 리뷰'라고 적었더니 본문 순서도에 리뷰가 두 단계로 그려져 있는데도 에이전트는 한 번만 수행했고, 설명에서 요약을 빼자 두 단계를 지켰다. 요약된 설명은 에이전트가 타고 갈 지름길을 만들고 본문은 건너뛰는 문서가 된다.",
@@ -2531,6 +2579,11 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "form-matches-failure",
+				baselineRouting: {
+					mode: "always",
+					reviewReason:
+						"쓰기 전에 막으려는 실패와 구조 원형을 맞추는 판단은 모든 생성의 전제다.",
+				},
 				summary: "가이드 형태를 실패 유형에 맞춘다(→ 구조 원형 선택)",
 				detail:
 					"쓰기 전에 먼저 '가이드가 없을 때 무엇이 잘못되는가'를 분류한다. 한 실패 유형을 막아주는 형태가 다른 유형에서는 측정 가능하게 역효과를 낸다. 이 원칙이 곧 어떤 구조 원형(규율형/절차형/참조형)을 쓸지 결정한다. 금지문이 형태 문제에서 역효과인 이유에는 근거가 있다 — 경쟁하는 동기가 있을 때(예: '프롬프트를 자족적으로 만들어라') 에이전트는 '하지 마라'와 협상한다. 원저자의 문구 대조 실험에서 금지문 쪽이 원치 않는 내용을 뚜렷하게 더 많이 만들었고(분포가 완전히 갈렸다), 가이드가 아예 없는 대조군보다도 나쁜 쪽으로 기울었다. 레시피에는 협상할 여지가 없다 — 출력이 그 모양이거나 아니거나다. 어떤 형태를 골랐든 지킬 규칙이 둘 더 있다. 뉘앙스 조항을 붙이지 않는다 — '중요한 경우가 아니면 하지 마라'는 협상을 다시 여는 말이고, 이긴 레시피에 뉘앙스 조항 하나를 붙였더니 일관되던 결과가 들쭉날쭉해졌다. 진짜 예외라면 관찰 가능한 조건을 건 별도 분기로 적는다. 그리고 면제 조항은 범위를 못 잡는다 — '이 제한은 코드블록에 적용되지 않는다'고 써도 코드블록이 억제된다. 일부를 면제해야 한다면 규칙이 그곳에 닿지 않도록 구조를 바꾼다.",
@@ -2566,6 +2619,17 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "token-budget",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "사용 빈도가 거의 매일이거나 시작 워크플로·상시 호출처럼 자주 로드되는 스킬일 때",
+						answerSignals: [{ questionId: "frequency", values: ["often"] }],
+						whenAnswersMissing:
+							"상황 설명에서 시작 워크플로·상시 호출·매번 자동 로드되는 스킬임이 드러날 때",
+					},
+					reviewReason:
+						"주제가 아니라 결과물이 로드되는 빈도에 따라 분량 기준이 달라지는 조건부 규칙이다.",
+				},
 				summary: "자주 로드되는 스킬일수록 단어 수를 깎는다",
 				detail:
 					"시작 워크플로나 자주 참조되는 스킬은 거의 모든 대화에 실린다. 그런 스킬에서는 한 단어가 비용이다. 목표치를 넘겼는지는 단어 수를 직접 세어 확인한다.",
@@ -2604,6 +2668,14 @@ export const referenceCategories: ReferenceCategory[] = [
 				// 형식은 testing의 rationalization-table이 담는다. 여기는 값이다 —
 				// debugging의 debug-rationalization-defaults와 같은 짝 구조다.
 				id: "skill-testing-rationalization-defaults",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "스킬 작성·수정·배포를 다루며 검증을 건너뛰려는 합리화를 막아야 할 때",
+					},
+					reviewReason:
+						"일반 작성 원칙이 아니라 실제로 나온 검증 회피 논리를 막는 방어 값이다.",
+				},
 				summary: "스킬 검증을 건너뛸 때 나오는 변명과 그 각각에 대한 반박",
 				detail:
 					"만든 스킬을 검증하지 않고 배포하려 할 때 나오는 여덟 가지다. 반박은 원칙이 아니라 인과로 되받는다. 표 끝은 한 문장으로 닫아 개별 행이 협상거리가 되지 않게 한다 — '전부 같은 뜻이다: 배포 전에 테스트하라. 예외 없다'. 변명 목록은 상상해서 채우지 않고 실제 테스트에서 나온 것을 모아 만든다. **이것은 값이고 표를 어떤 모양으로 쓸지는 rationalization-table이 담는다 — 둘을 함께 볼 것.**",
@@ -2649,6 +2721,11 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "skill-creation-checklist",
+				baselineRouting: {
+					mode: "evaluation-only",
+					reviewReason:
+						"생성된 스킬을 실제 시나리오로 시험하는 전체 절차라 단일 온라인 생성 호출이 수행할 수 없다. 메타 스킬 본문에도 필요해지면 출처 감사를 거쳐 artifact 패턴으로 따로 나눈다.",
+				},
 				summary: "스킬을 배포하기 전 다섯 단계 점검을 통과시킨다",
 				detail:
 					"스킬 쓰기는 문서에 적용한 TDD다 — 가이드 없이 먼저 실패를 관찰하고, 그 실패를 겨냥해 쓰고, 다시 돌려 확인한다. 그래서 TDD를 이해하고 있는 것이 이 절차의 전제다. 점검 항목은 읽고 넘어가는 것이 아니라 항목마다 할 일로 만들어 하나씩 닫는다. 검증하지 않은 스킬을 배포하는 것은 검증하지 않은 코드를 배포하는 것과 같다. **문구를 미세 검증할 때는 분산을 지표로 본다** — 가이드가 실제로 구속력이 있으면 반복이 같은 모양으로 수렴한다. 다섯 번이 다섯 갈래로 갈리면 그 문구는 아무것도 붙들지 못한 것이다.",
@@ -2715,6 +2792,11 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "when-not-to-create",
+				baselineRouting: {
+					mode: "always",
+					reviewReason:
+						"일회성 해결이나 기계적 제약을 스킬로 만들지 않는 판단은 모든 생성의 입구다.",
+				},
 				summary: "스킬로 만들 것과 만들지 말 것을 먼저 가른다",
 				detail:
 					"기계로 강제할 수 있는 제약은 문서가 아니라 검사기가 맡는다. 정규식이나 검증으로 잡히는 것을 문서로 적으면, 지켜지지 않아도 아무도 모르는 규칙이 하나 늘 뿐이다. 문서는 판단이 필요한 것에 쓴다.",
@@ -2760,6 +2842,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "one-excellent-example",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "코드·명령·기법처럼 완결된 예시 하나가 절차를 구체화할 때",
+					},
+					reviewReason:
+						"예시가 도움 되는 결과물에만 필요하며 순수 참조·짧은 규칙에는 불필요할 수 있다.",
+				},
 				summary: "훌륭한 예시 하나가 그저 그런 여럿을 이긴다",
 				detail:
 					"주제에 가장 맞는 언어 하나를 골라 예시를 만든다 — 테스트 기법이면 TypeScript, 시스템 디버깅이면 셸이나 Python, 자료 처리면 Python 같은 식이다. 여러 언어로 같은 것을 구현하면 전부 그저 그런 품질이 되고 관리 부담만 는다. 읽는 쪽은 언어를 옮기는 데 능하므로 훌륭한 예시 하나면 충분하다.",
@@ -2793,6 +2883,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "flowchart-when",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "자명하지 않은 결정 지점·반복 종료 조건·서로 그럴듯한 선택지가 있을 때",
+					},
+					reviewReason:
+						"직선 절차나 참조 자료에는 오히려 무거워 결과물의 의사결정 구조가 있을 때만 쓴다.",
+				},
 				summary: "순서도는 판단이 갈리는 자리에만 쓴다",
 				detail:
 					"순서도는 자리를 많이 차지하고 복사해 쓸 수 없다. 그래서 정보를 보여주는 용도가 아니라 잘못 갈 수 있는 결정에만 값을 한다. 그 조건에 맞으면 본문 안에 작게 넣고, 아니면 마크다운으로 쓴다. 노드 라벨에는 의미를 담는다 — step1, helper2 같은 이름은 순서도를 그리기 전보다 나은 것이 없다.",
@@ -2834,6 +2932,11 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "skill-type-testing",
+				baselineRouting: {
+					mode: "evaluation-only",
+					reviewReason:
+						"생성 결과를 유형별 시나리오로 시험하는 평가 기법이라 온라인 생성 모델이 아니라 자체 사전 평가에서 사용한다. 메타 스킬 본문용 값은 필요할 때 artifact 패턴으로 분리한다.",
+				},
 				summary: "스킬 유형마다 시험 방법과 통과 기준이 다르다",
 				detail:
 					"검증했다는 말은 유형을 밝히지 않으면 뜻이 없다. 규율형에서 통하는 시험(압박을 걸어 어기는지 본다)은 참조형에서 아무것도 재지 못하고, 참조형의 시험(찾아 쓰는지 본다)은 규율형의 실패를 못 잡는다. 만든 스킬이 어느 유형인지 먼저 정하고 그 줄의 시험을 돌린다. 압박 시험은 선택지를 A·B·C로 강제하고, 가정적인 질문(무엇을 해야 하는가)이 아니라 무엇을 하겠는가로 묻는다 — 그래야 도망갈 자리가 없다.",
@@ -2861,6 +2964,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "bulletproofing-toolkit",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "규율형 스킬에서 시간 압박·매몰비용·피로 때문에 규칙을 알면서도 우회할 위험이 있을 때",
+					},
+					reviewReason:
+						"출력 형태 문제가 아니라 압박 아래 규칙을 건너뛰는 실패에만 맞는 방어 도구다.",
+				},
 				summary: "규율형 스킬은 압박 아래 뚫리지 않도록 따로 손봐야 한다",
 				detail:
 					"규율을 요구하는 스킬은 똑똑한 독자가 압박 아래 빠져나갈 구멍을 찾는다는 전제로 쓴다. 적용 범위를 헷갈리지 말 것 — 이 도구들은 규칙을 알면서 압박에 밀려 건너뛰는 실패에만 쓴다. 출력 모양이 틀리거나 요소를 빠뜨리는 실패에는 금지문 기반 방탄이 역효과다(form-matches-failure를 볼 것). 값을 담는 자리는 이미 있다 — 변명 표의 형식은 rationalization-table이, 위험 신호 목록의 형식은 red-flags-list가 든다. 여기서는 그 둘을 포함한 방어 수단 전체를 어떻게 배치하는지를 정한다.",
@@ -2916,6 +3027,11 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "keyword-coverage",
+				baselineRouting: {
+					mode: "always",
+					reviewReason:
+						"모든 스킬은 사용되기 전에 이름·description·본문 검색으로 발견돼야 한다.",
+				},
 				summary: "찾는 사람이 실제로 칠 법한 말을 본문에 흩어 둔다",
 				detail:
 					"스킬은 읽히기 전에 찾아져야 한다. 개념을 정확한 용어로만 적어두면, 정작 문제를 겪는 순간에 떠오르는 말(에러 문구, 증상을 부르는 속어)로는 검색되지 않는다. 이름도 마찬가지다 — 하는 일을 능동태 동사로 앞세운다. **검색어를 앞쪽에 자주 두는 데는 이유가 있다** — 찾는 쪽은 문제를 만나고 → 설명으로 훑어 고르고 → 개요만 읽고 관련 있는지 판정하고 → 그다음에야 본문을 읽는다. 뒤쪽에만 있는 말은 그 판정을 통과하기 전에는 읽히지 않으므로 없는 것과 같다.",
@@ -2955,6 +3071,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "no-force-load-links",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "결과물이 다른 스킬이나 무거운 참조 자료를 가리켜야 할 때",
+					},
+					reviewReason:
+						"외부 참조가 없는 자족적인 스킬에는 적용할 링크 자체가 없다.",
+				},
 				summary:
 					"다른 스킬은 이름으로 가리키고, 참조가 곧 로드가 되지 않게 한다",
 				detail:
@@ -2988,6 +3112,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "anti-patterns",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "반복해서 나타나는 지름길의 실제 모습을 알아채는 것이 규칙 위반을 막을 때",
+					},
+					reviewReason:
+						"예상되는 우회 행동이 있을 때 인지적 마찰을 만드는 방어 절이다.",
+				},
 				summary: "안티패턴 절에 지름길의 실제 모습을 그대로 적어 둔다",
 				detail:
 					"원저자가 방탄 장치 중 가장 중요한 것으로 꼽은 것이 이 절이다. 근거는 인지적 마찰이다 — 이번만 이렇게 하자고 생각하는 순간, 바로 그 문장이 하지 말 것 목록에 적혀 있는 것을 보게 된다. 그래서 안티패턴은 추상적인 원칙이 아니라 실제로 그렇게 쓰인 모습으로 적어야 한다. 각 항목에는 왜 나쁜지를 한 줄로 붙인다.",
@@ -3020,6 +3152,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "iron-law-edits-too",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "스킬 작성·수정 절차에서 실패를 먼저 확인하지 않고 고치거나 여러 변경을 몰아 검증할 위험이 있을 때",
+					},
+					reviewReason:
+						"새 작성뿐 아니라 작은 수정도 예외로 삼으려는 우회를 막는 규율형 방어다.",
+				},
 				summary: "철칙은 새로 만들 때만이 아니라 고칠 때도 적용된다",
 				detail:
 					"실패를 먼저 확인하지 않고 쓴 스킬은 무엇을 고치는지 모르는 채로 쓴 것이다. 이 원칙은 새 스킬에만 걸리는 것으로 읽히기 쉬운데, 원문은 기존 스킬 수정에도 똑같이 적용된다고 못박는다. 그리고 예외가 될 법한 것들을 하나씩 이름 붙여 막는다 — 이름 붙이지 않으면 각각이 자기만의 예외로 통과한다. 스킬 하나를 끝내기 전에 다음 것으로 넘어가지 않는다. 여러 개를 몰아 만들고 나중에 한꺼번에 검증하는 방식은 금지다 — 검증 안 한 스킬을 배포하는 것은 검증 안 한 코드를 배포하는 것과 같다.",
@@ -3061,6 +3201,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			// 아니라 `debugging`에 남긴다.
 			{
 				id: "evidence-matches-the-claim",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "완료·통과·빌드·버그 수정·요구사항 충족처럼 서로 다른 종류의 주장을 검증해야 할 때",
+					},
+					reviewReason:
+						"완료 절의 자리는 공통 골격에 있지만 주장마다 필요한 증거를 고르는 세부 규칙은 조건부다.",
+				},
 				summary: "무엇을 주장하느냐에 따라 필요한 증거가 다르다",
 				detail:
 					"'끝났다'를 선언하기 전에 증거를 본다는 원칙은 어떤 스킬에나 걸리지만, **무엇이 증거인지는 주장마다 다르다.** 원문은 주장별로 필요한 것과 불충분한 것을 짝지어 표로 규정한다. **여기서 특히 볼 것은 「요구사항을 다 채웠다」 줄이다** — 돌려볼 명령이 없는 주장인데도 확인 방법이 있다. 계획을 다시 읽어 한 줄씩 점검표를 만들고 항목마다 확인한 뒤 **못 채운 것을 보고한다.** 문서·설명·기획처럼 돌릴 것이 없는 스킬은 이 줄을 따른다 — 그 스킬이 스스로 적어둔 지켜야 할 것·형식 규정·금지 목록이 그대로 점검표가 된다. 이 구분을 안 하면 돌릴 것이 없는 스킬에 '명령을 돌려 확인하라'가 박혀 실행할 수 없는 지시가 된다.",
@@ -3126,6 +3274,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "verify-before-done",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "결과물이 성공·완료를 선언하며 이를 새 실행이나 항목별 확인으로 증명할 수 있을 때",
+					},
+					reviewReason:
+						"공통 골격의 완료 절에 실제 증거 수집 순서가 필요할 때 넣는 핵심 검증 절차다.",
+				},
 				summary: "'됐다'고 말하기 전에 증명하는 명령을 새로 돌려 결과를 읽는다",
 				detail:
 					"**주장보다 증거가 먼저다 — 언제나.** 지금 이 작업에서 직접 돌려보지 않았으면 통과한다고 말할 수 없다. 어느 단계든 건너뛰면 확인한 것이 아니다. **이 규칙은 '됐다'는 말에만 걸리는 것이 아니다** — 완료를 뜻하는 모든 표현, 만족을 드러내는 말, 상태에 대한 긍정, 마무리·제출·다음 일로 넘어가는 순간, 그리고 맡긴 일의 결과를 전할 때까지 전부 포함한다. 문언을 피해 가는 것은 정신을 어기는 것이다.",
@@ -3161,6 +3317,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "what-is-not-evidence",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "검사 통과·과거 실행·부분 확인 같은 대리 지표를 충분한 증거로 오인할 위험이 있을 때",
+					},
+					reviewReason:
+						"모든 완료 절에 표 전체가 필요한 것은 아니며 잘못된 증거 후보가 있을 때만 대비한다.",
+				},
 				summary:
 					"주장마다 '무엇이 증거이고 무엇은 증거가 아닌지'를 나란히 적는다",
 				detail:
@@ -3206,6 +3370,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "no-success-words-before-run",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "명령이나 검사를 실행하기 전에 성공·만족을 암시하는 표현을 쓸 위험이 있을 때",
+					},
+					reviewReason:
+						"증거를 고르는 규칙보다 확인 전 성공 표현으로 빠져나가는 말버릇을 막는 방어 규칙이다.",
+				},
 				summary: "돌려보기 전에는 성공을 암시하는 말 자체를 쓰지 않는다",
 				detail:
 					"막으려는 것은 기술적 실수가 아니라 말버릇이다. '아마', '~인 것 같다', '될 겁니다' 같은 표현이 첫 번째 신호이고, 확인 전에 '좋아요', '완벽합니다', '끝났습니다' 같은 만족 표현을 쓰는 것이 두 번째다. 목록에 없는 표현으로 새어나가지 않게, 마지막에는 열어두는 조항을 붙인다 — 확인하지 않은 채 성공을 암시하는 모든 표현이 여기 해당한다. 정확한 문구뿐 아니라 바꿔 말한 것, 돌려 말한 것, 완료를 시사하는 모든 말에 같은 규칙이 걸린다. **여기 붙이는 변명 표는 짧게 되받는다** — 이미 동의한 규칙을 지키게 하는 자리라 길게 논증할 것이 없다. 하기 싫은 일을 설득해야 하는 자리(테스트 먼저 쓰기 같은)에서는 반박이 길어야 하지만, 여기서는 한 구절이면 된다.",
@@ -3229,6 +3401,14 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "verify-delegated-work",
+				baselineRouting: {
+					mode: "conditional",
+					condition: {
+						when: "하위 에이전트·다른 작업자·외부 도구에 일을 맡기고 그 결과를 완료로 보고할 때",
+					},
+					reviewReason:
+						"위임이 없는 요청에는 적용 대상이 없고 위임 결과를 직접 확인해야 할 때만 필요하다.",
+				},
 				summary: "맡긴 작업은 보고가 아니라 실제 변경 내역으로 확인한다",
 				detail:
 					"끝냈다는 보고와 실제로 바뀐 것은 다를 수 있다. 보고를 받으면 변경 내역을 열어 무엇이 어떻게 바뀌었는지 직접 보고, 그 실제 상태를 전한다.",
@@ -3239,6 +3419,11 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "skills-are-reusable-techniques",
+				baselineRouting: {
+					mode: "always",
+					reviewReason:
+						"Tailor가 만드는 대상은 일회성 해결 기록이 아니라 반복해서 호출할 스킬이어야 한다.",
+				},
 				summary: "스킬은 재사용 가능한 검증된 기법이지 일회성 서사가 아니다",
 				detail:
 					"한 번의 문제 해결 이야기가 아니라 반복해서 쓸 기법의 참고 자료로 만든다. 일회성 작업은 스킬로 만들지 않는다.",

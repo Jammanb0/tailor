@@ -15,10 +15,12 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+	baselineRoutingModes,
 	getSourceById,
 	referenceCategories,
 	structureArchetypes,
 } from "../src/data/reference-corpus.ts";
+import { allQuestions } from "../src/data/wizard-questions.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PROMPT_TS = join(
@@ -34,8 +36,8 @@ const PROMPT_TS = join(
 const errors = [];
 const fail = (where, message) => errors.push(`${where}: ${message}`);
 
-// ── 규칙 1: verifyHint는 프롬프트에 렌더되지 않는다 ────────────────
-// 채점 기준을 모델에게 주면 그 기준에 맞춰 쓰게 되어 측정이 자기충족이 된다.
+// ── 규칙 1: 사람만 보는 검토 필드는 프롬프트에 렌더되지 않는다 ───────
+// 채점 기준이나 라우팅 판정 이유를 모델에게 주면 측정·선택이 자기충족이 된다.
 // 주석에서 이 필드를 설명하는 것은 정상이므로, 주석을 걷어낸 코드만 본다.
 const promptCode = readFileSync(PROMPT_TS, "utf8")
 	.replace(/\/\*[\s\S]*?\*\//g, "")
@@ -46,8 +48,14 @@ if (promptCode.includes("verifyHint")) {
 		"verifyHint를 렌더러가 참조하고 있습니다 — 프롬프트에 넣지 않기로 한 필드입니다",
 	);
 }
+if (promptCode.includes("reviewReason")) {
+	fail(
+		"prompt.ts",
+		"reviewReason을 렌더러가 참조하고 있습니다 — 사람의 판정 기록이라 프롬프트에 넣지 않습니다",
+	);
+}
 
-// ── 규칙 2~7: 패턴 단위 검사 ──────────────────────────────────────
+// ── 규칙 2~9: 패턴 단위 검사 ──────────────────────────────────────
 const AUDIT_ID = /^[A-Z]{1,3}-\d{1,3}$/;
 const STRUCTURED_FIELDS = [
 	"examples",
@@ -64,10 +72,102 @@ const seenIds = new Map();
 const allPatternIds = new Set(
 	referenceCategories.flatMap((c) => c.patterns.map((x) => x.id)),
 );
+const baselineRoutingModeSet = new Set(baselineRoutingModes);
+const baselineRoutingModeCounts = new Map(
+	baselineRoutingModes.map((mode) => [mode, 0]),
+);
+const wizardQuestionsById = new Map(
+	allQuestions.map((question) => [question.id, question]),
+);
 
 for (const category of referenceCategories) {
 	for (const p of category.patterns) {
 		const where = `${category.id}/${p.id}`;
+
+		// 9. 라우팅 동작과 조건이 조용히 빠지거나 다른 카테고리에 번지지 않게 한다.
+		if (category.id === "baseline") {
+			const routing = p.baselineRouting;
+			if (routing === undefined) {
+				fail(where, "baselineRouting이 비어 있습니다");
+			} else {
+				const mode = routing.mode;
+				if (mode === undefined) {
+					fail(where, "baselineRouting.mode가 비어 있습니다");
+				} else if (!baselineRoutingModeSet.has(mode)) {
+					fail(
+						where,
+						`baselineRouting.mode의 "${mode}"는 허용되지 않습니다 (${baselineRoutingModes.join(" | ")})`,
+					);
+				} else {
+					baselineRoutingModeCounts.set(
+						mode,
+						baselineRoutingModeCounts.get(mode) + 1,
+					);
+
+					if (mode === "conditional") {
+						const condition = routing.condition;
+						if (!condition?.when?.trim()) {
+							fail(where, "conditional 모드에는 condition.when이 필요합니다");
+						}
+
+						const answerSignals = condition?.answerSignals ?? [];
+						for (const [i, signal] of answerSignals.entries()) {
+							const signalWhere = `${where}/answerSignals[${i}]`;
+							const question = wizardQuestionsById.get(signal.questionId);
+							if (!question) {
+								fail(
+									signalWhere,
+									`질문 "${signal.questionId}"를 찾을 수 없습니다`,
+								);
+								continue;
+							}
+							if (!signal.values?.length) {
+								fail(signalWhere, "values가 비어 있습니다");
+							}
+							const allowedValues = new Set(
+								(question.options ?? []).map((option) => option.value),
+							);
+							for (const value of signal.values ?? []) {
+								if (!allowedValues.has(value)) {
+									fail(
+										signalWhere,
+										`"${value}"는 ${signal.questionId} 질문의 원시 option.value가 아닙니다`,
+									);
+								}
+							}
+						}
+						if (
+							answerSignals.length &&
+							!condition?.whenAnswersMissing?.trim()
+						) {
+							fail(
+								where,
+								"answerSignals를 썼다면 답이 없을 때의 whenAnswersMissing도 필요합니다",
+							);
+						}
+						if (
+							!answerSignals.length &&
+							condition?.whenAnswersMissing !== undefined
+						) {
+							fail(
+								where,
+								"answerSignals 없이 whenAnswersMissing만 둘 수 없습니다",
+							);
+						}
+					} else if (routing.condition !== undefined) {
+						fail(
+							where,
+							`${mode} 모드에는 온라인 선택 조건 condition을 적지 않습니다`,
+						);
+					}
+				}
+				if (!routing.reviewReason?.trim()) {
+					fail(where, "baselineRouting.reviewReason이 비어 있습니다");
+				}
+			}
+		} else if (p.baselineRouting !== undefined) {
+			fail(where, "baselineRouting은 baseline 카테고리에서만 사용합니다");
+		}
 
 		// 5-a. id 중복 — 중복되면 출처 되짚기가 엉뚱한 패턴을 가리킨다.
 		if (seenIds.has(p.id)) {
@@ -209,6 +309,12 @@ for (const category of referenceCategories) {
 				);
 			}
 		}
+	}
+}
+
+for (const [mode, count] of baselineRoutingModeCounts) {
+	if (count === 0) {
+		fail("baseline", `baselineRouting 모드 "${mode}"에 패턴이 하나도 없습니다`);
 	}
 }
 
