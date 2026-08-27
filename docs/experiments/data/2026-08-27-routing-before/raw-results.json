@@ -1,0 +1,149 @@
+[
+  {
+    "label": "01-testing-run1",
+    "ok": false,
+    "ms": 29943,
+    "status": 502,
+    "error": null,
+    "body": {
+      "error": "생성 결과를 이해할 수 없었어요. 다시 시도해주세요."
+    },
+    "note": "파서가 <skill_md>를 못 찾아 502. 아래 retry가 대체"
+  },
+  {
+    "label": "05-design-run1",
+    "ok": true,
+    "ms": 53581,
+    "chars": 3564,
+    "json": {
+      "skillMarkdown": "---\nname: landing-page-design\ndescription: Use when designing or reviewing a landing page, marketing site, or single-page portfolio and need to avoid generic AI-generated looks — establishes a subject-grounded color/type/layout system before writing code and checks for cliché patterns like the cream/serif/terracotta or dark/acid-green defaults.\n---\n\n# 랜딩 페이지 디자인\n\n## 개요\n\n랜딩 페이지가 \"어디서 본 것 같은\" 흔한 모양이 되는 이유는 대개 코드를 쓰기 전에 색·폰트·레이아웃을 정하지 않고, 만들면서 즉흥적으로 정하기 때문입니다. 이 스킬은 코드를 쓰기 **전에** 주제에서 직접 끌어낸 디자인 값(토큰)을 먼저 정하고, 흔한 기본값으로 흘러가지 않았는지 확인한 뒤에야 실제로 만들도록 순서를 강제합니다.\n\n핵심 원칙: **주제(제품·서비스의 실제 내용)에서 디자인 선택을 끌어낸다.** \"예쁜 것\"이 아니라 \"이 주제가 아니면 나올 수 없는 것\"을 목표로 합니다.\n\n## 언제 쓰나\n\n- 랜딩 페이지, 마케팅 사이트, 개인 포트폴리오, 제품 소개 페이지를 새로 만들 때\n- 이미 만든 결과물이 \"AI가 만든 티가 난다\", \"뻔하다\", \"어디서 본 것 같다\"는 느낌이 들어 다시 다듬을 때\n- 색이나 폰트를 무엇으로 할지 감이 안 잡힐 때\n\n이럴 때는 안 씁니다:\n- 이미 정해진 디자인 시스템(회사 브랜드 가이드 등)을 그대로 따라야 하는 페이지 — 그 경우 이 스킬 대신 주어진 가이드를 그대로 적용하세요\n- 로그인 화면, 대시보드처럼 마케팅 목적이 없는 내부 도구 화면\n\n## 절차\n\n### 1단계 — 주제를 한 문장으로 고정한다\n\n먼저 아래 세 가지를 명확히 합니다. 사용자가 이미 말했으면 그대로 쓰고, 안 정해졌으면 짧게 확인합니다.\n\n- **무엇을 만드는가**: 구체적인 주제 하나 (예: \"손글씨 폰트를 파는 1인 스토어\" — \"웹사이트\"처럼 뭉뚱그리지 않기)\n- **누가 보는가**: 실제로 이 페이지를 보게 될 사람\n- **이 페이지의 단일 목적**: 보고 나서 무엇을 하게 만들 것인가 (구매, 문의, 다운로드 등 하나만)\n\n### 2단계 — 디자인 토큰 4종을 코드보다 먼저 정한다\n\n코드를 한 줄도 쓰기 전에 아래 네 가지를 정합니다. 이 순서를 지키는 것이 중요합니다 — 코드를 쓰면서 색을 고르면 결국 손에 익은 기본값(파란색 계열, 무난한 그림자 등)으로 흘러갑니다.\n\n| 항목 | 정할 것 |\n|---|---|\n| **색(Color)** | 이름 붙인 hex 코드 4~6개. 배경, 주 강조색, 보조 강조색, 텍스트색 최소 포함 |\n| **타이포그래피(Type)** | 제목용(Display) 폰트와 본문용 폰트 — 역할을 나눠서 |\n| **레이아웃(Layout)** | 전체 구조를 문장 하나로 + 간단한 텍스트 다이어그램(ASCII 와이어프레임) |\n| **시그니처 요소(Signature)** | 이 페이지가 기억에 남을 단 하나의 장치 — 정확히 1개만 |\n\n각 색은 어디에 쓰이는지까지 적습니다. 예: `Deep Navy #1B2A41 — 배경`, `Warm Amber #E8A33D — 주요 버튼과 강조`.\n\n**색과 폰트는 주제의 세계에서 끌어옵니다.** \"커피 로스터리\" 사이트라면 로스팅 과정에서 실제로 나오는 색(원두의 갈색조, 로스터 기계의 금속색)이나 질감에서 시작하고, \"채식 밀키트\"라면 흔한 초록-갈색 자연 팔레트를 그대로 쓰기보다 실제 재료(당근의 주황, 비트의 자주)에서 색을 뽑는 식입니다.\n\n시그니처 요소는 장식이 아니라 **내용에 관해 사실인 것**이어야 합니다. 예를 들어 순서가 의미 없는데 01/02/03 번호를 붙이는 것은 장식이지만, 실제 작업 순서나 타임라인을 보여주는 번호는 정보입니다.\n\n### 3단계 — 흔한 기본값 3종에 걸리지 않았는지 확인한다\n\n정한 토큰이 아래 세 가지 패턴 중 하나로 흘러가지 않았는지 봅니다. 이 셋은 특정 상황에서는 정당할 수 있지만, 대부분은 \"생각 없이 고른 기본값\"으로 나옵니다.\n\n- **패턴 A**: 따뜻한 크림색 배경(#F4F1EA 근처) + 획 끝에 삐침이 있는 큰 세리프 제목 폰트 + 테라코타(구운 흙빛 주황) 강조색\n- **패턴 B**: 완전한 검정에 가까운 어두운 배경 + 형광에 가까운 연둣빛(애시드 그린) 또는 주홍색 강조 하나\n- **패턴 C**: 머리카락처럼 가는 구분선 + 모서리를 전혀 안 둥글림(radius 0) + 신문처럼 좁은 단을 여러 개 붙인 빽빽한 배치\n\n이 중 하나와 일치한다면, 정말로 이 주제에 필요해서 고른 것인지 다시 봅니다. 우연히 겹친 것이라면 다른 조합으로 바꿉니다. (단, 사용자가 이 스타일을 명시적으로 요청했다면 그대로 따릅니다 — 사용자 지시가 항상 우선합니다.)\n\n### 4단계 — 절제할 곳과 힘줄 곳을 가른다\n\n시그니처 요소(2단계에서 정한 것) 한 곳에만 힘을 주고 나머지는 조용하게 둡니다. 모든 요소를 눈에 띄게 만들면 아무것도 눈에 안 띕니다. 히어로(첫 화면) 영역은 이 주제에서 가장 특징적인 것으로 엽니다 — 카피가 강하면 헤드라인 문장으로, 실물이 인상적이면 이미지로, 변화 과정이 핵심이면 애니메이션으로.\n\n### 5단계 — 만들기 전에 자신에게 되물어본다\n\n코드를 쓰기 전, 정한 토큰들을 보고 스스로 확인합니다:\n\n- 이 색 조합을 다른 전혀 다른 주제(예: 반려동물 용품 사이트)에 그대로 옮겨도 어색하지 않은가? → 어색하지 않다면 주제에서 나온 게 아니라 일반적인 \"예쁜 조합\"일 가능성이 높습니다\n- 시그니처 요소가 정확히 1개인가, 아니면 여러 개가 서로 경쟁하고 있는가?\n- 3단계의 세 패턴 중 어디에도 우연히 걸리지 않았는가?\n\n## 완료 전 확인\n\n- [ ] 주제·독자·목적을 한 문장씩으로 정했는가\n- [ ] 색(4~6개, hex+이름+용도), 폰트(제목/본문 역할 구분), 레이아웃(문장+와이어프레임), 시그니처(정확히 1개)를 코드 전에 문서로 정리했는가\n- [ ] 흔한 기본값 3종 패턴에 우연히 해당하지 않는지 확인했는가\n- [ ] 시그니처 요소가 장식이 아니라 내용에 관해 사실인 것인가\n- [ ] 모바일 반응형, 키보드 포커스 표시, 큰 모션을 줄이는 설정(prefers-reduced-motion) 같은 기본 품질을 지켰는가\n\n## 흔한 실수\n\n| 실수 | 왜 문제인가 | 어떻게 고치나 |\n|---|---|---|\n| 코드부터 쓰면서 색을 정함 | 손에 익은 기본값(파란색, 무난한 그림자)으로 흘러감 | 2단계 토큰표를 먼저 텍스트로 작성 |\n| \"전문적이고 세련되게\"처럼 형용사로만 방향을 정함 | 판정 기준이 없어 결국 아무 사이트나 나옴 | 실제 주제의 사물·질감·용어에서 색과 모티프를 끌어옴 |\n| 강조 요소를 여러 개 둠 | 서로 경쟁해 아무것도 기억에 안 남음 | 시그니처 요소를 1개로 제한 |\n| 번호·구분선 같은 장치를 장식으로 씀 | 내용과 무관해 AI가 만든 티가 남 | 그 장치가 실제로 담는 정보가 있는지 확인 |",
+      "reviewNotes": [
+        "discipline·workflow·reference·explanation 중 \"정해진 절차를 순서대로 밟아 결과물(디자인 토큰과 페이지)을 만든다\"는 요청 성격에 맞춰 workflow 골격을 채택했습니다.",
+        "description은 트리거 조건(언제 쓰는지: 랜딩 페이지/마케팅 사이트 디자인, \"흔한 느낌\" 문제)을 구체적으로 담고, 워크플로 요약이 되지 않도록 짧게 유지했습니다.",
+        "\"주제에 맞는 색·폰트\"와 \"뻔한 스타일 회피\"라는 사용자의 두 요구를 각각 2단계(토큰 정하기)와 3단계(기본값 3종 회피)로 분리해 둘 다 명시적으로 다뤘습니다.",
+        "흔한 기본값 3종(크림/세리프/테라코타, 다크/애시드그린, 헤어라인/각진모서리)은 실제 값(hex, 서체 특징)까지 구체적으로 적어 판정 가능하게 했습니다.",
+        "\"사용자 지시가 항상 우선한다\"는 예외를 3단계에 명시해, 사용자가 특정 스타일을 요청한 경우 스킬이 그것을 막지 않도록 했습니다.",
+        "완료 전 확인은 과거형 점검 목록으로 작성해 실행 후 점검 가능하게 했습니다.",
+        "개인 프로젝트 규모에 맞춰 승인 게이트나 다중 이해관계자 검토 같은 무거운 절차는 넣지 않고, 본인이 스스로 점검하는 5단계로 단순화했습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "landing-page-design",
+      "referencedSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "frontend-design (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+          "license": "Apache-2.0",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "brainstorming (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-plans (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "doc-coauthoring (Anthropic skills)",
+          "author": "Anthropic",
+          "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+          "license": "확인되지 않음",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  },
+  {
+    "label": "01-testing-run1-retry",
+    "ok": true,
+    "ms": 35991,
+    "chars": 2660,
+    "json": {
+      "skillMarkdown": "---\nname: test-driven-development\ndescription: Use when implementing new features, fixing bugs, or changing behavior in code — before writing any implementation code. Especially when tempted to \"write the code first and add tests later\", when under time pressure, or when a task feels too simple to bother with tests first.\n---\n\n# 테스트 먼저, 구현은 그다음\n\n## 개요\n\n구현 코드보다 실패하는 테스트를 먼저 쓴다. 테스트를 먼저 보지 못하면 그 테스트가 옳은 것을 재는지 알 수 없다. 나중에 쓴 테스트는 이미 짠 코드에 맞춰지기 때문에 \"무엇을 해야 하는가\"가 아니라 \"무엇을 하는가\"만 확인하게 되고, 통과해도 아무것도 증명하지 못한다.\n\n## 언제 쓰나\n\n- 새 기능을 구현할 때\n- 버그를 고칠 때\n- 기존 동작을 바꾸는 리팩터링을 할 때\n- \"일단 빠르게 만들고 테스트는 나중에\" 하고 싶어질 때 — 바로 그때가 이 스킬이 필요한 순간\n\n쓰지 않아도 되는 경우: 버리는 프로토타입, 자동 생성되는 코드, 단순 설정 파일. 다만 예외로 둘지는 스스로 정하지 말고 사용자에게 확인한다.\n\n## 지켜야 할 원칙\n\n**구현 코드 한 줄도 쓰기 전에, 그 코드를 실패시킬 테스트부터 쓴다.** 이 순서를 건너뛰지 않는다.\n\n## 절차\n\n이 다섯 단계는 한 줄로 흐르지 않는다. 각 단계에서 넘어가기 전에 확인할 것이 있고, 어긋나면 이전 단계로 되돌아간다.\n\n### 1단계. 무엇이 망가지면 실패하는지 먼저 말한다\n\n테스트 코드를 쓰기 전에, \"이 테스트를 실패시키려면 제품 코드를 어떻게 바꿔야 하는가\"를 말로 설명할 수 있어야 한다. 설명하지 못하면 아직 테스트를 쓸 준비가 안 된 것이다.\n\n- **이렇게**: \"재시도 로직이 없으면 이 테스트는 실패한다\" — 명확한 인과\n- **이러지 말 것**: 검사 대상 코드로 기대값을 만들어 그 코드와 비교한다 — 어떤 결과가 나와도 통과한다\n- **이러지 말 것**: 상수 값 자체를 단언한다 — 값을 일부러 바꿀 때만 실패하고 진짜 버그는 놓친다\n\n### 2단계. 실패하는 테스트를 쓴다\n\n한 테스트는 한 가지 행동만 검증한다. 테스트 이름에 \"그리고\"가 들어가면 쪼갠다. 기대값은 손으로 계산해서 적는다.\n\n```\n- 이렇게: \"3번 재시도 후 실패하면 마지막 예외를 그대로 던진다\" — 한 가지 행동\n- 이러지 말 것: \"이메일 형식과 도메인과 공백까지 한 테스트에서 검사\" — 여러 행동을 뭉쳤다\n```\n\n### 3단계. 실패를 눈으로 확인한다\n\n테스트를 실행해 실제로 실패하는지 본다. 여기서 확인할 것은 두 가지다.\n\n- 기능이 없어서 실패하는가 — 오타나 설정 오류로 실패한 것은 아닌가\n- 실패 메시지가 예상한 그대로인가\n\n**어긋나면**: 엉뚱한 이유로 실패했다면 2단계로 돌아가 테스트를 다시 쓴다. 애초에 실패하지 않았다면(그냥 통과해버렸다면) 그 테스트는 아무것도 재지 못하는 것이므로 역시 2단계로 돌아간다.\n\n### 4단계. 테스트를 통과시킬 최소한의 코드만 쓴다\n\n아직 요구되지 않은 옵션, 추상화, 에러 처리를 미리 넣지 않는다. 시키는 일만 한다.\n\n- **이렇게**: 세 번 재시도한다는 테스트에 맞춰, 세 번 돌고 마지막에 예외를 그대로 올리는 코드만 쓴다\n- **이러지 말 것**: 재시도 횟수, 대기 방식, 콜백까지 미리 옵션으로 열어둔다 — 테스트가 요구한 적 없다\n\n### 5단계. 통과를 확인한다\n\n테스트를 다시 돌려 통과하는지, 그리고 다른 테스트를 깨뜨리지 않았는지 확인한다.\n\n- 이 테스트가 통과하는가\n- 다른 테스트도 여전히 통과하는가\n- 에러도 경고도 없이 출력이 깨끗한가\n\n**어긋나면**: 아직 실패한다면 4단계로 돌아가 코드를 고친다. 여기서 절대로 테스트 쪽의 기대값을 바꿔서 통과시키지 않는다 — 그러면 방금 세운 기준을 스스로 지운 것이다.\n\n통과했다면 초록을 유지한 채 코드를 정리해도 된다. 단, 정리한 뒤에는 반드시 다시 5단계로 돌아가 통과를 재확인한다.\n\n## 완료 전 확인\n\n- [ ] 구현 코드보다 테스트를 먼저 썼는가\n- [ ] 그 테스트가 실패하는 것을 직접 눈으로 봤는가\n- [ ] 실패한 이유가 \"기능이 없어서\"였지, 오타나 설정 오류가 아니었는가\n- [ ] 테스트를 통과시킬 최소한의 코드만 썼는가\n- [ ] 최종적으로 이 테스트와 기존 테스트 전부가 통과하는가\n- [ ] 실패 후 테스트의 기대값을 손대지 않고, 코드를 고쳐서 통과시켰는가\n\n하나라도 못 채웠으면 1단계로 돌아간다.\n\n## 흔한 실수\n\n| 상황 | 문제 | 고치는 법 |\n|---|---|---|\n| 코드부터 짜고 테스트를 나중에 붙였다 | 테스트가 이미 짠 코드에 맞춰져 실제 버그를 못 잡는다 | 코드를 지우고 테스트부터 다시 쓴다 |\n| 지운 코드를 \"참고용\"으로 주석 처리해뒀다 | 결국 그걸 보고 테스트를 끼워 맞추게 된다 | 완전히 지운다 |\n| 테스트가 처음부터 통과했다 | 아무것도 재지 않는 테스트다 | 실패하도록 테스트를 다시 설계한다 |\n| 안 먹히니까 테스트의 기대값을 실제 결과에 맞춰 바꿨다 | 기준 자체를 지운 것 | 테스트는 그대로 두고 코드를 고친다 |",
+      "reviewNotes": [
+        "골격은 discipline(규율형)을 선택했습니다 — \"테스트 먼저\"라는 원칙이 핵심이고, 압박(귀찮음, 시간 부족)이 있을 때 건너뛰기 쉬운 스킬이기 때문입니다.",
+        "test-first의 5단계 흐름(실패 테스트 작성 → 실패 확인 → 최소 구현 → 통과 확인 → 정리)을 되돌아가는 화살표까지 살려 절차에 반영했습니다.",
+        "name-the-break를 1단계로 넣어, 테스트 코드를 쓰기 전에 \"무엇이 망가지면 실패하는지\"를 먼저 말하게 했습니다.",
+        "one-behavior-per-test, minimal-green, green-verification-gate, watch-it-fail-correctly의 좋은 예/나쁜 예 쌍을 각 단계에 그대로 반영했습니다.",
+        "past-tense-completion-checklist 패턴에 따라 완료 전 확인을 전부 과거형 질문으로 만들고, 못 채웠을 때의 처분(1단계로 돌아간다)을 붙였습니다.",
+        "사용자 요청이 단순한 절차 요청이라 판단해 변명 표, 위험 신호 목록 같은 무거운 섹션은 넣지 않았습니다.",
+        "description은 3인칭으로, 트리거 조건(기능 구현/버그 수정/동작 변경 전, 압박 상황)을 구체적으로 담았습니다."
+      ],
+      "clarifyingQuestions": [],
+      "suggestedFilename": "test-driven-development",
+      "referencedSources": [
+        {
+          "name": "test-driven-development (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "writing-skills (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ],
+      "structureSources": [
+        {
+          "name": "test-driven-development (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/test-driven-development",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "systematic-debugging (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/systematic-debugging",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        },
+        {
+          "name": "verification-before-completion (superpowers)",
+          "author": "Jesse Vincent",
+          "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+          "license": "MIT",
+          "self": false,
+          "adapted": false
+        }
+      ]
+    }
+  }
+]
