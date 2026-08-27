@@ -17,6 +17,8 @@ import { fileURLToPath } from "node:url";
 import {
 	baselineRoutingModes,
 	getSourceById,
+	patternBundleDeliveryModes,
+	patternBundles,
 	referenceCategories,
 	structureArchetypes,
 } from "../src/data/reference-corpus.ts";
@@ -64,13 +66,23 @@ const STRUCTURED_FIELDS = [
 	"exception",
 	"auditIds",
 	"verifyHint",
+	"relations",
 ];
 
 const seenIds = new Map();
+const allPatternEntries = referenceCategories.flatMap((category) =>
+	category.patterns.map((pattern) => ({ category, pattern })),
+);
 // flow.patternId 검사용 — 흐름은 카테고리 경계를 넘어 참조할 수 있으므로
 // 카테고리별이 아니라 전역 집합으로 미리 모아둔다.
 const allPatternIds = new Set(
-	referenceCategories.flatMap((c) => c.patterns.map((x) => x.id)),
+	allPatternEntries.map(({ pattern }) => pattern.id),
+);
+const patternsById = new Map(
+	allPatternEntries.map(({ category, pattern }) => [
+		pattern.id,
+		{ categoryId: category.id, pattern },
+	]),
 );
 const baselineRoutingModeSet = new Set(baselineRoutingModes);
 const baselineRoutingModeCounts = new Map(
@@ -79,6 +91,84 @@ const baselineRoutingModeCounts = new Map(
 const wizardQuestionsById = new Map(
 	allQuestions.map((question) => [question.id, question]),
 );
+const bundleDeliveryModeSet = new Set(patternBundleDeliveryModes);
+const bundleIds = new Set();
+const bundlesByPatternId = new Map(
+	[...allPatternIds].map((patternId) => [patternId, []]),
+);
+const mentionsPatternId = (text, patternId) => {
+	let from = 0;
+	while (from < text.length) {
+		const index = text.indexOf(patternId, from);
+		if (index < 0) return false;
+		const before = text[index - 1] ?? "";
+		const after = text[index + patternId.length] ?? "";
+		if (!/[a-z0-9-]/.test(before) && !/[a-z0-9-]/.test(after)) return true;
+		from = index + patternId.length;
+	}
+	return false;
+};
+
+// ── 규칙 10: 전달 묶음은 실존 패턴만 가지며 온라인/평가 경계를 넘지 않는다 ──
+for (const bundle of patternBundles) {
+	const where = `bundle/${bundle.id || "(빈 id)"}`;
+	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(bundle.id ?? "")) {
+		fail(where, "id는 비어 있지 않은 kebab-case여야 합니다");
+	}
+	if (bundleIds.has(bundle.id)) fail(where, "bundle id가 중복입니다");
+	bundleIds.add(bundle.id);
+	if (!bundle.summary?.trim()) fail(where, "summary가 비어 있습니다");
+	if (!bundle.when?.trim()) fail(where, "when이 비어 있습니다");
+	if (!bundleDeliveryModeSet.has(bundle.delivery)) {
+		fail(
+			where,
+			`delivery의 "${bundle.delivery}"는 허용되지 않습니다 (${patternBundleDeliveryModes.join(" | ")})`,
+		);
+	}
+	if (!bundle.corePatternIds?.length) {
+		fail(where, "corePatternIds가 비어 있습니다");
+	}
+
+	const memberIds = [
+		...(bundle.corePatternIds ?? []),
+		...(bundle.supportPatternIds ?? []),
+	];
+	const seenMembers = new Set();
+	let hasEvaluationOnlyPattern = false;
+	for (const patternId of memberIds) {
+		if (seenMembers.has(patternId)) {
+			fail(where, `패턴 "${patternId}"가 중심/보조 목록에 중복됐습니다`);
+			continue;
+		}
+		seenMembers.add(patternId);
+		const entry = patternsById.get(patternId);
+		if (!entry) {
+			fail(where, `패턴 "${patternId}"를 찾을 수 없습니다`);
+			continue;
+		}
+		const mode = entry.pattern.baselineRouting?.mode;
+		if (mode === "evaluation-only") hasEvaluationOnlyPattern = true;
+		if (bundle.delivery === "online" && mode === "evaluation-only") {
+			fail(
+				where,
+				`평가 전용 패턴 "${patternId}"를 온라인 묶음에 넣을 수 없습니다`,
+			);
+		}
+		if (bundle.delivery === "online" && mode === "always") {
+			fail(
+				where,
+				`항상 전달할 패턴 "${patternId}"를 온라인 묶음에 중복하지 않습니다`,
+			);
+		}
+		bundlesByPatternId.get(patternId)?.push(bundle);
+	}
+	if (bundle.delivery === "evaluation-only" && !hasEvaluationOnlyPattern) {
+		fail(
+			where,
+			"평가 전용 묶음에는 evaluation-only 패턴이 하나 이상 필요합니다",
+		);
+	}
+}
 
 for (const category of referenceCategories) {
 	for (const p of category.patterns) {
@@ -167,6 +257,66 @@ for (const category of referenceCategories) {
 			}
 		} else if (p.baselineRouting !== undefined) {
 			fail(where, "baselineRouting은 baseline 카테고리에서만 사용합니다");
+		}
+
+		// 11. 산문에 숨은 패턴 참조와 구조화된 관계가 갈라지지 않게 한다.
+		const relationTargets = new Map();
+		for (const relation of ["requires", "related", "excludes"]) {
+			const targets = p.relations?.[relation];
+			if (targets !== undefined && targets.length === 0) {
+				fail(
+					where,
+					`relations.${relation}가 비어 있습니다 — 안 쓸 거면 지우세요`,
+				);
+			}
+			const seenTargets = new Set();
+			for (const targetId of targets ?? []) {
+				if (seenTargets.has(targetId)) {
+					fail(where, `relations.${relation}의 "${targetId}"가 중복입니다`);
+				}
+				seenTargets.add(targetId);
+				if (!allPatternIds.has(targetId)) {
+					fail(
+						where,
+						`relations.${relation}의 "${targetId}"를 찾을 수 없습니다`,
+					);
+				}
+				if (targetId === p.id) {
+					fail(
+						where,
+						`relations.${relation}에서 자기 자신을 가리킬 수 없습니다`,
+					);
+				}
+				const previous = relationTargets.get(targetId);
+				if (previous && previous !== relation) {
+					fail(
+						where,
+						`관계 대상 "${targetId}"가 ${previous}와 ${relation}에 함께 있습니다`,
+					);
+				}
+				relationTargets.set(targetId, relation);
+			}
+		}
+		const flowTargets = new Set(
+			(p.flow ?? []).flatMap((step) =>
+				step.patternId === undefined ? [] : [step.patternId],
+			),
+		);
+		const structuredTargets = new Set([
+			...relationTargets.keys(),
+			...flowTargets,
+		]);
+		for (const targetId of allPatternIds) {
+			if (
+				targetId !== p.id &&
+				mentionsPatternId(p.detail, targetId) &&
+				!structuredTargets.has(targetId)
+			) {
+				fail(
+					where,
+					`detail의 패턴 id "${targetId}"가 flow나 relations에 구조화되지 않았습니다`,
+				);
+			}
 		}
 
 		// 5-a. id 중복 — 중복되면 출처 되짚기가 엉뚱한 패턴을 가리킨다.
@@ -318,6 +468,82 @@ for (const [mode, count] of baselineRoutingModeCounts) {
 	}
 }
 
+// 묶음이 모든 온라인 후보를 덮고 평가 전용 패턴을 격리하는지 확인한다.
+for (const { category, pattern } of allPatternEntries) {
+	const where = `${category.id}/${pattern.id}`;
+	const memberships = bundlesByPatternId.get(pattern.id) ?? [];
+	const onlineBundles = memberships.filter(
+		(bundle) => bundle.delivery === "online",
+	);
+	const evaluationBundles = memberships.filter(
+		(bundle) => bundle.delivery === "evaluation-only",
+	);
+	const baselineMode = pattern.baselineRouting?.mode;
+	if (
+		(category.id !== "baseline" || baselineMode === "conditional") &&
+		onlineBundles.length === 0
+	) {
+		fail(where, "온라인에서 선택할 패턴인데 속한 online 묶음이 없습니다");
+	}
+	if (baselineMode === "evaluation-only" && evaluationBundles.length === 0) {
+		fail(where, "evaluation-only 패턴인데 평가 전용 묶음이 없습니다");
+	}
+	if (baselineMode === "evaluation-only" && onlineBundles.length > 0) {
+		fail(where, "evaluation-only 패턴이 online 묶음에도 들어 있습니다");
+	}
+}
+
+// requires와 flow 참조는 실제 전달 단위 안에서 닫혀 있어야 한다.
+// always 패턴은 온라인 호출에 별도로 항상 붙으므로 online 묶음 안에 중복하지 않는다.
+for (const bundle of patternBundles) {
+	const where = `bundle/${bundle.id}`;
+	const memberIds = new Set([
+		...(bundle.corePatternIds ?? []),
+		...(bundle.supportPatternIds ?? []),
+	]);
+	for (const patternId of memberIds) {
+		const pattern = patternsById.get(patternId)?.pattern;
+		if (!pattern) continue;
+		const requiredIds = new Set([
+			...(pattern.relations?.requires ?? []),
+			...(pattern.flow ?? []).flatMap((step) =>
+				step.patternId === undefined ? [] : [step.patternId],
+			),
+		]);
+		for (const requiredId of requiredIds) {
+			const required = patternsById.get(requiredId)?.pattern;
+			if (
+				bundle.delivery === "online" &&
+				required?.baselineRouting?.mode === "always"
+			) {
+				continue;
+			}
+			if (!memberIds.has(requiredId)) {
+				fail(
+					where,
+					`"${patternId}"에 필요한 "${requiredId}"가 같은 묶음에 없습니다`,
+				);
+			}
+		}
+		for (const excludedId of pattern.relations?.excludes ?? []) {
+			if (memberIds.has(excludedId)) {
+				fail(
+					where,
+					`서로 배타적인 "${patternId}"와 "${excludedId}"가 함께 있습니다`,
+				);
+			}
+			const reverse =
+				patternsById.get(excludedId)?.pattern.relations?.excludes ?? [];
+			if (!reverse.includes(patternId)) {
+				fail(
+					`${patternsById.get(patternId)?.categoryId}/${patternId}`,
+					`excludes의 "${excludedId}" 쪽에도 역방향 관계가 필요합니다`,
+				);
+			}
+		}
+	}
+}
+
 // ── 구조 골격도 출처 실존 검사만 함께 ───────────────────────────────
 for (const a of structureArchetypes) {
 	for (const sid of a.sourceIds ?? []) {
@@ -339,5 +565,5 @@ if (errors.length) {
 }
 
 console.log(
-	`OK  패턴 ${patternCount}개, 골격 ${structureArchetypes.length}개 검사 통과`,
+	`OK  패턴 ${patternCount}개, 묶음 ${patternBundles.length}개, 골격 ${structureArchetypes.length}개 검사 통과`,
 );

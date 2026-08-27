@@ -46,11 +46,9 @@
 // 붙는 것은 `context-appropriate-theme` 가필 사고와 같은 종류다.
 //
 // **원칙 패턴과 값 패턴이 짝을 이루는 경우가 있다** — 형식을 담는 패턴 하나와
-// 주제별 값을 담는 패턴 여럿이다(변명 표 · 위험 신호 두 가족, 2026-08-21 기준
-// 7개). 짝은 **카테고리를 가로지르므로** 출처별 묶음 렌더로는 붙지 않는다.
-// 관계 필드를 새로 만들지 않고 **양쪽 `detail`에 상대 패턴 id를 한 줄 적는다** —
-// 렌더에 그대로 실려 모델에 도달하고, 필드가 늘지 않는다. 새 값 패턴을 만들 때
-// 같은 줄을 붙일 것.
+// 주제별 값을 담는 패턴 여럿이다(변명 표 · 위험 신호 두 가족). 산문에만 상대 id를
+// 적으면 이름이 바뀌거나 전달 묶음이 갈라져도 검사할 수 없다. `relations`에 필수·
+// 관련·배타 관계를 구조화하고, 실제 함께 전달할 단위는 `patternBundles`에 둔다.
 //
 // **문서 자체의 섹션 순서는 여기가 아니다.** 그것은 축 (1)이 담는다 —
 // 타입과 무관한 앞뒤는 `commonSpine`, 타입별로 다른 본문은
@@ -276,6 +274,40 @@ export type BaselineRouting =
 			reviewReason: string;
 	  };
 
+/** 패턴 사이의 전달 관계. 산문 참조 대신 검사 가능한 id로 보존한다. */
+export type PatternRelations = {
+	/** 이 패턴을 전달할 때 반드시 함께 전달해야 하는 패턴. */
+	requires?: string[];
+	/** 함께 있으면 도움이 되지만 단독으로도 성립하는 패턴. */
+	related?: string[];
+	/** 같은 생성 요청에 함께 전달하면 안 되는 패턴. */
+	excludes?: string[];
+};
+
+export const patternBundleDeliveryModes = [
+	"online",
+	"evaluation-only",
+] as const;
+
+export type PatternBundleDeliveryMode =
+	(typeof patternBundleDeliveryModes)[number];
+
+/** 선택 모델이 고르고 생성 모델에 한꺼번에 전달하는 패턴 묶음. */
+export type PatternBundle = {
+	/** 선택 결과와 운영 로그에서 쓰는 안정적 id. */
+	id: string;
+	/** 선택 카드에 표시할 한 줄 설명. */
+	summary: string;
+	/** 사용자 요청에서 이 묶음을 고를 의미 조건. */
+	when: string;
+	/** 온라인 생성용인지 자체 평가 전용인지. */
+	delivery: PatternBundleDeliveryMode;
+	/** 이 묶음의 목적을 직접 수행하는 중심 패턴. */
+	corePatternIds: string[];
+	/** 완성도나 방어력을 보태지만 단독 선택 근거는 아닌 패턴. */
+	supportPatternIds?: string[];
+};
+
 export type ReferencePattern = {
 	/** 안정적 참조 키 (kebab-case) — AI가 사용한 패턴을 되짚을 때 사용 */
 	id: string;
@@ -287,6 +319,8 @@ export type ReferencePattern = {
 	role?: PatternRole;
 	/** 공통 기본 패턴의 전달 조건. baseline 카테고리에서만 사용한다. */
 	baselineRouting?: BaselineRouting;
+	/** 다른 패턴과 반드시·선택적으로 함께 가거나 함께 갈 수 없는 관계. */
+	relations?: PatternRelations;
 	/**
 	 * 결과물에 드러나는가(artifact) / 작성 과정에만 작용하는가(process). 기본 artifact.
 	 *
@@ -892,6 +926,13 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "rationalization-table",
+				relations: {
+					related: [
+						"debug-rationalization-defaults",
+						"review-rationalizations",
+						"skill-testing-rationalization-defaults",
+					],
+				},
 				summary: "지키기 싫어질 때의 속말을 미리 적고 각각을 되받는다",
 				detail:
 					"이것은 표를 어떤 모양으로 쓸지를 담는다. 실제로 넣을 변명은 주제마다 다르고 debug-rationalization-defaults · review-rationalizations · skill-testing-rationalization-defaults가 각각 든다. 금지문은 규칙을 어긴 뒤에야 걸리지만, 변명 표는 어기기 직전의 생각을 걸어낸다. 왼쪽 칸에는 회피하는 사람의 속말을 1인칭 그대로 적고, 오른쪽 칸에는 예의나 원칙이 아니라 인과로 되받는다. 되받는 말이 짧으면 설득력이 없으므로 이 칸은 길어도 된다. 예를 들어 '나중에 테스트하겠다'에는 이렇게 답한다 — 나중에 쓴 테스트는 즉시 통과하고, 즉시 통과는 아무것도 증명하지 못한다. 실패하는 것을 본 적이 없으니 그 테스트가 버그를 잡을 수 있다는 증거가 없다. '이미 여러 시간 썼는데 지우는 건 낭비'에는 이렇게 답한다 — 그 시간은 어느 쪽을 골라도 이미 썼다. 남은 선택은 믿을 수 있는 것을 다시 만드는 쪽과, 믿지 못할 것을 안고 가는 쪽뿐이다.",
@@ -911,6 +952,9 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "red-flags-list",
+				relations: {
+					related: ["debug-red-flag-defaults", "label-misuse-red-flags"],
+				},
 				summary: "위험 신호는 사유 없이 짧게 늘어놓고 끝에 처방 한 줄을 붙인다",
 				detail:
 					"이것은 목록을 어떤 모양으로 쓸지를 담는다. 실제로 넣을 신호는 주제마다 다르고 debug-red-flag-defaults · label-misuse-red-flags가 각각 든다. 변명 표와 같은 항목이 여기 다시 나와도 된다. 하는 일이 다르기 때문이다 — 변명 표는 설득하고, 이 목록은 알아채게 한다. 그래서 여기서는 사유를 달지 않고 신호만 짧게 적고, 목록 끝에 '이 중 하나라도 해당하면 무엇을 하라'는 처방을 한 줄로 붙인다.",
@@ -1085,6 +1129,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "root-cause-first",
+				relations: { related: ["instrument-component-boundaries"] },
 				summary: "증상이 아니라 근본 원인부터 조사한다",
 				detail:
 					"조사를 끝내기 전에는 고칠 방법을 제안하지 않는다. 증상을 건드리면 원인은 그대로 남아 같은 문제가 다시 나온다.",
@@ -1179,6 +1224,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				// 담는다. 여기는 그 형식에 넣을 실제 값이다 — banned-phrases와
 				// banned-phrase-defaults의 관계와 같다.
 				id: "debug-red-flag-defaults",
+				relations: { requires: ["red-flags-list"] },
 				summary: "위험 신호는 행동이 아니라 '떠오른 생각' 그대로 적는다",
 				detail:
 					"'추측하지 마라'처럼 행동으로 적으면 이미 추측하고 있는 사람은 자기가 해당된다고 못 느낀다. 머릿속에 떠오른 문장을 그대로 적어두면 그 문장을 떠올리는 순간 걸린다. 아래는 원문이 제시한 열한 가지다. **이것은 값이고 목록을 어떤 모양으로 쓸지는 red-flags-list가 담는다 — 둘을 함께 볼 것.**",
@@ -1227,6 +1273,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				// SD-06(건너뛰면 안 되는 때 3종 + 사유)이 이 표의 1·2행과 같은 내용이라
 				// 별도 패턴으로 만들지 않고 여기에 함께 담는다.
 				id: "debug-rationalization-defaults",
+				relations: { requires: ["rationalization-table"] },
 				summary: "절차를 건너뛸 때 나오는 변명과 그 각각에 대한 반박",
 				detail:
 					"아래는 원문이 표로 제시한 여덟 가지다. 반박은 예의나 원칙이 아니라 인과로 되받는다 — 그래야 급한 사람에게 통한다. **이것은 값이고 표를 어떤 모양으로 쓸지는 rationalization-table이 담는다 — 둘을 함께 볼 것.**",
@@ -1350,6 +1397,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "instrument-component-boundaries",
+				relations: { related: ["root-cause-first"] },
 				summary:
 					"여러 조각을 거치는 문제는 경계마다 자국을 남겨 어디서 깨지는지부터 본다",
 				detail:
@@ -1450,6 +1498,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "three-fix-rule",
+				relations: { requires: ["root-cause-first"] },
 				summary: "고친 횟수를 세고, 세 번째부터는 구조를 의심한다",
 				detail:
 					"같은 곳을 계속 고치는데 안 먹히면 가설이 빗나간 것이 아니라 구조가 틀린 것이다. 구조 문제일 때의 표시가 따로 있다 — 고칠 때마다 엉뚱한 곳에서 새로운 얽힘이 나오고, 제대로 고치려면 대공사가 필요해 보이고, 하나 고치면 다른 데서 증상이 생긴다.",
@@ -1782,6 +1831,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "label-misuse-red-flags",
+				relations: { requires: ["red-flags-list"] },
 				summary: "가벼운 쪽으로 분류하고 싶어질 때 나오는 말을 적어둔다",
 				detail:
 					"분류 장치를 만들면 반드시 따라오는 실패가 있다 — 일을 줄이려고 가벼운 라벨을 집는 것이다. 그 생각을 그대로 적고 반박을 붙여 둔다. **이것은 값이고 목록을 어떤 모양으로 쓸지는 red-flags-list가 담는다 — 둘을 함께 볼 것.**",
@@ -2429,6 +2479,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "review-rationalizations",
+				relations: { requires: ["rationalization-table"] },
 				summary: "리뷰를 건너뛸 때 나오는 생각을 미리 적어 반박해 둔다",
 				detail:
 					"금지는 규칙을 어긴 뒤에야 걸리지만, 변명을 적어두면 어기기 직전의 생각을 걸어낸다. 그래서 반박에는 사유가 붙어야 한다. **이것은 값이고 표를 어떤 모양으로 쓸지는 rationalization-table이 담는다 — 둘을 함께 볼 것.**",
@@ -2579,6 +2630,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "form-matches-failure",
+				relations: { related: ["bulletproofing-toolkit"] },
 				baselineRouting: {
 					mode: "always",
 					reviewReason:
@@ -2668,6 +2720,7 @@ export const referenceCategories: ReferenceCategory[] = [
 				// 형식은 testing의 rationalization-table이 담는다. 여기는 값이다 —
 				// debugging의 debug-rationalization-defaults와 같은 짝 구조다.
 				id: "skill-testing-rationalization-defaults",
+				relations: { requires: ["rationalization-table"] },
 				baselineRouting: {
 					mode: "conditional",
 					condition: {
@@ -2964,6 +3017,10 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "bulletproofing-toolkit",
+				relations: {
+					requires: ["rationalization-table", "red-flags-list"],
+					related: ["form-matches-failure"],
+				},
 				baselineRouting: {
 					mode: "conditional",
 					condition: {
@@ -3201,6 +3258,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			// 아니라 `debugging`에 남긴다.
 			{
 				id: "evidence-matches-the-claim",
+				relations: { related: ["what-is-not-evidence"] },
 				baselineRouting: {
 					mode: "conditional",
 					condition: {
@@ -3274,6 +3332,9 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "verify-before-done",
+				relations: {
+					related: ["no-success-words-before-run", "verify-delegated-work"],
+				},
 				baselineRouting: {
 					mode: "conditional",
 					condition: {
@@ -3317,6 +3378,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "what-is-not-evidence",
+				relations: { requires: ["evidence-matches-the-claim"] },
 				baselineRouting: {
 					mode: "conditional",
 					condition: {
@@ -3370,6 +3432,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "no-success-words-before-run",
+				relations: { related: ["verify-before-done"] },
 				baselineRouting: {
 					mode: "conditional",
 					condition: {
@@ -3401,6 +3464,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "verify-delegated-work",
+				relations: { related: ["verify-before-done"] },
 				baselineRouting: {
 					mode: "conditional",
 					condition: {
@@ -4088,6 +4152,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "banned-phrases",
+				relations: { related: ["banned-phrase-defaults"] },
 				summary: "쓰지 말 표현을 명시적으로 목록화해 제거한다",
 				detail:
 					"진부하거나 기계가 쓴 티가 나는 문구를 금지 목록으로 만들어 두고, 글을 넘기기 전에 그 목록으로 훑는다. 목록은 사용자가 더하고 뺄 수 있어야 한다 — 어떤 업계에서는 관용구인 표현이 다른 업계에서는 사족이기 때문이다.",
@@ -4098,6 +4163,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "banned-phrase-defaults",
+				relations: { requires: ["banned-phrases"] },
 				summary: "금지 목록은 빈칸이 아니라 기본값을 깔고 시작한다",
 				detail:
 					"'쓰지 말 표현을 정하세요'라고만 하면 대부분 빈칸으로 남는다. 자기가 쓰는 상투어는 자기 눈에 안 보이기 때문이다. 흔한 것들을 먼저 깔아두면 사용자는 지우거나 더하면서 자기 목록을 갖게 된다. 아래는 원문이 기본값으로 제시한 일곱 가지를 한국어 글쓰기 맥락으로 옮긴 것이다.",
@@ -4225,6 +4291,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "substance-over-performance",
+				relations: { related: ["guardrails-against-performance"] },
 				summary: "태도가 아니라 근거로 뒷받침된 의견을 낸다",
 				detail:
 					"'○○에는 단점이 있을 수 있습니다'가 아니라 '○○는 이래서 안 된다'로 쓴다. 읽는 사람은 백과사전이 아니라 관점을 보러 왔다. 다만 관점은 데이터·계산·직접 해본 경험으로 받쳐야 하고, 세게 말하는 태도로 대신하지 않는다.",
@@ -4265,6 +4332,7 @@ export const referenceCategories: ReferenceCategory[] = [
 			},
 			{
 				id: "guardrails-against-performance",
+				relations: { requires: ["substance-over-performance"] },
 				summary:
 					"'세게 쓰라'는 규칙에는 '과시로 넘어가지 말라'는 짝 규칙이 반드시 붙는다",
 				detail:
@@ -4856,6 +4924,479 @@ export const referenceCategories: ReferenceCategory[] = [
 				sourceIds: ["tailor-glossary"],
 			},
 		],
+	},
+];
+
+/**
+ * 실제 선택·전달 단위.
+ *
+ * 카테고리는 탐색 범위를 좁히는 주제 축이고, 묶음은 한 요청에서 함께 성립하는
+ * 행동 단위다. 그래서 한 패턴이 여러 묶음에 들어갈 수 있고, 묶음이 카테고리를
+ * 가로지를 수도 있다. 멤버를 패턴 쪽에도 중복 기록하지 않고 이 목록만 원본으로
+ * 삼는다.
+ */
+export const patternBundles: PatternBundle[] = [
+	{
+		id: "tdd-cycle",
+		summary: "실패 테스트부터 최소 구현과 통과 확인까지의 TDD 한 사이클",
+		when: "코드의 동작을 새로 만들거나 버그를 고치며 테스트를 먼저 써야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"test-first",
+			"name-the-break",
+			"watch-it-fail-correctly",
+			"minimal-green",
+			"green-verification-gate",
+		],
+		supportPatternIds: ["one-behavior-per-test", "what-earns-a-test"],
+	},
+	{
+		id: "test-scope",
+		summary: "테스트 하나의 책임과 테스트할 가치가 있는 경계를 정하는 규칙",
+		when: "무엇을 한 테스트로 묶고 무엇에는 테스트를 쓰지 않을지 정해야 할 때",
+		delivery: "online",
+		corePatternIds: ["one-behavior-per-test", "what-earns-a-test"],
+	},
+	{
+		id: "test-double-design",
+		summary: "목과 가짜가 제품 설계를 왜곡하지 않게 하는 테스트 설계 규칙",
+		when: "목·스텁·가짜 객체나 테스트 전용 API를 설계해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"no-mock-assertions",
+			"fakes-are-specific",
+			"no-test-only-methods-in-production",
+			"hard-to-test-is-a-design-signal",
+		],
+	},
+	{
+		id: "test-discipline",
+		summary: "테스트 절차를 건너뛰지 않고 완료를 증명하게 하는 방어 규칙",
+		when: "시간 압박이나 매몰비용 때문에 테스트 단계를 생략할 위험이 있을 때",
+		delivery: "online",
+		corePatternIds: [
+			"past-tense-completion-checklist",
+			"mutation-check",
+			"rationalization-table",
+			"red-flags-list",
+		],
+	},
+	{
+		id: "systematic-debugging",
+		summary: "근본 원인 조사부터 수정과 다층 방어까지 이어지는 디버깅 흐름",
+		when: "원인을 모르는 버그·테스트 실패·성능 저하를 체계적으로 조사할 때",
+		delivery: "online",
+		corePatternIds: [
+			"four-phase-debugging-order",
+			"root-cause-first",
+			"compare-with-working-example",
+			"single-hypothesis",
+			"failing-test-before-fix",
+			"defense-in-depth-layers",
+		],
+		supportPatternIds: [
+			"instrument-component-boundaries",
+			"trace-backward-to-source",
+			"say-what-you-dont-know",
+		],
+	},
+	{
+		id: "debugging-observation",
+		summary: "값의 이동 경로와 실패 지점을 관찰해 원인을 좁히는 도구",
+		when: "여러 구성요소·상태·시간 순서를 거치며 어디서 깨지는지 모를 때",
+		delivery: "online",
+		corePatternIds: [
+			"instrument-component-boundaries",
+			"trace-backward-to-source",
+			"bisect-to-find-polluter",
+			"condition-based-waiting",
+		],
+		supportPatternIds: ["root-cause-first", "compare-with-working-example"],
+	},
+	{
+		id: "debugging-discipline",
+		summary: "추측과 절차 생략을 알아채고 디버깅 순서를 지키게 하는 방어 규칙",
+		when: "급하거나 이미 여러 번 고쳐서 조사 절차를 건너뛸 위험이 있을 때",
+		delivery: "online",
+		corePatternIds: [
+			"debug-applies-to",
+			"debug-especially-when",
+			"debug-red-flag-defaults",
+			"debug-rationalization-defaults",
+		],
+		supportPatternIds: [
+			"red-flags-list",
+			"rationalization-table",
+			"say-what-you-dont-know",
+			"partner-signals",
+		],
+	},
+	{
+		id: "debugging-escalation",
+		summary: "반복 수정이 실패할 때 패치 대신 구조 문제로 전환하는 규칙",
+		when: "같은 문제를 두 번 이상 고쳤거나 수정할수록 새 증상이 생길 때",
+		delivery: "online",
+		corePatternIds: [
+			"three-fix-rule",
+			"root-cause-first",
+			"defense-in-depth-layers",
+		],
+		supportPatternIds: ["instrument-component-boundaries"],
+	},
+	{
+		id: "debugging-verification",
+		summary: "원인 설명과 재발 방지 테스트로 디버깅 종료를 증명하는 규칙",
+		when: "버그 수정 뒤 근본 원인과 회귀 방지를 확인해야 할 때",
+		delivery: "online",
+		corePatternIds: ["no-root-cause-exit", "red-green-regression-proof"],
+		supportPatternIds: ["failing-test-before-fix"],
+	},
+	{
+		id: "request-framing",
+		summary: "요청의 무게와 범위를 먼저 가르고 필요한 승인 지점을 지키는 절차",
+		when: "구현·설계에 들어가기 전에 요청 규모와 작업 범위를 정해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"classify-before-process",
+			"decompose-oversized-request",
+			"approval-gate-never-shrinks",
+			"label-misuse-red-flags",
+		],
+		supportPatternIds: ["look-before-asking", "red-flags-list"],
+	},
+	{
+		id: "design-collaboration",
+		summary: "구현 전에 설계를 탐색·합의·검토하고 파일로 남기는 협업 절차",
+		when: "여러 선택지가 있는 기능이나 구조를 사용자와 함께 설계해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"design-before-code",
+			"design-section-sizing",
+			"unit-boundary-questions",
+			"spec-self-review",
+			"user-review-gate",
+		],
+		supportPatternIds: [
+			"agreement-goes-to-a-file",
+			"show-a-picture-only-when-it-helps",
+			"respect-existing-patterns",
+			"approval-gate-never-shrinks",
+		],
+	},
+	{
+		id: "implementation-plan-structure",
+		summary:
+			"파일 구조와 인터페이스부터 작고 검토 가능한 구현 작업으로 나누는 계획",
+		when: "코드 구현 계획을 파일·인터페이스·작업 단위까지 구체화해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"plan-writing-flow",
+			"file-structure-first",
+			"plan-header-fields",
+			"task-file-list",
+			"task-interfaces-block",
+			"bite-sized-tasks",
+			"task-boundary-by-reviewer",
+			"no-placeholder-strings",
+		],
+		supportPatternIds: [
+			"assume-low-context-reader",
+			"plan-self-review",
+			"user-review-gate",
+			"let-user-pick-execution",
+		],
+	},
+	{
+		id: "implementation-plan-handoff",
+		summary:
+			"계획을 스스로 검토하고 사용자 승인과 실행 방식 선택으로 넘기는 절차",
+		when: "작성한 계획을 검토·승인받고 실행 단계로 인계해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"plan-self-review",
+			"plan-review-categories",
+			"user-review-gate",
+			"let-user-pick-execution",
+		],
+		supportPatternIds: [
+			"assume-low-context-reader",
+			"agreement-goes-to-a-file",
+			"respect-existing-patterns",
+		],
+	},
+	{
+		id: "code-review-workflow",
+		summary: "리뷰 요청 준비부터 판정과 심각도순 수정까지의 전체 흐름",
+		when: "코드 변경을 다른 관점에서 검토받고 결과를 처리해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"review-request-flow",
+			"review-early-often",
+			"isolated-reviewer-context",
+			"review-checklist-areas",
+			"merge-verdict-gate",
+			"severity-ordered-fixes",
+		],
+		supportPatternIds: ["review-is-read-only"],
+	},
+	{
+		id: "code-review-report",
+		summary: "심각도·근거·위치·수정 방향이 분명한 코드 리뷰 보고서 형식",
+		when: "리뷰 결과를 이슈와 최종 판정이 있는 문서로 작성해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"severity-with-definitions",
+			"review-report-sections",
+			"issue-required-fields",
+			"merge-verdict-gate",
+		],
+		supportPatternIds: ["praise-before-issues"],
+	},
+	{
+		id: "code-review-discipline",
+		summary: "리뷰를 생략하거나 검토 중 대상을 고치는 우회를 막는 규칙",
+		when: "시간 압박 때문에 리뷰를 건너뛰거나 읽기와 수정을 섞을 위험이 있을 때",
+		delivery: "online",
+		corePatternIds: [
+			"review-dos-and-donts",
+			"review-rationalizations",
+			"review-is-read-only",
+		],
+		supportPatternIds: ["rationalization-table", "review-early-often"],
+	},
+	{
+		id: "frequent-skill-budget",
+		summary: "자주 자동 로드되는 스킬의 본문을 짧게 유지하는 분량 규칙",
+		when: "빈도 답변이 often이거나 시작·상시 워크플로에 매번 로드되는 스킬일 때",
+		delivery: "online",
+		corePatternIds: ["token-budget"],
+	},
+	{
+		id: "skill-testing-defense",
+		summary: "스킬 검증을 건너뛰는 변명과 그에 대한 인과적 반박",
+		when: "스킬 작성·수정·배포 절차에서 검증 생략을 막아야 할 때",
+		delivery: "online",
+		corePatternIds: ["skill-testing-rationalization-defaults"],
+		supportPatternIds: ["rationalization-table"],
+	},
+	{
+		id: "skill-example",
+		summary: "절차를 구체화하는 완결된 예시 하나를 고르는 규칙",
+		when: "코드·명령·기법의 예시가 없으면 스킬을 실행하기 어려울 때",
+		delivery: "online",
+		corePatternIds: ["one-excellent-example"],
+	},
+	{
+		id: "skill-decision-aid",
+		summary: "결정 지점과 반복 종료 조건만 작은 순서도로 표현하는 규칙",
+		when: "스킬 절차에 자명하지 않은 분기나 되돌아감이 있을 때",
+		delivery: "online",
+		corePatternIds: ["flowchart-when"],
+	},
+	{
+		id: "skill-external-references",
+		summary: "다른 스킬과 무거운 참조 자료를 강제 로드 없이 연결하는 규칙",
+		when: "생성할 스킬이 다른 스킬·파일·참조 자료를 가리켜야 할 때",
+		delivery: "online",
+		corePatternIds: ["no-force-load-links"],
+	},
+	{
+		id: "skill-authoring-discipline",
+		summary: "압박 아래 스킬 작성 규칙을 우회하지 못하게 하는 방어 묶음",
+		when: "규율형 스킬을 만들거나 작은 수정도 검증 없이 넘길 위험이 있을 때",
+		delivery: "online",
+		corePatternIds: [
+			"bulletproofing-toolkit",
+			"anti-patterns",
+			"iron-law-edits-too",
+		],
+		supportPatternIds: ["rationalization-table", "red-flags-list"],
+	},
+	{
+		id: "completion-evidence",
+		summary: "완료 주장에 맞는 새 증거를 고르고 잘못된 대리 지표를 거르는 규칙",
+		when: "성공·완료·통과·요구사항 충족을 검증 가능한 근거와 함께 선언할 때",
+		delivery: "online",
+		corePatternIds: [
+			"evidence-matches-the-claim",
+			"verify-before-done",
+			"what-is-not-evidence",
+			"no-success-words-before-run",
+		],
+	},
+	{
+		id: "delegated-verification",
+		summary: "위임받은 보고를 실제 변경과 실행 결과로 다시 확인하는 규칙",
+		when: "하위 에이전트·다른 작업자·외부 도구가 한 일을 완료로 보고할 때",
+		delivery: "online",
+		corePatternIds: ["verify-delegated-work"],
+		supportPatternIds: ["verify-before-done"],
+	},
+	{
+		id: "skill-authoring-evaluation",
+		summary: "만든 스킬을 유형별 실제 시나리오로 시험하는 자체 평가 절차",
+		when: "온라인 생성 결과를 배포 전에 자체 시나리오로 평가할 때",
+		delivery: "evaluation-only",
+		corePatternIds: ["skill-creation-checklist", "skill-type-testing"],
+		supportPatternIds: [
+			"form-matches-failure",
+			"bulletproofing-toolkit",
+			"iron-law-edits-too",
+			"rationalization-table",
+			"red-flags-list",
+		],
+	},
+	{
+		id: "visual-direction",
+		summary: "주제에 맞는 시각적 방향을 정하고 AI 기본 룩을 피하는 설계 규칙",
+		when: "화면·웹사이트·시각 결과물의 미감과 전체 방향을 정해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"ground-in-subject",
+			"stance-instead-of-rules",
+			"critique-before-showing",
+			"avoid-ai-default-looks",
+			"one-signature-element",
+			"match-complexity-to-vision",
+			"brief-wins",
+		],
+		supportPatternIds: ["plan-then-critique", "quality-floor-unannounced"],
+	},
+	{
+		id: "visual-typography",
+		summary: "디스플레이와 본문 폰트를 역할에 맞게 짝짓는 타이포그래피 규칙",
+		when: "시각 결과물에서 글꼴 선택과 위계를 설계해야 할 때",
+		delivery: "online",
+		corePatternIds: ["deliberate-typography"],
+		supportPatternIds: ["cohesive-palette-and-fonts"],
+	},
+	{
+		id: "design-tokens",
+		summary: "색·폰트·간격·형태를 재사용 가능한 토큰 체계로 만드는 규칙",
+		when: "여러 요소에 일관되게 적용할 디자인 시스템이나 테마를 만들 때",
+		delivery: "online",
+		corePatternIds: [
+			"design-token-plan",
+			"cohesive-palette-and-fonts",
+			"context-appropriate-theme",
+		],
+		supportPatternIds: ["option-spec-format", "read-the-spec-not-memory"],
+	},
+	{
+		id: "theme-choice-workflow",
+		summary: "테마 선택지를 보여주고 명시적 선택 뒤 일관되게 적용하는 흐름",
+		when: "여러 테마·스타일 후보 중 사용자의 선택을 받아 적용해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"show-options-then-apply",
+			"wait-for-explicit-choice",
+			"custom-option-fallback",
+		],
+		supportPatternIds: [
+			"option-spec-format",
+			"context-appropriate-theme",
+			"read-the-spec-not-memory",
+		],
+	},
+	{
+		id: "interface-motion",
+		summary: "시각적 방향에 맞춰 필요한 곳에만 목적 있는 모션을 쓰는 규칙",
+		when: "인터페이스에 애니메이션·전환·상호작용 움직임을 설계할 때",
+		delivery: "online",
+		corePatternIds: ["purposeful-motion"],
+		supportPatternIds: ["match-complexity-to-vision"],
+	},
+	{
+		id: "interface-copy",
+		summary: "버튼·제목·빈 상태 같은 화면 문구를 디자인 재료로 다루는 규칙",
+		when: "UI 구성요소의 짧은 문구와 정보 위계를 함께 설계할 때",
+		delivery: "online",
+		corePatternIds: ["ui-copy-is-design-material"],
+	},
+	{
+		id: "voice-profile",
+		summary: "말투 프로필을 질문으로 만들고 저장·수정하는 전체 흐름",
+		when: "사용자나 브랜드의 일관된 말투 기준을 새로 만들거나 갱신할 때",
+		delivery: "online",
+		corePatternIds: [
+			"voice-setup-gate",
+			"one-question-at-a-time",
+			"define-voice-profile",
+			"voice-profile-field-specs",
+			"voice-trait-options",
+			"vocabulary-pairs",
+			"banned-phrases",
+			"banned-phrase-defaults",
+			"channel-rules",
+			"profile-update-flow",
+		],
+		supportPatternIds: ["voice-enforcement-checklist"],
+	},
+	{
+		id: "voice-writing",
+		summary:
+			"저장된 말투를 글에 적용하면서 과시·반복·공허한 강도를 피하는 규칙",
+		when: "특정 보이스로 글을 새로 쓰거나 기존 글의 말투를 다듬을 때",
+		delivery: "online",
+		corePatternIds: [
+			"open-with-punch",
+			"scannable-bold",
+			"substance-over-performance",
+			"experience-first",
+			"guardrails-against-performance",
+			"say-what-it-is",
+			"foil-is-advice-not-people",
+			"no-parroting",
+		],
+	},
+	{
+		id: "voice-verification",
+		summary: "완성된 글을 저장된 프로필·어휘·금지 문구와 대조하는 점검",
+		when: "특정 말투로 쓴 글을 넘기기 전에 일관성과 금지 표현을 확인할 때",
+		delivery: "online",
+		corePatternIds: ["voice-enforcement-checklist"],
+		supportPatternIds: [
+			"define-voice-profile",
+			"vocabulary-pairs",
+			"banned-phrases",
+			"channel-rules",
+		],
+	},
+	{
+		id: "document-coauthoring",
+		summary: "맥락을 모으고 뼈대부터 섹션별로 함께 쓰는 문서 협업 절차",
+		when: "사용자와 함께 제안서·기획서·기술 문서 같은 긴 문서를 작성할 때",
+		delivery: "online",
+		corePatternIds: [
+			"context-gathering-first",
+			"section-by-section",
+			"scaffold-before-filling",
+			"user-owns-the-doc",
+		],
+		supportPatternIds: ["offer-then-defer", "ask-before-reaching-out"],
+	},
+	{
+		id: "document-quality",
+		summary:
+			"새 독자 관점·군더더기 제거·대체 텍스트로 문서 품질을 확인하는 규칙",
+		when: "긴 문서를 완성하기 전에 이해 가능성·간결성·지속성을 검토할 때",
+		delivery: "online",
+		corePatternIds: ["fresh-reader-test", "trim-filler", "images-need-words"],
+		supportPatternIds: ["document-is-not-finished"],
+	},
+	{
+		id: "accessible-explanation",
+		summary: "낯선 개념을 쉬운 말·비유·현재 맥락으로 정확하게 설명하는 규칙",
+		when: "기술 용어나 추상 개념을 비전문가도 이해하게 설명해야 할 때",
+		delivery: "online",
+		corePatternIds: [
+			"everyday-analogy",
+			"plain-words-first",
+			"summary-then-detail",
+			"include-why",
+			"land-on-what-they-see",
+		],
+		supportPatternIds: ["name-the-unfamiliarity", "point-to-the-better-fit"],
 	},
 ];
 
