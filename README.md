@@ -208,14 +208,10 @@ Next.js (App Router) · React · TypeScript · Tailwind CSS · pnpm · Biome
 
 © 2026 Guhn Park
 
-코드는 공개해 두었지만 따로 오픈소스 라이선스를 부여하지는 않았습니다.
-GitHub 안에서 코드를 살펴보고 fork해 개선안을 실험하거나, issue와 pull
-request로 더 나은 방법을 제안해 주시는 건 언제든 환영합니다. 아직 배우며
-다듬어 가는 프로젝트라, 제가 놓친 관점이나 더 좋은 방법을 나눠 주시면 감사히
-배우겠습니다.
-
-GitHub에서의 열람·fork·기여 제안을 넘어 코드를 복제·수정·배포하거나 다른
-용도로 이용하려면 먼저 연락 부탁드립니다.
+코드는 공개해 두었지만 따로 오픈소스 라이선스를 부여하지는 않았습니다. GitHub
+안에서 살펴보고 fork해 실험하거나, issue와 pull request로 더 나은 방법을 제안해
+주시는 건 언제든 환영합니다. 그 밖의 이용은 먼저 연락 부탁드립니다. 전문은
+[`LICENSE`](LICENSE)에 있습니다.
 
 참고 코퍼스에 정리된 패턴의 **원출처는 각자의 라이선스를 따릅니다** — 저작자와
 라이선스는 `src/data/reference-corpus.ts`와 `docs/corpus/`에 기록되어 있습니다.

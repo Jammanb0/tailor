@@ -1,0 +1,47 @@
+Tailor — Copyright (c) 2026 Guhn Park
+All rights reserved.
+
+Tailor is not open-source software. The source code is published for reading,
+but no open-source license is granted.
+
+
+ENGLISH
+
+You are welcome to:
+
+  - read and study the source code on GitHub;
+  - fork the repository on GitHub and experiment with changes there;
+  - propose improvements through GitHub issues and pull requests.
+
+Beyond the above, please get in touch before reproducing, modifying,
+distributing, or otherwise using this code. This is a project the author is
+still learning through, and perspectives or improvements the author has missed
+are genuinely welcome.
+
+The patterns distilled into the reference corpus remain under their own
+sources' licenses. Authors and licenses are recorded in
+src/data/reference-corpus.ts and docs/corpus/.
+
+
+한국어
+
+다음은 언제든 환영합니다.
+
+  - GitHub에서 소스 코드를 살펴보고 공부하는 것
+  - GitHub에서 저장소를 fork해 개선안을 실험하는 것
+  - issue와 pull request로 더 나은 방법을 제안하는 것
+
+그 밖에 코드를 복제·수정·배포하거나 다른 용도로 이용하려면 먼저 연락
+부탁드립니다. 아직 배우며 다듬어 가는 프로젝트라, 제가 놓친 관점이나 더 좋은
+방법을 나눠 주시면 감사히 배우겠습니다.
+
+참고 코퍼스에 정리된 패턴의 원출처는 각자의 라이선스를 따릅니다. 저작자와
+라이선스는 src/data/reference-corpus.ts와 docs/corpus/에 기록되어 있습니다.
+
+
+GOVERNING TEXT / 기준 본문
+
+In case of any discrepancy between the English and Korean texts, the Korean
+text governs.
+
+영어 본문과 한국어 본문의 해석에 차이가 있으면 한국어 본문을 기준으로 합니다.
