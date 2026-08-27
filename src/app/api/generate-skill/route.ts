@@ -98,6 +98,7 @@ export async function POST(request: Request) {
 
 	let text: string;
 	try {
+		const startedAt = Date.now();
 		const response = await client.messages.create({
 			model: GENERATION_MODEL,
 			max_tokens: 8192,
@@ -117,6 +118,19 @@ export async function POST(request: Request) {
 			],
 			messages: [{ role: "user", content: userContent }],
 		});
+		// 코퍼스 라우팅 전환 전의 기준값을 남기기 위한 한 줄. 생성 결과에는
+		// 영향을 주지 않고 서버 로그에만 찍는다. 사용자가 쓴 글은 담지 않는다.
+		// 전환 뒤 같은 시나리오를 돌려 이 값과 비교한다.
+		console.log(
+			JSON.stringify({
+				event: "generate-skill",
+				kind: refinement ? "refine" : "create",
+				model: GENERATION_MODEL,
+				ms: Date.now() - startedAt,
+				stopReason: response.stop_reason,
+				usage: response.usage,
+			}),
+		);
 		text = response.content
 			.filter((block) => block.type === "text")
 			.map((block) => block.text)
