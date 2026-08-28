@@ -1,0 +1,62 @@
+{
+  "complete": false,
+  "attempts": [
+    {
+      "scenarioId": "01-testing",
+      "run": 1,
+      "attempt": 1,
+      "bundleIds": [
+        "tdd-cycle",
+        "test-discipline",
+        "skill-decision-aid"
+      ],
+      "calls": [
+        {
+          "ok": false,
+          "clientMs": 1590,
+          "error": "Error: 전체 주입 생성 실패: Error: Connection error.",
+          "condition": "full",
+          "label": "01-testing-full-run1-attempt1",
+          "doc": null
+        },
+        {
+          "ok": false,
+          "clientMs": 1564,
+          "error": "Error: 선택 주입 생성 실패: Error: Connection error.",
+          "condition": "routed",
+          "label": "01-testing-routed-run1-attempt1",
+          "doc": null
+        }
+      ]
+    },
+    {
+      "scenarioId": "01-testing",
+      "run": 1,
+      "attempt": 2,
+      "bundleIds": [
+        "tdd-cycle",
+        "test-discipline",
+        "skill-decision-aid"
+      ],
+      "calls": [
+        {
+          "ok": false,
+          "clientMs": 1545,
+          "error": "Error: 전체 주입 생성 실패: Error: Connection error.",
+          "condition": "full",
+          "label": "01-testing-full-run1-attempt2",
+          "doc": null
+        },
+        {
+          "ok": false,
+          "clientMs": 1550,
+          "error": "Error: 선택 주입 생성 실패: Error: Connection error.",
+          "condition": "routed",
+          "label": "01-testing-routed-run1-attempt2",
+          "doc": null
+        }
+      ]
+    }
+  ],
+  "qualityResults": []
+}

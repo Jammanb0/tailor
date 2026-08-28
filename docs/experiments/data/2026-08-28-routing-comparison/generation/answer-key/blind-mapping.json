@@ -1,0 +1,170 @@
+[
+  {
+    "id": "item-001",
+    "condition": "routed",
+    "scenarioId": "05-design",
+    "run": 2,
+    "sourceLabel": "05-design-routed-run2-attempt1"
+  },
+  {
+    "id": "item-002",
+    "condition": "full",
+    "scenarioId": "13-always-on",
+    "run": 1,
+    "sourceLabel": "13-always-on-full-run1-attempt1"
+  },
+  {
+    "id": "item-003",
+    "condition": "full",
+    "scenarioId": "01-testing",
+    "run": 1,
+    "sourceLabel": "01-testing-full-run1-attempt1"
+  },
+  {
+    "id": "item-004",
+    "condition": "routed",
+    "scenarioId": "13-always-on",
+    "run": 2,
+    "sourceLabel": "13-always-on-routed-run2-attempt1"
+  },
+  {
+    "id": "item-005",
+    "condition": "full",
+    "scenarioId": "01-testing",
+    "run": 2,
+    "sourceLabel": "01-testing-full-run2-attempt1"
+  },
+  {
+    "id": "item-006",
+    "condition": "routed",
+    "scenarioId": "10-mismatch-setup",
+    "run": 2,
+    "sourceLabel": "10-mismatch-setup-routed-run2-attempt1"
+  },
+  {
+    "id": "item-007",
+    "condition": "full",
+    "scenarioId": "05-design",
+    "run": 1,
+    "sourceLabel": "05-design-full-run1-attempt1"
+  },
+  {
+    "id": "item-008",
+    "condition": "routed",
+    "scenarioId": "14-three-line-memo",
+    "run": 2,
+    "sourceLabel": "14-three-line-memo-routed-run2-attempt1"
+  },
+  {
+    "id": "item-009",
+    "condition": "routed",
+    "scenarioId": "09-mismatch-office",
+    "run": 2,
+    "sourceLabel": "09-mismatch-office-routed-run2-attempt1"
+  },
+  {
+    "id": "item-010",
+    "condition": "full",
+    "scenarioId": "10-mismatch-setup",
+    "run": 1,
+    "sourceLabel": "10-mismatch-setup-full-run1-attempt1"
+  },
+  {
+    "id": "item-011",
+    "condition": "routed",
+    "scenarioId": "14-three-line-memo",
+    "run": 1,
+    "sourceLabel": "14-three-line-memo-routed-run1-attempt1"
+  },
+  {
+    "id": "item-012",
+    "condition": "full",
+    "scenarioId": "05-design",
+    "run": 2,
+    "sourceLabel": "05-design-full-run2-attempt1"
+  },
+  {
+    "id": "item-013",
+    "condition": "routed",
+    "scenarioId": "09-mismatch-office",
+    "run": 1,
+    "sourceLabel": "09-mismatch-office-routed-run1-attempt1"
+  },
+  {
+    "id": "item-014",
+    "condition": "full",
+    "scenarioId": "14-three-line-memo",
+    "run": 2,
+    "sourceLabel": "14-three-line-memo-full-run2-attempt1"
+  },
+  {
+    "id": "item-015",
+    "condition": "routed",
+    "scenarioId": "10-mismatch-setup",
+    "run": 1,
+    "sourceLabel": "10-mismatch-setup-routed-run1-attempt1"
+  },
+  {
+    "id": "item-016",
+    "condition": "full",
+    "scenarioId": "09-mismatch-office",
+    "run": 2,
+    "sourceLabel": "09-mismatch-office-full-run2-attempt1"
+  },
+  {
+    "id": "item-017",
+    "condition": "routed",
+    "scenarioId": "13-always-on",
+    "run": 1,
+    "sourceLabel": "13-always-on-routed-run1-attempt1"
+  },
+  {
+    "id": "item-018",
+    "condition": "full",
+    "scenarioId": "09-mismatch-office",
+    "run": 1,
+    "sourceLabel": "09-mismatch-office-full-run1-attempt1"
+  },
+  {
+    "id": "item-019",
+    "condition": "routed",
+    "scenarioId": "01-testing",
+    "run": 1,
+    "sourceLabel": "01-testing-routed-run1-attempt1"
+  },
+  {
+    "id": "item-020",
+    "condition": "full",
+    "scenarioId": "10-mismatch-setup",
+    "run": 2,
+    "sourceLabel": "10-mismatch-setup-full-run2-attempt1"
+  },
+  {
+    "id": "item-021",
+    "condition": "full",
+    "scenarioId": "14-three-line-memo",
+    "run": 1,
+    "sourceLabel": "14-three-line-memo-full-run1-attempt1"
+  },
+  {
+    "id": "item-022",
+    "condition": "routed",
+    "scenarioId": "01-testing",
+    "run": 2,
+    "sourceLabel": "01-testing-routed-run2-attempt1"
+  },
+  {
+    "id": "item-023",
+    "condition": "full",
+    "scenarioId": "13-always-on",
+    "run": 2,
+    "sourceLabel": "13-always-on-full-run2-attempt1"
+  },
+  {
+    "id": "item-024",
+    "condition": "routed",
+    "scenarioId": "05-design",
+    "run": 1,
+    "sourceLabel": "05-design-routed-run1-attempt1"
+  }
+]

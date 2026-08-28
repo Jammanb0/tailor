@@ -1,0 +1,129 @@
+{
+  "createdAt": "2026-08-28T14:36:20.137Z",
+  "counts": {
+    "quality": 24,
+    "endToEnd": 3
+  },
+  "cost": {
+    "observedExperimentTotalUsd": 1.4276670999999999,
+    "conditions": {
+      "full": {
+        "count": 12,
+        "observedMeanUsd": 0.05532410833333332,
+        "noCacheMeanUsd": 0.15825583333333335,
+        "generationMs": [
+          37689,
+          40101,
+          43352,
+          47162,
+          41736,
+          34408,
+          38147,
+          34160,
+          17570,
+          17200,
+          19078,
+          19918
+        ]
+      },
+      "routed": {
+        "count": 12,
+        "observedMeanUsd": 0.04959759166666666,
+        "noCacheMeanUsd": 0.05794716666666666,
+        "generationMs": [
+          46387,
+          47371,
+          54310,
+          40443,
+          35353,
+          33326,
+          34138,
+          38596,
+          18085,
+          21262,
+          21948,
+          24470
+        ]
+      }
+    },
+    "selectorObservedMeanUsd": 0.003975333333333333,
+    "selectorNoCacheMeanUsd": 0.003975333333333333,
+    "routedWithSelectionNoCacheMeanUsd": 0.06192249999999999,
+    "fullNoCacheMeanUsd": 0.15825583333333335,
+    "breakEvenFullCacheHitRate": 0.8718399359047957
+  },
+  "latency": {
+    "endToEndClientMs": [
+      25060,
+      47376,
+      35051
+    ],
+    "endToEndMeanMs": 35829,
+    "endToEndMedianMs": 35051,
+    "endToEndRangeMs": [
+      25060,
+      47376
+    ],
+    "comparableFullGenerationMeanMs": 31515.5,
+    "rows": [
+      {
+        "scenarioId": "14-three-line-memo",
+        "clientMs": 25060,
+        "selectionMs": 1098,
+        "generationMs": 23894,
+        "unaccountedMs": 68,
+        "fixedBundleIds": [
+          "interface-copy",
+          "frequent-skill-budget",
+          "skill-example"
+        ],
+        "selectedBundleIds": [
+          "interface-copy",
+          "frequent-skill-budget",
+          "skill-example"
+        ],
+        "selectionChanged": false
+      },
+      {
+        "scenarioId": "01-testing",
+        "clientMs": 47376,
+        "selectionMs": 1124,
+        "generationMs": 46237,
+        "unaccountedMs": 15,
+        "fixedBundleIds": [
+          "tdd-cycle",
+          "test-discipline",
+          "skill-decision-aid"
+        ],
+        "selectedBundleIds": [
+          "tdd-cycle",
+          "test-discipline",
+          "skill-decision-aid",
+          "skill-example"
+        ],
+        "selectionChanged": true
+      },
+      {
+        "scenarioId": "10-mismatch-setup",
+        "clientMs": 35051,
+        "selectionMs": 1032,
+        "generationMs": 34002,
+        "unaccountedMs": 17,
+        "fixedBundleIds": [
+          "tdd-cycle",
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "skill-decision-aid",
+          "completion-evidence",
+          "frequent-skill-budget"
+        ],
+        "selectedBundleIds": [
+          "skill-decision-aid",
+          "completion-evidence",
+          "frequent-skill-budget"
+        ],
+        "selectionChanged": true
+      }
+    ]
+  }
+}
