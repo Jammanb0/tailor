@@ -1,0 +1,1615 @@
+[
+  {
+    "id": "01-testing",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "tdd-cycle",
+          "test-discipline",
+          "skill-decision-aid"
+        ],
+        "rawText": "<bundles>\n[tdd-cycle]\n[test-discipline]\n[skill-decision-aid]\n</bundles>",
+        "usage": {
+          "input_tokens": 3800,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 33,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1335,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "tdd-cycle",
+          "test-discipline",
+          "skill-decision-aid"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "test-first",
+          "name-the-break",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "past-tense-completion-checklist",
+          "mutation-check",
+          "rationalization-table",
+          "red-flags-list",
+          "flowchart-when"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "test-first",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "name-the-break",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "rationalization-table",
+          "red-flags-list",
+          "past-tense-completion-checklist",
+          "mutation-check",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "flowchart-when",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 27683,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "02-debugging",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "systematic-debugging",
+          "debugging-observation",
+          "debugging-discipline",
+          "debugging-verification"
+        ],
+        "rawText": "<bundles>\n[systematic-debugging]\n[debugging-observation]\n[debugging-discipline]\n[debugging-verification]\n</bundles>",
+        "usage": {
+          "input_tokens": 3805,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 36,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 977,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "systematic-debugging",
+          "debugging-observation",
+          "debugging-discipline",
+          "debugging-verification"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "four-phase-debugging-order",
+          "root-cause-first",
+          "compare-with-working-example",
+          "single-hypothesis",
+          "failing-test-before-fix",
+          "defense-in-depth-layers",
+          "instrument-component-boundaries",
+          "trace-backward-to-source",
+          "say-what-you-dont-know",
+          "bisect-to-find-polluter",
+          "condition-based-waiting",
+          "debug-applies-to",
+          "debug-especially-when",
+          "debug-red-flag-defaults",
+          "debug-rationalization-defaults",
+          "red-flags-list",
+          "rationalization-table",
+          "partner-signals",
+          "no-root-cause-exit",
+          "red-green-regression-proof"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "rationalization-table",
+          "red-flags-list",
+          "four-phase-debugging-order",
+          "root-cause-first",
+          "debug-applies-to",
+          "debug-especially-when",
+          "debug-red-flag-defaults",
+          "debug-rationalization-defaults",
+          "say-what-you-dont-know",
+          "bisect-to-find-polluter",
+          "compare-with-working-example",
+          "instrument-component-boundaries",
+          "trace-backward-to-source",
+          "single-hypothesis",
+          "failing-test-before-fix",
+          "defense-in-depth-layers",
+          "partner-signals",
+          "condition-based-waiting",
+          "no-root-cause-exit",
+          "red-green-regression-proof",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 33558,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "03-planning",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "request-framing",
+          "design-collaboration",
+          "implementation-plan-structure",
+          "implementation-plan-handoff"
+        ],
+        "rawText": "<bundles>\n[request-framing]\n[design-collaboration]\n[implementation-plan-structure]\n[implementation-plan-handoff]\n</bundles>",
+        "usage": {
+          "input_tokens": 3787,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 42,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1143,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "request-framing",
+          "design-collaboration",
+          "implementation-plan-structure",
+          "implementation-plan-handoff"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "classify-before-process",
+          "decompose-oversized-request",
+          "approval-gate-never-shrinks",
+          "label-misuse-red-flags",
+          "look-before-asking",
+          "red-flags-list",
+          "design-before-code",
+          "design-section-sizing",
+          "unit-boundary-questions",
+          "spec-self-review",
+          "user-review-gate",
+          "agreement-goes-to-a-file",
+          "show-a-picture-only-when-it-helps",
+          "respect-existing-patterns",
+          "plan-writing-flow",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "assume-low-context-reader",
+          "plan-self-review",
+          "let-user-pick-execution",
+          "plan-review-categories"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "red-flags-list",
+          "classify-before-process",
+          "plan-writing-flow",
+          "let-user-pick-execution",
+          "approval-gate-never-shrinks",
+          "label-misuse-red-flags",
+          "design-before-code",
+          "design-section-sizing",
+          "unit-boundary-questions",
+          "decompose-oversized-request",
+          "look-before-asking",
+          "agreement-goes-to-a-file",
+          "show-a-picture-only-when-it-helps",
+          "respect-existing-patterns",
+          "spec-self-review",
+          "user-review-gate",
+          "assume-low-context-reader",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "plan-self-review",
+          "plan-review-categories",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 33028,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "04-code-review",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "code-review-workflow",
+          "code-review-report",
+          "completion-evidence"
+        ],
+        "rawText": "<bundles>\n[code-review-workflow]\n[code-review-report]\n[completion-evidence]\n</bundles>",
+        "usage": {
+          "input_tokens": 3781,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 34,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1000,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "code-review-workflow",
+          "code-review-report",
+          "completion-evidence"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "review-request-flow",
+          "review-early-often",
+          "isolated-reviewer-context",
+          "review-checklist-areas",
+          "merge-verdict-gate",
+          "severity-ordered-fixes",
+          "review-is-read-only",
+          "severity-with-definitions",
+          "review-report-sections",
+          "issue-required-fields",
+          "praise-before-issues",
+          "evidence-matches-the-claim",
+          "verify-before-done",
+          "what-is-not-evidence",
+          "no-success-words-before-run"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "review-early-often",
+          "severity-with-definitions",
+          "review-request-flow",
+          "severity-ordered-fixes",
+          "review-report-sections",
+          "issue-required-fields",
+          "merge-verdict-gate",
+          "review-checklist-areas",
+          "praise-before-issues",
+          "isolated-reviewer-context",
+          "review-is-read-only",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "evidence-matches-the-claim",
+          "verify-before-done",
+          "what-is-not-evidence",
+          "no-success-words-before-run",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 26891,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "05-design",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "visual-direction",
+          "visual-typography",
+          "design-tokens",
+          "interface-copy"
+        ],
+        "rawText": "<bundles>\n[visual-direction]\n[visual-typography]\n[design-tokens]\n[interface-copy]\n</bundles>",
+        "usage": {
+          "input_tokens": 3800,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 36,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1065,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "visual-direction",
+          "visual-typography",
+          "design-tokens",
+          "interface-copy"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "ground-in-subject",
+          "stance-instead-of-rules",
+          "critique-before-showing",
+          "avoid-ai-default-looks",
+          "one-signature-element",
+          "match-complexity-to-vision",
+          "brief-wins",
+          "plan-then-critique",
+          "quality-floor-unannounced",
+          "deliberate-typography",
+          "cohesive-palette-and-fonts",
+          "design-token-plan",
+          "context-appropriate-theme",
+          "option-spec-format",
+          "read-the-spec-not-memory",
+          "ui-copy-is-design-material"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques",
+          "ground-in-subject",
+          "stance-instead-of-rules",
+          "critique-before-showing",
+          "avoid-ai-default-looks",
+          "one-signature-element",
+          "deliberate-typography",
+          "match-complexity-to-vision",
+          "design-token-plan",
+          "plan-then-critique",
+          "brief-wins",
+          "quality-floor-unannounced",
+          "ui-copy-is-design-material",
+          "cohesive-palette-and-fonts",
+          "option-spec-format",
+          "read-the-spec-not-memory",
+          "context-appropriate-theme"
+        ]
+      },
+      "render": {
+        "routedBytes": 25743,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "06-voice",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "voice-profile",
+          "voice-writing",
+          "voice-verification"
+        ],
+        "rawText": "<bundles>\n[voice-profile]\n[voice-writing]\n[voice-verification]\n</bundles>",
+        "usage": {
+          "input_tokens": 3795,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 30,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 862,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "voice-profile",
+          "voice-writing",
+          "voice-verification"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "voice-setup-gate",
+          "one-question-at-a-time",
+          "define-voice-profile",
+          "voice-profile-field-specs",
+          "voice-trait-options",
+          "vocabulary-pairs",
+          "banned-phrases",
+          "banned-phrase-defaults",
+          "channel-rules",
+          "profile-update-flow",
+          "voice-enforcement-checklist",
+          "open-with-punch",
+          "scannable-bold",
+          "substance-over-performance",
+          "experience-first",
+          "guardrails-against-performance",
+          "say-what-it-is",
+          "foil-is-advice-not-people",
+          "no-parroting"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques",
+          "voice-setup-gate",
+          "one-question-at-a-time",
+          "define-voice-profile",
+          "voice-profile-field-specs",
+          "voice-trait-options",
+          "vocabulary-pairs",
+          "banned-phrases",
+          "banned-phrase-defaults",
+          "channel-rules",
+          "profile-update-flow",
+          "open-with-punch",
+          "scannable-bold",
+          "substance-over-performance",
+          "experience-first",
+          "guardrails-against-performance",
+          "say-what-it-is",
+          "foil-is-advice-not-people",
+          "no-parroting",
+          "voice-enforcement-checklist"
+        ]
+      },
+      "render": {
+        "routedBytes": 29414,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "07-documentation",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "document-coauthoring",
+          "document-quality"
+        ],
+        "rawText": "<bundles>\n[document-coauthoring]\n[document-quality]\n</bundles>",
+        "usage": {
+          "input_tokens": 3786,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 26,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 864,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "document-coauthoring",
+          "document-quality"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "context-gathering-first",
+          "section-by-section",
+          "scaffold-before-filling",
+          "user-owns-the-doc",
+          "offer-then-defer",
+          "ask-before-reaching-out",
+          "fresh-reader-test",
+          "trim-filler",
+          "images-need-words",
+          "document-is-not-finished"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques",
+          "context-gathering-first",
+          "section-by-section",
+          "fresh-reader-test",
+          "trim-filler",
+          "scaffold-before-filling",
+          "images-need-words",
+          "document-is-not-finished",
+          "offer-then-defer",
+          "user-owns-the-doc",
+          "ask-before-reaching-out"
+        ]
+      },
+      "render": {
+        "routedBytes": 22687,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "08-explanation",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "accessible-explanation",
+          "skill-example"
+        ],
+        "rawText": "<bundles>\n[accessible-explanation]\n[skill-example]\n</bundles>",
+        "usage": {
+          "input_tokens": 3796,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 24,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 906,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "accessible-explanation",
+          "skill-example"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "everyday-analogy",
+          "plain-words-first",
+          "summary-then-detail",
+          "include-why",
+          "land-on-what-they-see",
+          "name-the-unfamiliarity",
+          "point-to-the-better-fit",
+          "one-excellent-example"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "one-excellent-example",
+          "keyword-coverage",
+          "skills-are-reusable-techniques",
+          "everyday-analogy",
+          "plain-words-first",
+          "summary-then-detail",
+          "include-why",
+          "land-on-what-they-see",
+          "name-the-unfamiliarity",
+          "point-to-the-better-fit"
+        ]
+      },
+      "render": {
+        "routedBytes": 21691,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "09-mismatch-office",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "request-framing",
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "skill-decision-aid",
+          "completion-evidence"
+        ],
+        "rawText": "<bundles>\n[request-framing]\n[implementation-plan-structure]\n[implementation-plan-handoff]\n[skill-decision-aid]\n[completion-evidence]\n</bundles>",
+        "usage": {
+          "input_tokens": 3802,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 50,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1200,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "request-framing",
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "skill-decision-aid",
+          "completion-evidence"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "classify-before-process",
+          "decompose-oversized-request",
+          "approval-gate-never-shrinks",
+          "label-misuse-red-flags",
+          "look-before-asking",
+          "red-flags-list",
+          "plan-writing-flow",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "assume-low-context-reader",
+          "plan-self-review",
+          "user-review-gate",
+          "let-user-pick-execution",
+          "plan-review-categories",
+          "agreement-goes-to-a-file",
+          "respect-existing-patterns",
+          "flowchart-when",
+          "evidence-matches-the-claim",
+          "verify-before-done",
+          "what-is-not-evidence",
+          "no-success-words-before-run"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "red-flags-list",
+          "classify-before-process",
+          "plan-writing-flow",
+          "let-user-pick-execution",
+          "approval-gate-never-shrinks",
+          "label-misuse-red-flags",
+          "decompose-oversized-request",
+          "look-before-asking",
+          "agreement-goes-to-a-file",
+          "respect-existing-patterns",
+          "user-review-gate",
+          "assume-low-context-reader",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "plan-self-review",
+          "plan-review-categories",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "flowchart-when",
+          "keyword-coverage",
+          "evidence-matches-the-claim",
+          "verify-before-done",
+          "what-is-not-evidence",
+          "no-success-words-before-run",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 37704,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "10-mismatch-setup",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "tdd-cycle",
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "skill-decision-aid",
+          "completion-evidence",
+          "frequent-skill-budget"
+        ],
+        "rawText": "<bundles>\n[tdd-cycle]\n[implementation-plan-structure]\n[implementation-plan-handoff]\n[skill-decision-aid]\n[completion-evidence]\n[frequent-skill-budget]\n</bundles>",
+        "usage": {
+          "input_tokens": 3798,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 58,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1228,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "tdd-cycle",
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "skill-decision-aid",
+          "completion-evidence",
+          "frequent-skill-budget"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "test-first",
+          "name-the-break",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "plan-writing-flow",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "assume-low-context-reader",
+          "plan-self-review",
+          "user-review-gate",
+          "let-user-pick-execution",
+          "plan-review-categories",
+          "agreement-goes-to-a-file",
+          "respect-existing-patterns",
+          "flowchart-when",
+          "evidence-matches-the-claim",
+          "verify-before-done",
+          "what-is-not-evidence",
+          "no-success-words-before-run",
+          "token-budget"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "test-first",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "name-the-break",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "plan-writing-flow",
+          "let-user-pick-execution",
+          "agreement-goes-to-a-file",
+          "respect-existing-patterns",
+          "user-review-gate",
+          "assume-low-context-reader",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "plan-self-review",
+          "plan-review-categories",
+          "trigger-first-description",
+          "form-matches-failure",
+          "token-budget",
+          "when-not-to-create",
+          "flowchart-when",
+          "keyword-coverage",
+          "evidence-matches-the-claim",
+          "verify-before-done",
+          "what-is-not-evidence",
+          "no-success-words-before-run",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 41406,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "11-plan-document",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "document-coauthoring",
+          "document-quality"
+        ],
+        "rawText": "<bundles>\n[implementation-plan-structure]\n[implementation-plan-handoff]\n[document-coauthoring]\n[document-quality]\n</bundles>",
+        "usage": {
+          "input_tokens": 3841,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 43,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1054,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "document-coauthoring",
+          "document-quality"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "plan-writing-flow",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "assume-low-context-reader",
+          "plan-self-review",
+          "user-review-gate",
+          "let-user-pick-execution",
+          "plan-review-categories",
+          "agreement-goes-to-a-file",
+          "respect-existing-patterns",
+          "context-gathering-first",
+          "section-by-section",
+          "scaffold-before-filling",
+          "user-owns-the-doc",
+          "offer-then-defer",
+          "ask-before-reaching-out",
+          "fresh-reader-test",
+          "trim-filler",
+          "images-need-words",
+          "document-is-not-finished"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "plan-writing-flow",
+          "let-user-pick-execution",
+          "agreement-goes-to-a-file",
+          "respect-existing-patterns",
+          "user-review-gate",
+          "assume-low-context-reader",
+          "file-structure-first",
+          "plan-header-fields",
+          "task-file-list",
+          "task-interfaces-block",
+          "bite-sized-tasks",
+          "task-boundary-by-reviewer",
+          "no-placeholder-strings",
+          "plan-self-review",
+          "plan-review-categories",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques",
+          "context-gathering-first",
+          "section-by-section",
+          "fresh-reader-test",
+          "trim-filler",
+          "scaffold-before-filling",
+          "images-need-words",
+          "document-is-not-finished",
+          "offer-then-defer",
+          "user-owns-the-doc",
+          "ask-before-reaching-out"
+        ]
+      },
+      "render": {
+        "routedBytes": 33122,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "12-good-tests",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "test-scope",
+          "test-double-design"
+        ],
+        "rawText": "<bundles>\n[test-scope]\n[test-double-design]\n</bundles>",
+        "usage": {
+          "input_tokens": 3845,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 26,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 889,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "test-scope",
+          "test-double-design"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "no-mock-assertions",
+          "fakes-are-specific",
+          "no-test-only-methods-in-production",
+          "hard-to-test-is-a-design-signal"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "one-behavior-per-test",
+          "no-mock-assertions",
+          "what-earns-a-test",
+          "fakes-are-specific",
+          "no-test-only-methods-in-production",
+          "hard-to-test-is-a-design-signal",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 19431,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "13-always-on",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "request-framing",
+          "frequent-skill-budget",
+          "skill-decision-aid"
+        ],
+        "rawText": "<bundles>\n[request-framing]\n[frequent-skill-budget]\n[skill-decision-aid]\n</bundles>",
+        "usage": {
+          "input_tokens": 3789,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 35,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 994,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "request-framing",
+          "frequent-skill-budget",
+          "skill-decision-aid"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "classify-before-process",
+          "decompose-oversized-request",
+          "approval-gate-never-shrinks",
+          "label-misuse-red-flags",
+          "look-before-asking",
+          "red-flags-list",
+          "token-budget",
+          "flowchart-when"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "red-flags-list",
+          "classify-before-process",
+          "approval-gate-never-shrinks",
+          "label-misuse-red-flags",
+          "decompose-oversized-request",
+          "look-before-asking",
+          "trigger-first-description",
+          "form-matches-failure",
+          "token-budget",
+          "when-not-to-create",
+          "flowchart-when",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 22223,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "14-three-line-memo",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "interface-copy",
+          "frequent-skill-budget",
+          "skill-example"
+        ],
+        "rawText": "<bundles>\n[interface-copy]\n[frequent-skill-budget]\n[skill-example]\n</bundles>",
+        "usage": {
+          "input_tokens": 3803,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 32,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 957,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "interface-copy",
+          "frequent-skill-budget",
+          "skill-example"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "ui-copy-is-design-material",
+          "token-budget",
+          "one-excellent-example"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [
+          "token-budget"
+        ],
+        "addedByRequires": [],
+        "patternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "token-budget",
+          "when-not-to-create",
+          "one-excellent-example",
+          "keyword-coverage",
+          "skills-are-reusable-techniques",
+          "ui-copy-is-design-material"
+        ]
+      },
+      "render": {
+        "routedBytes": 17431,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "01-testing-often",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "tdd-cycle",
+          "test-discipline",
+          "frequent-skill-budget"
+        ],
+        "rawText": "<bundles>\n[tdd-cycle]\n[test-discipline]\n[frequent-skill-budget]\n</bundles>",
+        "usage": {
+          "input_tokens": 3844,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 33,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1016,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "tdd-cycle",
+          "test-discipline",
+          "frequent-skill-budget"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "test-first",
+          "name-the-break",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "past-tense-completion-checklist",
+          "mutation-check",
+          "rationalization-table",
+          "red-flags-list",
+          "token-budget"
+        ],
+        "directSignalPatternIds": [
+          "token-budget"
+        ],
+        "directSignalOffPatternIds": [],
+        "undecidedSignalPatternIds": [],
+        "addedByRequires": [],
+        "patternIds": [
+          "test-first",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "name-the-break",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "rationalization-table",
+          "red-flags-list",
+          "past-tense-completion-checklist",
+          "mutation-check",
+          "trigger-first-description",
+          "form-matches-failure",
+          "token-budget",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 27451,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "01-testing-rarely",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "tdd-cycle",
+          "skill-example",
+          "skill-decision-aid"
+        ],
+        "rawText": "<bundles>\n[tdd-cycle]\n[skill-example]\n[skill-decision-aid]\n</bundles>",
+        "usage": {
+          "input_tokens": 3842,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 33,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 957,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "tdd-cycle",
+          "skill-example",
+          "skill-decision-aid"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "test-first",
+          "name-the-break",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "one-excellent-example",
+          "flowchart-when"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [
+          "token-budget"
+        ],
+        "undecidedSignalPatternIds": [],
+        "addedByRequires": [],
+        "patternIds": [
+          "test-first",
+          "watch-it-fail-correctly",
+          "minimal-green",
+          "green-verification-gate",
+          "name-the-break",
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "one-excellent-example",
+          "flowchart-when",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 24892,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  },
+  {
+    "id": "12-good-tests-sometimes",
+    "ok": true,
+    "response": {
+      "selection": {
+        "model": "claude-haiku-4-5",
+        "bundleIds": [
+          "test-scope",
+          "test-double-design"
+        ],
+        "rawText": "<bundles>\n[test-scope]\n[test-double-design]\n</bundles>",
+        "usage": {
+          "input_tokens": 3886,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 26,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "ms": 1017,
+        "systemPromptBytes": 8382
+      },
+      "plan": {
+        "bundleIds": [
+          "test-scope",
+          "test-double-design"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": [],
+        "alwaysPatternIds": [
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ],
+        "bundlePatternIds": [
+          "one-behavior-per-test",
+          "what-earns-a-test",
+          "no-mock-assertions",
+          "fakes-are-specific",
+          "no-test-only-methods-in-production",
+          "hard-to-test-is-a-design-signal"
+        ],
+        "directSignalPatternIds": [],
+        "directSignalOffPatternIds": [
+          "token-budget"
+        ],
+        "undecidedSignalPatternIds": [],
+        "addedByRequires": [],
+        "patternIds": [
+          "one-behavior-per-test",
+          "no-mock-assertions",
+          "what-earns-a-test",
+          "fakes-are-specific",
+          "no-test-only-methods-in-production",
+          "hard-to-test-is-a-design-signal",
+          "trigger-first-description",
+          "form-matches-failure",
+          "when-not-to-create",
+          "keyword-coverage",
+          "skills-are-reusable-techniques"
+        ]
+      },
+      "render": {
+        "routedBytes": 19431,
+        "fullBytes": 141597
+      },
+      "generation": null
+    }
+  }
+]

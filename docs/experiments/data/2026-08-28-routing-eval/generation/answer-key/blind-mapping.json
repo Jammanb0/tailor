@@ -1,0 +1,86 @@
+[
+  {
+    "id": "item-001",
+    "condition": "full",
+    "scenarioId": "01-testing",
+    "run": 2,
+    "sourceLabel": "01-testing-full-run2"
+  },
+  {
+    "id": "item-002",
+    "condition": "routed",
+    "scenarioId": "09-mismatch-office",
+    "run": 2,
+    "sourceLabel": "09-mismatch-office-routed-run2"
+  },
+  {
+    "id": "item-003",
+    "condition": "full",
+    "scenarioId": "01-testing",
+    "run": 1,
+    "sourceLabel": "01-testing-full-run1"
+  },
+  {
+    "id": "item-004",
+    "condition": "routed",
+    "scenarioId": "05-design",
+    "run": 1,
+    "sourceLabel": "05-design-routed-run1"
+  },
+  {
+    "id": "item-005",
+    "condition": "full",
+    "scenarioId": "09-mismatch-office",
+    "run": 2,
+    "sourceLabel": "09-mismatch-office-full-run2"
+  },
+  {
+    "id": "item-006",
+    "condition": "routed",
+    "scenarioId": "01-testing",
+    "run": 2,
+    "sourceLabel": "01-testing-routed-run2"
+  },
+  {
+    "id": "item-007",
+    "condition": "routed",
+    "scenarioId": "09-mismatch-office",
+    "run": 1,
+    "sourceLabel": "09-mismatch-office-routed-run1"
+  },
+  {
+    "id": "item-008",
+    "condition": "full",
+    "scenarioId": "05-design",
+    "run": 2,
+    "sourceLabel": "05-design-full-run2"
+  },
+  {
+    "id": "item-009",
+    "condition": "routed",
+    "scenarioId": "01-testing",
+    "run": 1,
+    "sourceLabel": "01-testing-routed-run1"
+  },
+  {
+    "id": "item-010",
+    "condition": "full",
+    "scenarioId": "05-design",
+    "run": 1,
+    "sourceLabel": "05-design-full-run1"
+  },
+  {
+    "id": "item-011",
+    "condition": "full",
+    "scenarioId": "09-mismatch-office",
+    "run": 1,
+    "sourceLabel": "09-mismatch-office-full-run1"
+  },
+  {
+    "id": "item-012",
+    "condition": "routed",
+    "scenarioId": "05-design",
+    "run": 2,
+    "sourceLabel": "05-design-routed-run2"
+  }
+]

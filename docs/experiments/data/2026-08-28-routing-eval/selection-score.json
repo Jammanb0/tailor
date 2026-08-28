@@ -1,0 +1,324 @@
+{
+  "axis1": {
+    "pass": true,
+    "passed": 3,
+    "total": 3,
+    "cases": [
+      {
+        "id": "01-testing-often",
+        "pass": true,
+        "checks": {
+          "on": true,
+          "off": true,
+          "delivered": true,
+          "notDelivered": true
+        }
+      },
+      {
+        "id": "01-testing-rarely",
+        "pass": true,
+        "checks": {
+          "on": true,
+          "off": true,
+          "delivered": true,
+          "notDelivered": true
+        }
+      },
+      {
+        "id": "12-good-tests-sometimes",
+        "pass": true,
+        "checks": {
+          "on": true,
+          "off": true,
+          "delivered": true,
+          "notDelivered": true
+        }
+      }
+    ]
+  },
+  "axis2": {
+    "pass": true,
+    "requiredMisses": 0,
+    "requiredUnits": 19,
+    "noRequiredHitScenarios": 0,
+    "unnecessaryTotal": 7,
+    "averageUnnecessary": 0.5,
+    "scenariosWithFiveUnnecessary": 0,
+    "unknownTotal": 0,
+    "rejectedTotal": 0,
+    "cases": [
+      {
+        "id": "01-testing",
+        "selected": [
+          "tdd-cycle",
+          "test-discipline",
+          "skill-decision-aid"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "02-debugging",
+        "selected": [
+          "systematic-debugging",
+          "debugging-observation",
+          "debugging-discipline",
+          "debugging-verification"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "03-planning",
+        "selected": [
+          "request-framing",
+          "design-collaboration",
+          "implementation-plan-structure",
+          "implementation-plan-handoff"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "04-code-review",
+        "selected": [
+          "code-review-workflow",
+          "code-review-report",
+          "completion-evidence"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "05-design",
+        "selected": [
+          "visual-direction",
+          "visual-typography",
+          "design-tokens",
+          "interface-copy"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "06-voice",
+        "selected": [
+          "voice-profile",
+          "voice-writing",
+          "voice-verification"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "07-documentation",
+        "selected": [
+          "document-coauthoring",
+          "document-quality"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "08-explanation",
+        "selected": [
+          "accessible-explanation",
+          "skill-example"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "09-mismatch-office",
+        "selected": [
+          "request-framing",
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "skill-decision-aid",
+          "completion-evidence"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [
+          "implementation-plan-structure",
+          "implementation-plan-handoff"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "10-mismatch-setup",
+        "selected": [
+          "tdd-cycle",
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "skill-decision-aid",
+          "completion-evidence",
+          "frequent-skill-budget"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [
+          "tdd-cycle",
+          "implementation-plan-structure",
+          "implementation-plan-handoff"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "11-plan-document",
+        "selected": [
+          "implementation-plan-structure",
+          "implementation-plan-handoff",
+          "document-coauthoring",
+          "document-quality"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [
+          "document-quality"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "12-good-tests",
+        "selected": [
+          "test-scope",
+          "test-double-design"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "13-always-on",
+        "selected": [
+          "request-framing",
+          "frequent-skill-budget",
+          "skill-decision-aid"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      },
+      {
+        "id": "14-three-line-memo",
+        "selected": [
+          "interface-copy",
+          "frequent-skill-budget",
+          "skill-example"
+        ],
+        "missedRequiredGroups": [],
+        "unnecessary": [
+          "interface-copy"
+        ],
+        "unknownBundleIds": [],
+        "rejectedBundleIds": []
+      }
+    ]
+  },
+  "axis3": {
+    "pass": true,
+    "positivePassed": 1,
+    "positiveTotal": 1,
+    "negativeFalsePositives": 2,
+    "negativeTotal": 12,
+    "cases": [
+      {
+        "id": "02-debugging",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "03-planning",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "04-code-review",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "05-design",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "06-voice",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "07-documentation",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "08-explanation",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "09-mismatch-office",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "10-mismatch-setup",
+        "expected": "no",
+        "selected": true,
+        "pass": false
+      },
+      {
+        "id": "11-plan-document",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "12-good-tests",
+        "expected": "no",
+        "selected": false,
+        "pass": true
+      },
+      {
+        "id": "13-always-on",
+        "expected": "yes",
+        "selected": true,
+        "pass": true
+      },
+      {
+        "id": "14-three-line-memo",
+        "expected": "no",
+        "selected": true,
+        "pass": false
+      }
+    ]
+  }
+}
