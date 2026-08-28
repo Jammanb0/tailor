@@ -1,0 +1,232 @@
+{
+	"note": "선택 정확도의 정답지. 자료를 보기 전에 사람이 판정해 적었고, 실행 뒤에는 고치지 않는다. 판정 기준과 통과선은 PRE-REGISTRATION.md에 있다.",
+	"writtenAt": "2026-08-28",
+	"corpusCommit": "f9bea55",
+	"scoredSeparately": {
+		"frequent-skill-budget": "예측형 조건 축에서 세지 않는다. 이 묶음은 대체 추론 축에서만 fallbackInference 값으로 판정한다."
+	},
+	"verificationPatternIds": [
+		"evidence-matches-the-claim",
+		"verify-before-done",
+		"what-is-not-evidence",
+		"no-success-words-before-run",
+		"verify-delegated-work",
+		"no-root-cause-exit",
+		"red-green-regression-proof",
+		"green-verification-gate",
+		"past-tense-completion-checklist",
+		"mutation-check",
+		"voice-enforcement-checklist",
+		"fresh-reader-test",
+		"document-is-not-finished",
+		"merge-verdict-gate",
+		"spec-self-review",
+		"plan-self-review"
+	],
+	"scenarios": [
+		{
+			"id": "01-testing",
+			"required": ["tdd-cycle"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"test-scope",
+				"test-discipline",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid",
+				"skill-authoring-discipline"
+			],
+			"fallbackInference": "hold",
+			"reason": "실패 테스트 먼저와 통과할 만큼만 구현이 요청의 본문이다. 규율 방어와 테스트 경계는 붙여도 어긋나지 않는다. 코딩할 때마다 걸릴 수 있는 스킬이라 상시 로드 판정은 어느 쪽도 틀렸다고 하지 않는다."
+		},
+		{
+			"id": "02-debugging",
+			"required": ["systematic-debugging", "debugging-verification"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"debugging-observation",
+				"debugging-discipline",
+				"debugging-escalation",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid",
+				"skill-authoring-discipline"
+			],
+			"fallbackInference": "no",
+			"reason": "요청이 두 가지를 명시했다 — 원인을 찾아가는 순서와, 원인을 모른 채 고쳐졌다고 넘어가지 않는 것. 각각 systematic-debugging과 debugging-verification이 맡는다."
+		},
+		{
+			"id": "03-planning",
+			"required": ["design-collaboration"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"request-framing",
+				"implementation-plan-structure",
+				"implementation-plan-handoff",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid"
+			],
+			"fallbackInference": "no",
+			"reason": "코드보다 먼저 무엇을 만들지 함께 정하고 애매한 곳을 되묻는 것이 요청이다. 계획 문서 형식까지는 요구하지 않았으므로 계획 묶음은 허용에 둔다."
+		},
+		{
+			"id": "04-code-review",
+			"required": ["code-review-workflow", "code-review-report"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"code-review-discipline",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid",
+				"skill-authoring-discipline"
+			],
+			"fallbackInference": "no",
+			"reason": "「방금 바꾼 부분만 놓고」가 리뷰 흐름이고 「취향과 진짜 버그를 구분」이 보고 형식이다. 둘 다 요청에 적혀 있다."
+		},
+		{
+			"id": "05-design",
+			"required": ["visual-direction"],
+			"requiredAnyOf": [["visual-typography", "design-tokens"]],
+			"allowed": [
+				"theme-choice-workflow",
+				"interface-copy",
+				"skill-example",
+				"skill-decision-aid"
+			],
+			"fallbackInference": "no",
+			"reason": "「어디서 본 것 같은 흔한 모양」을 피하는 것이 visual-direction이다. 색과 폰트를 정하는 자리는 두 묶음이 나눠 맡고 있어 어느 쪽이든 하나는 있어야 한다."
+		},
+		{
+			"id": "06-voice",
+			"required": ["voice-profile", "voice-writing"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"voice-verification",
+				"document-quality",
+				"skill-example",
+				"skill-decision-aid"
+			],
+			"fallbackInference": "no",
+			"reason": "말투 규칙을 정해두는 것과 글에 그 말투를 적용하는 것을 함께 시켰다. 과장된 홍보 문구 금지는 두 묶음 모두에 걸린다."
+		},
+		{
+			"id": "07-documentation",
+			"required": ["document-coauthoring"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"document-quality",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid"
+			],
+			"fallbackInference": "no",
+			"reason": "한 번에 다 쓰지 말고 단계별로 함께 채우며 빠진 것을 되묻는 절차가 그대로 document-coauthoring이다."
+		},
+		{
+			"id": "08-explanation",
+			"required": ["accessible-explanation", "skill-example"],
+			"requiredAnyOf": [],
+			"allowed": ["document-quality", "skill-decision-aid"],
+			"fallbackInference": "no",
+			"reason": "쉬운 말과 비유는 accessible-explanation이고, 「아주 짧은 예제를 보여주는 식으로」는 예시를 명시적으로 시킨 것이다."
+		},
+		{
+			"id": "09-mismatch-office",
+			"required": ["completion-evidence"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"request-framing",
+				"document-coauthoring",
+				"document-quality",
+				"skill-example",
+				"skill-decision-aid"
+			],
+			"fallbackInference": "no",
+			"reason": "「숫자가 안 맞으면 그냥 넘어가지 말고 짚어줘」가 완료 증거 요구다. 항목 이름과 순서 고정은 형식 지정이지 구현 계획이 아니다."
+		},
+		{
+			"id": "10-mismatch-setup",
+			"required": ["completion-evidence"],
+			"requiredAnyOf": [],
+			"allowed": ["request-framing", "skill-example", "skill-decision-aid"],
+			"fallbackInference": "no",
+			"reason": "순서대로 확인해가며 세팅하고 마지막에 점검하는 것이 요청이다. 마지막 점검이 완료 증거에 해당한다."
+		},
+		{
+			"id": "11-plan-document",
+			"required": [
+				"implementation-plan-structure",
+				"implementation-plan-handoff"
+			],
+			"requiredAnyOf": [],
+			"allowed": [
+				"design-collaboration",
+				"document-coauthoring",
+				"request-framing",
+				"delegated-verification",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid"
+			],
+			"fallbackInference": "no",
+			"reason": "어떤 파일을 건드리는지와 작업 순서까지 적히게 하는 것이 계획 구조이고, 검토받는 단계를 넣어달라는 것이 인계 묶음이다."
+		},
+		{
+			"id": "12-good-tests",
+			"required": ["test-scope", "test-double-design"],
+			"requiredAnyOf": [],
+			"allowed": [
+				"tdd-cycle",
+				"test-discipline",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid",
+				"skill-authoring-discipline"
+			],
+			"fallbackInference": "no",
+			"reason": "어디에 테스트를 붙이고 어디는 안 붙일지가 test-scope, 가짜를 어디까지 쓸지가 test-double-design이다."
+		},
+		{
+			"id": "13-always-on",
+			"required": [],
+			"requiredAnyOf": [],
+			"allowed": [
+				"request-framing",
+				"completion-evidence",
+				"skill-example",
+				"skill-decision-aid"
+			],
+			"fallbackInference": "yes",
+			"reason": "빈도 답이 없지만 「작업을 시작할 때마다 자동으로」와 「대화를 열 때마다 매번」이 상시 로드를 그대로 말하고 있다. 예측형 축에서는 필수가 없다 — 억지로 고르지 않는지 보는 사례다."
+		},
+		{
+			"id": "14-three-line-memo",
+			"required": [],
+			"requiredAnyOf": [],
+			"allowed": ["document-coauthoring", "skill-example"],
+			"fallbackInference": "no",
+			"reason": "세 줄 메모에는 문서 품질 검토 절차도 분기 순서도도 과하다. 상세 검증 묶음이 하나도 필요 없는 사례로 쓴다."
+		}
+	],
+	"directSignal": [
+		{
+			"id": "01-testing-often",
+			"expectOn": ["token-budget"],
+			"expectOff": [],
+			"expectDelivered": ["token-budget"]
+		},
+		{
+			"id": "01-testing-rarely",
+			"expectOn": [],
+			"expectOff": ["token-budget"],
+			"expectNotDelivered": ["token-budget"]
+		},
+		{
+			"id": "12-good-tests-sometimes",
+			"expectOn": [],
+			"expectOff": ["token-budget"],
+			"expectNotDelivered": ["token-budget"]
+		}
+	]
+}

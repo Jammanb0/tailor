@@ -1,0 +1,35 @@
+[
+	{
+		"id": "13-always-on",
+		"category": "(none)",
+		"purpose": "대체 추론 양성 사례. 빈도 답이 없어도 상황 설명만으로 상시 로드임이 드러난다.",
+		"situation": "작업을 시작할 때마다 자동으로 켜져서, 지금 어느 브랜치에서 뭘 하는 중인지 먼저 짚고 넘어가게 하고 싶어요. 대화를 열 때마다 매번 걸리는 거라 규칙은 짧고 분명했으면 좋겠어요."
+	},
+	{
+		"id": "14-three-line-memo",
+		"category": "(none)",
+		"purpose": "상세 검증 묶음이 하나도 필요 없는 사례. 골격의 「완료 전 확인」 바닥 규칙만으로 구체적인 확인 절이 나오는지 본다.",
+		"situation": "회의에서 나온 이야기를 나중에 다시 읽을 수 있게 짧은 메모로 남기고 싶어요. 형식은 딱 세 줄이면 됩니다 — 정한 것, 아직 안 정한 것, 다음에 할 것. 길게 늘어놓지 말고 그 세 줄만 채워주면 좋겠어요."
+	},
+	{
+		"id": "01-testing-often",
+		"basedOn": "01-testing",
+		"purpose": "직접 신호 켜기. frequency=often이면 코드가 token-budget을 켠다.",
+		"answers": { "frequency": "often" },
+		"wantsAdvanced": true
+	},
+	{
+		"id": "01-testing-rarely",
+		"basedOn": "01-testing",
+		"purpose": "직접 신호 끄기. frequency=rarely면 묶음이 데려와도 코드가 token-budget을 끈다.",
+		"answers": { "frequency": "rarely" },
+		"wantsAdvanced": true
+	},
+	{
+		"id": "12-good-tests-sometimes",
+		"basedOn": "12-good-tests",
+		"purpose": "직접 신호 끄기 두 번째 값. often이 아닌 값은 전부 끄기여야 한다.",
+		"answers": { "frequency": "sometimes" },
+		"wantsAdvanced": true
+	}
+]
