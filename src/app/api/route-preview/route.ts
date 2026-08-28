@@ -1,9 +1,10 @@
 // 코퍼스 라우팅 미리보기 (개발 전용, 프로덕션 경로 아님).
 //
 // POST /api/route-preview
-//   { answers, wantsAdvanced?, bundleIds?, generate? }
+//   { answers, wantsAdvanced?, bundleIds?, mode?, generate? }
 //     → 고른 묶음 · 전달 패턴 목록 · 선택 주입 코퍼스의 크기
 //     → generate=true면 그 코퍼스로 만든 평가용 SKILL.md도 함께 반환
+//     → mode="full"이면 선택을 건너뛰고 전체 코퍼스로 평가용 생성
 //
 // `bundleIds`를 주면 선택 모델을 부르지 않고 그 목록으로 전달만 편다. 선택
 // 결과와 무관하게 「합집합·중복 제거·requires 닫기」만 확인하고 싶을 때 쓴다.
@@ -50,9 +51,11 @@ export async function POST(request: Request) {
 		answers?: WizardAnswers;
 		wantsAdvanced?: boolean;
 		bundleIds?: string[];
+		/** full은 8단계 비교에서만 쓴다. 생략하면 기존 routed 동작이다. */
+		mode?: string;
 		/** true면 렌더 전문을 함께 준다. 토큰을 직접 재려면 글이 필요하다. */
 		includeText?: boolean;
-		/** true면 선택 주입 코퍼스로 평가용 SKILL.md도 만든다. API 비용이 든다. */
+		/** true면 지정한 모드의 코퍼스로 평가용 SKILL.md도 만든다. API 비용이 든다. */
 		generate?: boolean;
 	};
 	try {
@@ -63,54 +66,72 @@ export async function POST(request: Request) {
 
 	const answers = body.answers ?? {};
 	const wantsAdvanced = Boolean(body.wantsAdvanced);
+	const mode = body.mode ?? "routed";
+	if (mode !== "routed" && mode !== "full") {
+		return NextResponse.json(
+			{ error: "알 수 없는 평가 모드" },
+			{ status: 400 },
+		);
+	}
+	if (mode === "full" && body.bundleIds !== undefined) {
+		return NextResponse.json(
+			{ error: "full 모드에는 bundleIds를 함께 보낼 수 없습니다" },
+			{ status: 400 },
+		);
+	}
 
 	let selection: {
 		bundleIds: string[];
 		rawText: string | null;
 		usage: Anthropic.Usage | null;
 		ms: number | null;
-	};
+	} | null = null;
 
-	if (Array.isArray(body.bundleIds)) {
-		selection = {
-			bundleIds: body.bundleIds,
-			rawText: null,
-			usage: null,
-			ms: null,
-		};
-	} else {
-		const apiKey = process.env.ANTHROPIC_API_KEY;
-		if (!apiKey) {
-			return NextResponse.json(
-				{ error: "ANTHROPIC_API_KEY가 없습니다" },
-				{ status: 500 },
-			);
-		}
-		try {
-			const result = await selectBundles(new Anthropic({ apiKey }), {
-				answers,
-				wantsAdvanced,
-			});
+	if (mode === "routed") {
+		if (Array.isArray(body.bundleIds)) {
 			selection = {
-				bundleIds: result.bundleIds,
-				rawText: result.rawText,
-				usage: result.usage,
-				ms: result.ms,
+				bundleIds: body.bundleIds,
+				rawText: null,
+				usage: null,
+				ms: null,
 			};
-		} catch (error) {
-			console.error("bundle selection failed", error);
-			return NextResponse.json(
-				{ error: `선택 호출 실패: ${error}` },
-				{ status: 502 },
-			);
+		} else {
+			const apiKey = process.env.ANTHROPIC_API_KEY;
+			if (!apiKey) {
+				return NextResponse.json(
+					{ error: "ANTHROPIC_API_KEY가 없습니다" },
+					{ status: 500 },
+				);
+			}
+			try {
+				const result = await selectBundles(new Anthropic({ apiKey }), {
+					answers,
+					wantsAdvanced,
+				});
+				selection = {
+					bundleIds: result.bundleIds,
+					rawText: result.rawText,
+					usage: result.usage,
+					ms: result.ms,
+				};
+			} catch (error) {
+				console.error("bundle selection failed", error);
+				return NextResponse.json(
+					{ error: `선택 호출 실패: ${error}` },
+					{ status: 502 },
+				);
+			}
 		}
 	}
 
-	const plan = resolveDelivery({
-		selectedBundleIds: selection.bundleIds,
-		answers,
-	});
-	const routedSection = buildRoutedCorpusSection(plan.patternIds);
+	const plan = selection
+		? resolveDelivery({
+				selectedBundleIds: selection.bundleIds,
+				answers,
+			})
+		: null;
+	const routedSection = plan ? buildRoutedCorpusSection(plan.patternIds) : null;
+	const generationSection = routedSection ?? CORPUS_SECTION;
 
 	let generation = null;
 	if (body.generate) {
@@ -137,7 +158,7 @@ export async function POST(request: Request) {
 				system: [
 					{
 						type: "text",
-						text: routedSection,
+						text: generationSection,
 						cache_control: { type: "ephemeral" },
 					},
 					{ type: "text", text: SYSTEM_PROMPT },
@@ -172,23 +193,31 @@ export async function POST(request: Request) {
 					extractTag(rawText, "filename")?.trim() || "my-skill",
 			};
 		} catch (error) {
-			console.error("routed evaluation generation failed", error);
+			console.error(`${mode} evaluation generation failed`, error);
 			return NextResponse.json(
-				{ error: `선택 주입 생성 실패: ${error}` },
+				{
+					error: `${mode === "full" ? "전체" : "선택"} 주입 생성 실패: ${error}`,
+				},
 				{ status: 502 },
 			);
 		}
 	}
 
 	return NextResponse.json({
-		selection: {
-			model: SELECTION_MODEL,
-			...selection,
-			systemPromptBytes: Buffer.byteLength(SELECTION_SYSTEM_PROMPT, "utf8"),
-		},
+		mode,
+		selection: selection
+			? {
+					model: SELECTION_MODEL,
+					...selection,
+					systemPromptBytes: Buffer.byteLength(SELECTION_SYSTEM_PROMPT, "utf8"),
+				}
+			: null,
 		plan,
 		render: {
-			routedBytes: Buffer.byteLength(routedSection, "utf8"),
+			injectedBytes: Buffer.byteLength(generationSection, "utf8"),
+			routedBytes: routedSection
+				? Buffer.byteLength(routedSection, "utf8")
+				: null,
 			fullBytes: Buffer.byteLength(CORPUS_SECTION, "utf8"),
 			routedText: body.includeText ? routedSection : undefined,
 			selectionSystemPrompt: body.includeText

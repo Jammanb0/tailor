@@ -1,0 +1,74 @@
+{
+	"note": "8단계 실행기의 고정 입력. PRE-REGISTRATION.md 승인 뒤 결과를 보고 고치지 않는다.",
+	"sourceSelectionCommit": "f9bea55",
+	"observedBudgetStopUsd": 2.8,
+	"pricesPerMillionTokens": {
+		"sonnet": { "input": 2, "output": 10 },
+		"haiku": { "input": 1, "output": 5 },
+		"cacheWriteMultiplier": 1.25,
+		"cacheReadMultiplier": 0.1
+	},
+	"qualityScenarios": [
+		{
+			"id": "01-testing",
+			"bundleIds": ["tdd-cycle", "test-discipline", "skill-decision-aid"],
+			"routedBytes": 27683
+		},
+		{
+			"id": "05-design",
+			"bundleIds": [
+				"visual-direction",
+				"visual-typography",
+				"design-tokens",
+				"interface-copy"
+			],
+			"routedBytes": 25743
+		},
+		{
+			"id": "09-mismatch-office",
+			"bundleIds": [
+				"request-framing",
+				"implementation-plan-structure",
+				"implementation-plan-handoff",
+				"skill-decision-aid",
+				"completion-evidence"
+			],
+			"routedBytes": 37704
+		},
+		{
+			"id": "10-mismatch-setup",
+			"bundleIds": [
+				"tdd-cycle",
+				"implementation-plan-structure",
+				"implementation-plan-handoff",
+				"skill-decision-aid",
+				"completion-evidence",
+				"frequent-skill-budget"
+			],
+			"routedBytes": 41406
+		},
+		{
+			"id": "13-always-on",
+			"bundleIds": [
+				"request-framing",
+				"frequent-skill-budget",
+				"skill-decision-aid"
+			],
+			"routedBytes": 22223
+		},
+		{
+			"id": "14-three-line-memo",
+			"bundleIds": [
+				"interface-copy",
+				"frequent-skill-budget",
+				"skill-example"
+			],
+			"routedBytes": 17431
+		}
+	],
+	"endToEndScenarioIds": [
+		"14-three-line-memo",
+		"01-testing",
+		"10-mismatch-setup"
+	]
+}

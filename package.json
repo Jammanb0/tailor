@@ -17,7 +17,11 @@
 		"preview:routing": "node tools/route-preview.mjs",
 		"check:routing-eval": "node --experimental-strip-types --no-warnings tools/evaluate-routing.mjs validate",
 		"run:routing-eval:selection": "node --experimental-strip-types --no-warnings tools/evaluate-routing.mjs run-selection",
-		"run:routing-eval:generation": "node --experimental-strip-types --no-warnings tools/evaluate-routing.mjs run-generation"
+		"run:routing-eval:generation": "node --experimental-strip-types --no-warnings tools/evaluate-routing.mjs run-generation",
+		"check:routing-comparison": "node tools/evaluate-routing-comparison.mjs validate",
+		"run:routing-comparison:quality": "node tools/evaluate-routing-comparison.mjs run-quality",
+		"run:routing-comparison:e2e": "node tools/evaluate-routing-comparison.mjs run-e2e",
+		"report:routing-comparison": "node tools/evaluate-routing-comparison.mjs summarize"
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.116.0",
