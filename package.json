@@ -12,6 +12,7 @@
 		"format": "biome check --write .",
 		"count:audit": "node --experimental-strip-types --no-warnings tools/count-audit-coverage.mjs",
 		"check:parser": "node tools/check-tag-parser.mjs",
+		"check:logging": "node --experimental-strip-types --no-warnings tools/check-logging.mjs",
 		"check:routing": "node tools/check-routing.mjs",
 		"preview:routing": "node tools/route-preview.mjs",
 		"check:routing-eval": "node --experimental-strip-types --no-warnings tools/evaluate-routing.mjs validate",

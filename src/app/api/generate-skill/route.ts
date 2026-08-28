@@ -20,6 +20,7 @@ import {
 	type Refinement,
 	SYSTEM_PROMPT,
 } from "./prompt";
+import { logGeneration, logParseFailure, logRequestFailure } from "./telemetry";
 
 export const runtime = "nodejs";
 
@@ -97,6 +98,9 @@ export async function POST(request: Request) {
 	);
 
 	let text: string;
+	// 파싱이 깨졌을 때도 종료 이유는 남겨야 원인을 가른다. try 밖에서 쓰므로
+	// 여기에 둔다.
+	let stopReason: string | null = null;
 	try {
 		const startedAt = Date.now();
 		const response = await client.messages.create({
@@ -118,25 +122,23 @@ export async function POST(request: Request) {
 			],
 			messages: [{ role: "user", content: userContent }],
 		});
+		stopReason = response.stop_reason;
 		// 코퍼스 라우팅 전환 전의 기준값을 남기기 위한 한 줄. 생성 결과에는
-		// 영향을 주지 않고 서버 로그에만 찍는다. 사용자가 쓴 글은 담지 않는다.
-		// 전환 뒤 같은 시나리오를 돌려 이 값과 비교한다.
-		console.log(
-			JSON.stringify({
-				event: "generate-skill",
-				kind: refinement ? "refine" : "create",
-				model: GENERATION_MODEL,
-				ms: Date.now() - startedAt,
-				stopReason: response.stop_reason,
-				usage: response.usage,
-			}),
-		);
+		// 영향을 주지 않고 서버 로그에만 찍는다. 무엇이 나가는지는 telemetry.ts가
+		// 허용 목록으로 정한다 — 사용자가 쓴 글과 생성 결과 전문은 담기지 않는다.
+		logGeneration({
+			kind: refinement ? "refine" : "create",
+			model: GENERATION_MODEL,
+			ms: Date.now() - startedAt,
+			stopReason,
+			usage: response.usage,
+		});
 		text = response.content
 			.filter((block) => block.type === "text")
 			.map((block) => block.text)
 			.join("");
 	} catch (error) {
-		console.error("skill generation request failed", error);
+		logRequestFailure(error);
 		return NextResponse.json(
 			{
 				error: "스킬을 생성하는 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.",
@@ -167,7 +169,7 @@ export async function POST(request: Request) {
 			});
 		}
 		// 되물음조차 없으면 진짜 형식 파손이다.
-		console.error("skill generation response missing <skill_md>", text);
+		logParseFailure({ text, stopReason });
 		return NextResponse.json(
 			{ error: "생성 결과를 이해할 수 없었어요. 다시 시도해주세요." },
 			{ status: 502 },
