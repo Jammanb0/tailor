@@ -14,6 +14,7 @@
 		"check:parser": "node tools/check-tag-parser.mjs",
 		"check:logging": "node --experimental-strip-types --no-warnings tools/check-logging.mjs",
 		"check:routing": "node tools/check-routing.mjs",
+		"check:routing-production": "node --experimental-strip-types --no-warnings tools/check-production-routing.mjs",
 		"preview:routing": "node tools/route-preview.mjs",
 		"check:routing-eval": "node --experimental-strip-types --no-warnings tools/evaluate-routing.mjs validate",
 		"run:routing-eval:selection": "node --experimental-strip-types --no-warnings tools/evaluate-routing.mjs run-selection",

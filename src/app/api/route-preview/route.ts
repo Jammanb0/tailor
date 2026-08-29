@@ -20,6 +20,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import type { WizardAnswers } from "@/data/wizard-questions";
+import { buildCorpusSystemBlock } from "../generate-skill/generation-routing";
 import {
 	buildRoutedCorpusSection,
 	buildUserContent,
@@ -40,6 +41,10 @@ import {
 	type SelectionResult,
 	selectBundles,
 } from "../generate-skill/routing";
+import {
+	resolveCorpusDeliveryPolicy,
+	shouldSelectCorpus,
+} from "../generate-skill/routing-policy";
 
 export const runtime = "nodejs";
 
@@ -138,6 +143,8 @@ export async function POST(request: Request) {
 		selectionFixture?: SelectionFixture;
 		/** full은 8단계 비교에서만 쓴다. 생략하면 기존 routed 동작이다. */
 		mode?: string;
+		/** 10단계 무비용 정책 검사. true면 routed 설정이어도 정제처럼 full을 쓴다. */
+		simulateRefinement?: boolean;
 		/** true면 렌더 전문을 함께 준다. 토큰을 직접 재려면 글이 필요하다. */
 		includeText?: boolean;
 		/** true면 지정한 모드의 코퍼스로 평가용 SKILL.md도 만든다. API 비용이 든다. */
@@ -176,6 +183,10 @@ export async function POST(request: Request) {
 			{ status: 400 },
 		);
 	}
+	const selectionEnabled = shouldSelectCorpus({
+		configuredMode: mode,
+		isRefinement: body.simulateRefinement === true,
+	});
 
 	let selection: SelectionResult | null = null;
 	let selectionError: unknown;
@@ -184,7 +195,7 @@ export async function POST(request: Request) {
 	let forcedBundleIds = false;
 	let fixtureState: SelectionFixtureState | null = null;
 
-	if (mode === "routed") {
+	if (selectionEnabled) {
 		if (Array.isArray(body.bundleIds)) {
 			forcedBundleIds = true;
 			selection = {
@@ -234,7 +245,7 @@ export async function POST(request: Request) {
 			})
 		: null;
 	let routingDecision: SelectionDecision | null = null;
-	if (mode === "routed") {
+	if (selectionEnabled) {
 		routingDecision = forcedBundleIds
 			? {
 					status: "success",
@@ -250,10 +261,15 @@ export async function POST(request: Request) {
 				});
 	}
 	const routedSection = plan ? buildRoutedCorpusSection(plan.patternIds) : null;
+	const generationPolicy = resolveCorpusDeliveryPolicy({
+		selectionEnabled,
+		selectionFallback: routingDecision?.fallback ?? false,
+		hasRoutedSection: routedSection !== null,
+	});
 	const generationSection =
-		mode === "full" || routingDecision?.fallback
-			? CORPUS_SECTION
-			: (routedSection ?? CORPUS_SECTION);
+		generationPolicy.mode === "routed"
+			? (routedSection ?? CORPUS_SECTION)
+			: CORPUS_SECTION;
 
 	let generation = null;
 	if (body.generate) {
@@ -278,11 +294,10 @@ export async function POST(request: Request) {
 				max_tokens: 8192,
 				thinking: { type: "disabled" },
 				system: [
-					{
-						type: "text",
+					buildCorpusSystemBlock({
 						text: generationSection,
-						cache_control: { type: "ephemeral" },
-					},
+						cacheCorpus: generationPolicy.cacheCorpus,
+					}),
 					{ type: "text", text: SYSTEM_PROMPT },
 				],
 				messages: [
@@ -327,6 +342,7 @@ export async function POST(request: Request) {
 
 	return NextResponse.json({
 		mode,
+		selectionEnabled,
 		selection: selection
 			? {
 					model: SELECTION_MODEL,
@@ -345,6 +361,8 @@ export async function POST(request: Request) {
 			: null,
 		plan,
 		render: {
+			corpusMode: generationPolicy.mode,
+			cacheCorpus: generationPolicy.cacheCorpus,
 			injectedBytes: Buffer.byteLength(generationSection, "utf8"),
 			routedBytes: routedSection
 				? Buffer.byteLength(routedSection, "utf8")
