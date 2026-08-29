@@ -31,6 +31,9 @@ export const SELECTION_MODEL = "claude-haiku-4-5";
 // 고른 묶음 id는 짧다. 전부 고르더라도 넉넉하다.
 const SELECTION_MAX_TOKENS = 512;
 
+/** 선택이 이 시간 안에 끝나지 않으면 전체 코퍼스로 전환한다. */
+export const SELECTION_DEADLINE_MS = 10_000;
+
 export const onlineBundles = patternBundles.filter(
 	(bundle) => bundle.delivery === "online",
 );
@@ -290,9 +293,132 @@ export type SelectionResult = {
 	bundleIds: string[];
 	/** 모델이 실제로 뱉은 글. 선택이 이상할 때 원인을 보려고 남긴다. */
 	rawText: string;
-	usage: Anthropic.Usage;
+	usage: Anthropic.Usage | null;
+	ms: number;
+	stopReason: string | null;
+};
+
+export type SelectionFallbackReasonId = "F1" | "F2" | "F3" | "F4" | "F5" | "F6";
+
+export type SelectionDecision = {
+	status: "success" | "ambiguous" | "failure";
+	fallback: boolean;
+	fallbackReasonIds: SelectionFallbackReasonId[];
+	ambiguityIds: Array<"F7">;
+};
+
+/**
+ * `<bundles>` 파서가 블록의 존재를 인식할 수 있는가.
+ *
+ * 닫힌 블록은 위치를 가리지 않고, 닫히지 않은 블록은 여는 태그가 줄 머리에
+ * 있을 때만 복구한다. `extractTag`가 빈 본문에는 null을 돌려주므로 F3과 F4를
+ * 가르려면 추출 결과와 별도로 이 신호가 필요하다.
+ */
+export function hasRecognizableBundlesTag(rawText: string): boolean {
+	return (
+		/<bundles>[\s\S]*?<\/bundles>/.test(rawText) ||
+		/^[ \t]*<bundles>/m.test(rawText)
+	);
+}
+
+/** 선택 결과를 성공·애매·실패로 가르고 전체 전환 이유를 전부 남긴다. */
+export function decideSelectionFallback(input: {
+	result?: SelectionResult | null;
+	plan?: DeliveryPlan | null;
+	error?: unknown;
+	timedOut?: boolean;
+}): SelectionDecision {
+	const fallbackReasonIds: SelectionFallbackReasonId[] = [];
+	const ambiguityIds: Array<"F7"> = [];
+
+	if (input.timedOut) {
+		// deadline이 만든 AbortError를 호출 실패로도 세면 장애 집계가 부풀려진다.
+		fallbackReasonIds.push("F2");
+	} else if (input.error !== undefined && input.error !== null) {
+		fallbackReasonIds.push("F1");
+	}
+
+	if (input.result && input.plan) {
+		const invalidCount =
+			input.plan.unknownBundleIds.length + input.plan.rejectedBundleIds.length;
+		if (input.result.bundleIds.length === 0) {
+			fallbackReasonIds.push(
+				hasRecognizableBundlesTag(input.result.rawText) ? "F4" : "F3",
+			);
+		} else if (input.plan.bundleIds.length === 0 && invalidCount > 0) {
+			fallbackReasonIds.push("F5");
+		}
+
+		if (input.result.stopReason === "max_tokens") {
+			fallbackReasonIds.push("F6");
+		}
+
+		if (input.plan.bundleIds.length > 0 && invalidCount > 0) {
+			ambiguityIds.push("F7");
+		}
+	}
+
+	const fallback = fallbackReasonIds.length > 0;
+	return {
+		status: fallback
+			? "failure"
+			: ambiguityIds.length > 0
+				? "ambiguous"
+				: "success",
+		fallback,
+		fallbackReasonIds,
+		ambiguityIds,
+	};
+}
+
+export type SelectionAttempt = {
+	result: SelectionResult | null;
+	error: unknown;
+	timedOut: boolean;
 	ms: number;
 };
+
+/**
+ * 선택 호출을 deadline과 경주시킨다.
+ *
+ * 신호를 무시하는 구현이어도 10초에 반환하되, 실제 SDK 호출에는 AbortSignal을
+ * 전달해 네트워크 요청도 취소한다.
+ */
+export async function runSelectionWithDeadline(
+	run: (signal: AbortSignal) => Promise<SelectionResult>,
+	deadlineMs = SELECTION_DEADLINE_MS,
+): Promise<SelectionAttempt> {
+	const startedAt = Date.now();
+	const controller = new AbortController();
+	let timeout: ReturnType<typeof setTimeout> | undefined;
+	let deadlineReached = false;
+	const deadline = new Promise<never>((_resolve, reject) => {
+		timeout = setTimeout(() => {
+			deadlineReached = true;
+			controller.abort();
+			reject(new DOMException("selection deadline reached", "AbortError"));
+		}, deadlineMs);
+	});
+
+	try {
+		const result = await Promise.race([run(controller.signal), deadline]);
+		return {
+			result,
+			error: null,
+			timedOut: false,
+			ms: Date.now() - startedAt,
+		};
+	} catch (error) {
+		return {
+			result: null,
+			error,
+			timedOut: deadlineReached,
+			ms: Date.now() - startedAt,
+		};
+	} finally {
+		if (timeout !== undefined) clearTimeout(timeout);
+	}
+}
 
 /**
  * 선택 모델을 한 번 호출해 묶음을 고른다.
@@ -304,22 +430,26 @@ export type SelectionResult = {
 export async function selectBundles(
 	client: Anthropic,
 	input: { answers: WizardAnswers; wantsAdvanced?: boolean },
+	options?: { signal?: AbortSignal },
 ): Promise<SelectionResult> {
 	const startedAt = Date.now();
-	const response = await client.messages.create({
-		model: SELECTION_MODEL,
-		max_tokens: SELECTION_MAX_TOKENS,
-		system: SELECTION_SYSTEM_PROMPT,
-		messages: [
-			{
-				role: "user",
-				content: buildSelectionUserContent(
-					input.answers,
-					Boolean(input.wantsAdvanced),
-				),
-			},
-		],
-	});
+	const response = await client.messages.create(
+		{
+			model: SELECTION_MODEL,
+			max_tokens: SELECTION_MAX_TOKENS,
+			system: SELECTION_SYSTEM_PROMPT,
+			messages: [
+				{
+					role: "user",
+					content: buildSelectionUserContent(
+						input.answers,
+						Boolean(input.wantsAdvanced),
+					),
+				},
+			],
+		},
+		options?.signal ? { signal: options.signal } : undefined,
+	);
 	const rawText = response.content
 		.filter((block) => block.type === "text")
 		.map((block) => block.text)
@@ -329,5 +459,6 @@ export async function selectBundles(
 		rawText,
 		usage: response.usage,
 		ms: Date.now() - startedAt,
+		stopReason: response.stop_reason,
 	};
 }

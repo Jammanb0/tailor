@@ -21,7 +21,9 @@
 		"check:routing-comparison": "node tools/evaluate-routing-comparison.mjs validate",
 		"run:routing-comparison:quality": "node tools/evaluate-routing-comparison.mjs run-quality",
 		"run:routing-comparison:e2e": "node tools/evaluate-routing-comparison.mjs run-e2e",
-		"report:routing-comparison": "node tools/evaluate-routing-comparison.mjs summarize"
+		"report:routing-comparison": "node tools/evaluate-routing-comparison.mjs summarize",
+		"check:routing-fallback": "node tools/evaluate-routing-fallback.mjs run-free",
+		"run:routing-fallback:generation": "node tools/evaluate-routing-fallback.mjs run-paid"
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.116.0",
