@@ -1,0 +1,502 @@
+{
+  "createdAt": "2026-08-29T04:21:45.647Z",
+  "complete": true,
+  "axes": {
+    "fixtureBranches": {
+      "passed": 21,
+      "total": 21
+    },
+    "falsePositives": {
+      "count": 0,
+      "replayed": 20,
+      "boundaries": 2
+    },
+    "fullRender": {
+      "fallbackCasesCompared": 18,
+      "bytes": 141597,
+      "exactTextMatch": true
+    },
+    "telemetry": {
+      "exactReasonSets": true,
+      "timeoutAbortObserved": true,
+      "usageReplayPreserved": true
+    }
+  },
+  "fixtureResults": [
+    {
+      "id": "F1-network",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F1"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 2,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F1-http-500",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F1"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 16,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F1-auth-401",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F1"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 15,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F2-10.5-seconds",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F2"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 10006,
+      "selectionAbortObserved": true,
+      "selectionCompletedNaturally": false,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F2-no-response",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F2"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 10002,
+      "selectionAbortObserved": true,
+      "selectionCompletedNaturally": false,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F2-12-seconds-valid",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F2"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 10012,
+      "selectionAbortObserved": true,
+      "selectionCompletedNaturally": false,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F3-plain-text",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F3"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 2,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F3-wrong-tag",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F3"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 2,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F3-close-only",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F3"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 11,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F4-empty-closed",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F4"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 17,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F4-whitespace",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F4"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 1,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F4-empty-lines",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F4"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 0,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F5-two-unknown",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F5"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 14,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F5-evaluation-only",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F5"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 3,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F5-unknown-and-evaluation-only",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F5"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 12,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F6-two-valid",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F6"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 1,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F6-empty",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F4",
+        "F6"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 1,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F6-truncated-id",
+      "status": "failure",
+      "fallback": true,
+      "fallbackReasonIds": [
+        "F5",
+        "F6"
+      ],
+      "ambiguityIds": [],
+      "selectionMs": 10,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 141597
+    },
+    {
+      "id": "F7-valid-and-unknown",
+      "status": "ambiguous",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [
+        "F7"
+      ],
+      "selectionMs": 15,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 22582
+    },
+    {
+      "id": "F7-valid-and-evaluation-only",
+      "status": "ambiguous",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [
+        "F7"
+      ],
+      "selectionMs": 3,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 22582
+    },
+    {
+      "id": "F7-valid-unknown-and-evaluation-only",
+      "status": "ambiguous",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [
+        "F7"
+      ],
+      "selectionMs": 1,
+      "selectionAbortObserved": false,
+      "selectionCompletedNaturally": true,
+      "injectedBytes": 22582
+    }
+  ],
+  "replayResults": [
+    {
+      "id": "step6-01-testing",
+      "fallback": false,
+      "bundleIds": [
+        "tdd-cycle",
+        "test-discipline",
+        "skill-decision-aid"
+      ]
+    },
+    {
+      "id": "step6-02-debugging",
+      "fallback": false,
+      "bundleIds": [
+        "systematic-debugging",
+        "debugging-observation",
+        "debugging-discipline",
+        "debugging-verification"
+      ]
+    },
+    {
+      "id": "step6-03-planning",
+      "fallback": false,
+      "bundleIds": [
+        "request-framing",
+        "design-collaboration",
+        "implementation-plan-structure",
+        "implementation-plan-handoff"
+      ]
+    },
+    {
+      "id": "step6-04-code-review",
+      "fallback": false,
+      "bundleIds": [
+        "code-review-workflow",
+        "code-review-report",
+        "completion-evidence"
+      ]
+    },
+    {
+      "id": "step6-05-design",
+      "fallback": false,
+      "bundleIds": [
+        "visual-direction",
+        "visual-typography",
+        "design-tokens",
+        "interface-copy"
+      ]
+    },
+    {
+      "id": "step6-06-voice",
+      "fallback": false,
+      "bundleIds": [
+        "voice-profile",
+        "voice-writing",
+        "voice-verification"
+      ]
+    },
+    {
+      "id": "step6-07-documentation",
+      "fallback": false,
+      "bundleIds": [
+        "document-coauthoring",
+        "document-quality"
+      ]
+    },
+    {
+      "id": "step6-08-explanation",
+      "fallback": false,
+      "bundleIds": [
+        "accessible-explanation",
+        "skill-example"
+      ]
+    },
+    {
+      "id": "step6-09-mismatch-office",
+      "fallback": false,
+      "bundleIds": [
+        "request-framing",
+        "implementation-plan-structure",
+        "implementation-plan-handoff",
+        "skill-decision-aid",
+        "completion-evidence"
+      ]
+    },
+    {
+      "id": "step6-10-mismatch-setup",
+      "fallback": false,
+      "bundleIds": [
+        "tdd-cycle",
+        "implementation-plan-structure",
+        "implementation-plan-handoff",
+        "skill-decision-aid",
+        "completion-evidence",
+        "frequent-skill-budget"
+      ]
+    },
+    {
+      "id": "step6-11-plan-document",
+      "fallback": false,
+      "bundleIds": [
+        "implementation-plan-structure",
+        "implementation-plan-handoff",
+        "document-coauthoring",
+        "document-quality"
+      ]
+    },
+    {
+      "id": "step6-12-good-tests",
+      "fallback": false,
+      "bundleIds": [
+        "test-scope",
+        "test-double-design"
+      ]
+    },
+    {
+      "id": "step6-13-always-on",
+      "fallback": false,
+      "bundleIds": [
+        "request-framing",
+        "frequent-skill-budget",
+        "skill-decision-aid"
+      ]
+    },
+    {
+      "id": "step6-14-three-line-memo",
+      "fallback": false,
+      "bundleIds": [
+        "interface-copy",
+        "frequent-skill-budget",
+        "skill-example"
+      ]
+    },
+    {
+      "id": "step6-01-testing-often",
+      "fallback": false,
+      "bundleIds": [
+        "tdd-cycle",
+        "test-discipline",
+        "frequent-skill-budget"
+      ]
+    },
+    {
+      "id": "step6-01-testing-rarely",
+      "fallback": false,
+      "bundleIds": [
+        "tdd-cycle",
+        "skill-example",
+        "skill-decision-aid"
+      ]
+    },
+    {
+      "id": "step6-12-good-tests-sometimes",
+      "fallback": false,
+      "bundleIds": [
+        "test-scope",
+        "test-double-design"
+      ]
+    },
+    {
+      "id": "step8-14-three-line-memo",
+      "fallback": false,
+      "bundleIds": [
+        "interface-copy",
+        "frequent-skill-budget",
+        "skill-example"
+      ]
+    },
+    {
+      "id": "step8-01-testing",
+      "fallback": false,
+      "bundleIds": [
+        "tdd-cycle",
+        "test-discipline",
+        "skill-decision-aid",
+        "skill-example"
+      ]
+    },
+    {
+      "id": "step8-10-mismatch-setup",
+      "fallback": false,
+      "bundleIds": [
+        "skill-decision-aid",
+        "completion-evidence",
+        "frequent-skill-budget"
+      ]
+    },
+    {
+      "id": "boundary-9.5-seconds",
+      "fallback": false,
+      "selectionMs": 9512
+    },
+    {
+      "id": "boundary-one-valid",
+      "fallback": false,
+      "bundleIds": [
+        "tdd-cycle"
+      ]
+    }
+  ]
+}
