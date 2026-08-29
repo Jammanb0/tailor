@@ -31,9 +31,11 @@ import {
 	buildErrorLog,
 	buildGenerationLog,
 	buildParseFailureLog,
+	buildRoutingLog,
 	GENERATION_LOG_FIELDS,
 	KNOWN_ERROR_NAMES,
 	pickUsage,
+	ROUTING_LOG_FIELDS,
 	USAGE_LOG_FIELDS,
 } from "../src/app/api/generate-skill/telemetry.ts";
 
@@ -65,6 +67,7 @@ const sameMembers = (actual, expected) =>
 check("성공 로그는 허용된 최상위 필드만 낸다", () => {
 	const log = buildGenerationLog({
 		kind: "create",
+		corpusMode: "full",
 		model: "claude-sonnet-5",
 		ms: 1234,
 		stopReason: "end_turn",
@@ -79,6 +82,7 @@ check("성공 로그는 허용된 최상위 필드만 낸다", () => {
 check("SDK가 필드를 더해도 usage는 네 개만 나간다", () => {
 	const log = buildGenerationLog({
 		kind: "create",
+		corpusMode: "routed",
 		model: "claude-sonnet-5",
 		ms: 1,
 		stopReason: "end_turn",
@@ -102,6 +106,37 @@ check("SDK가 필드를 더해도 usage는 네 개만 나간다", () => {
 	}
 	if (JSON.stringify(log).includes(SECRET)) {
 		throw new Error("허용 목록 밖의 값이 딸려 나왔습니다");
+	}
+});
+
+// ── 선택·전환 계측 ─────────────────────────────────────────────────
+check("라우팅 로그는 허용된 필드와 고정 id만 낸다", () => {
+	const log = buildRoutingLog({
+		model: "claude-haiku-4-5",
+		ms: 1085,
+		usage: {
+			input_tokens: 3000,
+			output_tokens: 40,
+			future_field_nobody_planned_for: SECRET,
+		},
+		decision: {
+			status: "failure",
+			fallback: true,
+			fallbackReasonIds: ["F4", `F5-${SECRET}`],
+			ambiguityIds: ["F7", `F7-${SECRET}`],
+		},
+	});
+	if (!sameMembers(Object.keys(log), [...ROUTING_LOG_FIELDS])) {
+		throw new Error(`필드가 다릅니다: ${Object.keys(log).join(", ")}`);
+	}
+	if (JSON.stringify(log).includes(SECRET)) {
+		throw new Error("허용 목록 밖의 라우팅 값이 딸려 나왔습니다");
+	}
+	if (JSON.stringify(log.fallbackReasonIds) !== '["F4"]') {
+		throw new Error("전환 이유 허용 목록이 어긋났습니다");
+	}
+	if (JSON.stringify(log.ambiguityIds) !== '["F7"]') {
+		throw new Error("애매 이유 허용 목록이 어긋났습니다");
 	}
 });
 
@@ -223,12 +258,12 @@ check("route.ts는 console을 직접 부르지 않는다", () => {
 	if (found !== 0) throw new Error(`console이 ${found}군데 있습니다`);
 });
 
-check("console을 부르는 자리는 telemetry.ts의 셋뿐이다", () => {
+check("console을 부르는 자리는 telemetry.ts의 넷뿐이다", () => {
 	const found = countConsole(TELEMETRY);
-	// logGeneration · logParseFailure · logRequestFailure. 늘리려면 이 숫자를
+	// logGeneration · logRouting · logParseFailure · logRequestFailure. 늘리려면 이 숫자를
 	// 함께 고쳐야 하고, 그 자리에서 무엇이 나가는지 다시 보게 된다.
-	if (found !== 3)
-		throw new Error(`console이 3군데가 아니라 ${found}군데입니다`);
+	if (found !== 4)
+		throw new Error(`console이 4군데가 아니라 ${found}군데입니다`);
 });
 
 if (failures.length) {

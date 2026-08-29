@@ -8,9 +8,12 @@ import {
 } from "@/data/reference-corpus";
 import type { WizardAnswers } from "@/data/wizard-questions";
 import {
+	buildCorpusSystemBlock,
+	prepareGenerationCorpus,
+} from "./generation-routing";
+import {
 	type AnsweredQuestion,
 	buildUserContent,
-	CORPUS_SECTION,
 	extractArchetypeId,
 	extractListTag,
 	extractTag,
@@ -20,7 +23,12 @@ import {
 	type Refinement,
 	SYSTEM_PROMPT,
 } from "./prompt";
-import { logGeneration, logParseFailure, logRequestFailure } from "./telemetry";
+import {
+	logGeneration,
+	logParseFailure,
+	logRequestFailure,
+	logRouting,
+} from "./telemetry";
 
 export const runtime = "nodejs";
 
@@ -96,6 +104,16 @@ export async function POST(request: Request) {
 		refinement,
 		clarifications,
 	);
+	const preparedCorpus = await prepareGenerationCorpus({
+		client,
+		answers,
+		wantsAdvanced,
+		isRefinement: refinement !== undefined,
+		configuredMode: process.env.CORPUS_ROUTING_MODE,
+	});
+	if (preparedCorpus.routing) {
+		logRouting(preparedCorpus.routing);
+	}
 
 	let text: string;
 	// 파싱이 깨졌을 때도 종료 이유는 남겨야 원인을 가른다. try 밖에서 쓰므로
@@ -110,11 +128,10 @@ export async function POST(request: Request) {
 			// 토큰이 max_tokens를 함께 잡아먹어 <skill_md>가 잘린다. 명시적으로 끈다.
 			thinking: { type: "disabled" },
 			system: [
-				{
-					type: "text",
-					text: CORPUS_SECTION,
-					cache_control: { type: "ephemeral" },
-				},
+				buildCorpusSystemBlock({
+					text: preparedCorpus.section,
+					cacheCorpus: preparedCorpus.cacheCorpus,
+				}),
 				{
 					type: "text",
 					text: refinement ? REFINE_SYSTEM_PROMPT : SYSTEM_PROMPT,
@@ -128,6 +145,7 @@ export async function POST(request: Request) {
 		// 허용 목록으로 정한다 — 사용자가 쓴 글과 생성 결과 전문은 담기지 않는다.
 		logGeneration({
 			kind: refinement ? "refine" : "create",
+			corpusMode: preparedCorpus.mode,
 			model: GENERATION_MODEL,
 			ms: Date.now() - startedAt,
 			stopReason,
@@ -181,8 +199,16 @@ export async function POST(request: Request) {
 	// 이번 생성에 AI가 실제로 참고했다고 보고한 것만 출처로 표기(정직).
 	const archetypeId = extractArchetypeId(text);
 	const usedPatternIds = extractUsedPatternIds(text);
-	const referencedSources =
-		sourcesForUsedPatterns(usedPatternIds).map(toLiteSource);
+	// routed에서는 실제 전달한 패턴만 출처 조회 대상으로 인정한다. 모델이 보지
+	// 않은 유효 id를 우연히 출력해도 거짓 출처가 붙지 않는다.
+	const attributablePatternIds = preparedCorpus.deliveredPatternIds
+		? usedPatternIds.filter((id) =>
+				preparedCorpus.deliveredPatternIds?.includes(id),
+			)
+		: usedPatternIds;
+	const referencedSources = sourcesForUsedPatterns(attributablePatternIds).map(
+		toLiteSource,
+	);
 	const structureSources = archetypeId
 		? sourcesForArchetype(archetypeId as SkillArchetype).map(toLiteSource)
 		: [];

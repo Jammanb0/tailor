@@ -90,7 +90,9 @@ function validateSourceParity(errors) {
 		}
 	}
 	const productionOnly = [
-		"text: CORPUS_SECTION",
+		"prepareGenerationCorpus({",
+		"text: preparedCorpus.section",
+		"cacheCorpus: preparedCorpus.cacheCorpus",
 		"text: refinement ? REFINE_SYSTEM_PROMPT : SYSTEM_PROMPT",
 		"const userContent = buildUserContent(",
 		'messages: [{ role: "user", content: userContent }]',

@@ -22,16 +22,41 @@
 // 회귀 시험: `pnpm check:logging`
 
 import type Anthropic from "@anthropic-ai/sdk";
+import type { SelectionDecision, SelectionFallbackReasonId } from "./routing";
+import type { CorpusRoutingMode } from "./routing-policy";
 
 /** 성공 계측 이벤트의 최상위 필드. 여기 없는 것은 로그에 나가지 않는다. */
 export const GENERATION_LOG_FIELDS = [
 	"event",
 	"kind",
+	"corpusMode",
 	"model",
 	"ms",
 	"stopReason",
 	"usage",
 ] as const;
+
+/** 선택 계측 이벤트의 최상위 필드. */
+export const ROUTING_LOG_FIELDS = [
+	"event",
+	"model",
+	"ms",
+	"status",
+	"fallback",
+	"fallbackReasonIds",
+	"ambiguityIds",
+	"usage",
+] as const;
+
+export const FALLBACK_REASON_IDS = [
+	"F1",
+	"F2",
+	"F3",
+	"F4",
+	"F5",
+	"F6",
+] as const;
+export const AMBIGUITY_IDS = ["F7"] as const;
 
 /**
  * 로그에 남기는 usage 필드.
@@ -79,6 +104,7 @@ export function pickUsage(usage: Anthropic.Usage | undefined | null): UsageLog {
 /** 생성이 성공했을 때 남기는 한 줄. */
 export function buildGenerationLog(input: {
 	kind: "create" | "refine";
+	corpusMode: CorpusRoutingMode;
 	model: string;
 	ms: number;
 	stopReason: string | null;
@@ -87,9 +113,39 @@ export function buildGenerationLog(input: {
 	return {
 		event: "generate-skill" as const,
 		kind: input.kind,
+		corpusMode: input.corpusMode,
 		model: input.model,
 		ms: input.ms,
 		stopReason: input.stopReason,
+		usage: pickUsage(input.usage),
+	};
+}
+
+function pickIds<T extends string>(
+	values: readonly string[],
+	allowed: readonly T[],
+): T[] {
+	return values.filter((value): value is T => allowed.includes(value as T));
+}
+
+/** 선택 호출과 전체 전환 판정을 원문 없이 남기는 한 줄. */
+export function buildRoutingLog(input: {
+	model: string;
+	ms: number;
+	usage: Anthropic.Usage | undefined | null;
+	decision: SelectionDecision;
+}) {
+	return {
+		event: "generate-skill-routing" as const,
+		model: input.model,
+		ms: toCount(input.ms),
+		status: input.decision.status,
+		fallback: input.decision.fallback,
+		fallbackReasonIds: pickIds<SelectionFallbackReasonId>(
+			input.decision.fallbackReasonIds,
+			FALLBACK_REASON_IDS,
+		),
+		ambiguityIds: pickIds<"F7">(input.decision.ambiguityIds, AMBIGUITY_IDS),
 		usage: pickUsage(input.usage),
 	};
 }
@@ -206,12 +262,17 @@ export function buildErrorLog(error: unknown) {
 
 export function logGeneration(input: {
 	kind: "create" | "refine";
+	corpusMode: CorpusRoutingMode;
 	model: string;
 	ms: number;
 	stopReason: string | null;
 	usage: Anthropic.Usage | undefined | null;
 }): void {
 	console.log(JSON.stringify(buildGenerationLog(input)));
+}
+
+export function logRouting(input: Parameters<typeof buildRoutingLog>[0]): void {
+	console.log(JSON.stringify(buildRoutingLog(input)));
 }
 
 export function logParseFailure(input: {
