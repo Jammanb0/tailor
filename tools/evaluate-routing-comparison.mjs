@@ -61,10 +61,17 @@ function validateSourceParity(errors) {
 		join(ROOT, "src", "app", "api", "route-preview", "route.ts"),
 		"utf8",
 	);
-	const productionSource = readFileSync(
-		join(ROOT, "src", "app", "api", "generate-skill", "route.ts"),
-		"utf8",
-	);
+	// 프로덕션 생성 흐름은 route.ts와 generate.ts에 나뉘어 있다. 라우트는
+	// 입력 검사와 응답 변환만 하고 실제 호출은 generate.ts가 한다. 한 파일만
+	// 읽으면 멀쩡한 코드를 「누락」으로 센다.
+	const productionSource = ["route.ts", "generate.ts"]
+		.map((name) =>
+			readFileSync(
+				join(ROOT, "src", "app", "api", "generate-skill", name),
+				"utf8",
+			),
+		)
+		.join("\n");
 	const sharedFragments = [
 		'const GENERATION_MODEL = "claude-sonnet-5";',
 		"max_tokens: 8192",
