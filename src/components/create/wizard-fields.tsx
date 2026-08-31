@@ -1,6 +1,7 @@
 "use client";
 
 import type { WizardOption } from "@/data/wizard-questions";
+import { formatLengthCounter } from "@/lib/input-limits";
 
 type RadioFieldProps = {
 	options: WizardOption[];
@@ -137,20 +138,48 @@ type TextareaFieldProps = {
 	value: string | undefined;
 	onChange: (value: string) => void;
 	placeholder?: string;
+	/** 서버와 같은 상한. 붙여넣기가 조용히 잘리지 않도록 글자 수도 함께 보여준다. */
+	maxLength: number;
 };
 
+/**
+ * 자유 서술 입력.
+ *
+ * `maxLength`는 서버가 정한 상한과 같은 값이다. 브라우저는 그 길이에서
+ * 입력을 멈추는데, 긴 글을 붙여넣은 사람은 그걸 알아채지 못한다. 그래서 남은
+ * 여유가 얼마 없을 때부터 글자 수를 보여주고, 상한에 닿으면 그렇다고 적는다.
+ */
 export function TextareaField({
 	value,
 	onChange,
 	placeholder,
+	maxLength,
 }: TextareaFieldProps) {
+	const current = (value ?? "").length;
+	const atLimit = current >= maxLength;
+	// 여유가 10%보다 적게 남았을 때부터 보여준다. 평소에는 방해가 된다.
+	const showCounter = current > maxLength * 0.9;
+
 	return (
-		<textarea
-			value={value ?? ""}
-			onChange={(e) => onChange(e.target.value)}
-			placeholder={placeholder}
-			rows={4}
-			className="w-full select-text resize-none rounded-2xl border border-border bg-surface px-5 py-4 text-foreground placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-		/>
+		<div className="flex flex-col gap-1.5">
+			<textarea
+				value={value ?? ""}
+				onChange={(e) => onChange(e.target.value)}
+				placeholder={placeholder}
+				rows={4}
+				maxLength={maxLength}
+				className="w-full select-text resize-none rounded-2xl border border-border bg-surface px-5 py-4 text-foreground placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+			/>
+			{showCounter && (
+				<p
+					className={`text-right text-xs ${atLimit ? "text-accent" : "text-muted"}`}
+					aria-live="polite"
+				>
+					{atLimit
+						? `최대 ${maxLength.toLocaleString("ko-KR")}자까지 입력할 수 있어요. 여기서부터는 입력되지 않아요.`
+						: formatLengthCounter(current, maxLength)}
+				</p>
+			)}
+		</div>
 	);
 }

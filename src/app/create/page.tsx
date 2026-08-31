@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnswerPreview } from "@/components/create/answer-preview";
 import { AnswersSidePanel } from "@/components/create/answers-side-panel";
 import {
@@ -9,6 +9,10 @@ import {
 	FollowUpWizard,
 } from "@/components/create/follow-up-wizard";
 import { GeneratingScreen } from "@/components/create/generating-screen";
+import {
+	canRetryNow,
+	type GenerationErrorState,
+} from "@/components/create/generation-error-banner";
 import { GlossarySidePanel } from "@/components/create/glossary-side-panel";
 import { HandoffPanel } from "@/components/create/handoff-panel";
 import { PathFork } from "@/components/create/path-fork";
@@ -31,6 +35,13 @@ import {
 	type WizardAnswers,
 	type WizardQuestion,
 } from "@/data/wizard-questions";
+import {
+	buildGenerationErrorPayload,
+	type GenerationErrorPayload,
+	isClearedByInputChange,
+	isGenerationErrorCode,
+} from "@/lib/generation-errors";
+import { answerMaxLength } from "@/lib/input-limits";
 
 type Stage =
 	| "fork"
@@ -50,6 +61,64 @@ type RefinementPayload = {
 	userFeedback: string;
 	answeredQuestions: { question: string; answer: string }[];
 };
+type FollowUpAnswers = { question: string; answer: string }[];
+/**
+ * 실제로 보낸 요청 한 벌.
+ *
+ * 재시도는 이것을 그대로 다시 보낸다 — 다시 만들면 그 사이에 바뀐 상태가
+ * 섞여 들어가고, 특히 수정 요청이 최초 생성으로 바뀌어 버린다.
+ */
+type GenerationAttempt = {
+	body: {
+		answers: WizardAnswers;
+		wantsAdvanced: boolean;
+		clarifications?: FollowUpAnswers;
+		refinement?: {
+			previousSkillMarkdown: string;
+			userFeedback: string;
+			answeredQuestions: FollowUpAnswers;
+		};
+	};
+	isRefinement: boolean;
+	/** 실패했을 때 돌아갈 화면. */
+	originStage: Stage;
+	/** 되물음이 수정 요청 도중에 나왔는지 판단할 원본. */
+	refinement: RefinementPayload | null;
+};
+
+/**
+ * 서버 응답을 화면 상태로 옮긴다.
+ *
+ * 문구가 아니라 **코드**로 판정한다. 아는 코드가 아니면 일시 장애로 보고
+ * 재시도 경로를 남긴다 — 모르는 실패에 사용자를 막다른 길로 보내지 않는다.
+ */
+function toErrorState(
+	data: Partial<GenerationErrorPayload> | null,
+): GenerationErrorState {
+	const code = isGenerationErrorCode(data?.errorCode)
+		? data.errorCode
+		: "upstream_unavailable";
+	const fallback = buildGenerationErrorPayload({
+		code,
+		retryAfterSeconds: data?.retryAfterSeconds ?? null,
+	});
+	const receivedAt = Date.now();
+	return {
+		code,
+		message:
+			typeof data?.error === "string" && data.error.length > 0
+				? data.error
+				: fallback.error,
+		retryable:
+			typeof data?.retryable === "boolean"
+				? data.retryable
+				: fallback.retryable,
+		retryAfterSeconds: fallback.retryAfterSeconds,
+		receivedAt,
+		retryNotBefore: receivedAt + (fallback.retryAfterSeconds ?? 0) * 1000,
+	};
+}
+
 // 모델이 정보 부족으로 생성을 거부하고 되물어온 상태.
 type PendingClarification = {
 	questions: string[];
@@ -129,7 +198,14 @@ export default function CreatePage() {
 		useState<GenerationResult | null>(null);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isRefinementGenerating, setIsRefinementGenerating] = useState(false);
-	const [generationError, setGenerationError] = useState<string | null>(null);
+	const [generationError, setGenerationError] =
+		useState<GenerationErrorState | null>(null);
+	// 마지막으로 보낸 요청. 재시도는 이것을 그대로 다시 쓴다.
+	const [lastAttempt, setLastAttempt] = useState<GenerationAttempt | null>(
+		null,
+	);
+	// 요청이 나가 있는 동안을 즉시 표시한다. 다시 그려지기를 기다리지 않는다.
+	const inFlightRef = useRef(false);
 	const [pendingClarification, setPendingClarification] =
 		useState<PendingClarification | null>(null);
 	// 정보 부족 되물음에 대한 답변(회차 누적) — 이후 모든 생성 요청에 함께 실린다.
@@ -222,6 +298,19 @@ export default function CreatePage() {
 		}
 	}, [hasHydrated, pendingRestore, stage, wantsAdvanced, index, answers]);
 
+	// 429 대기가 끝나는 순간 한 번 다시 그린다.
+	//
+	// 배너가 없는 화면(되물음·수정 요청)은 스스로 다시 그릴 일이 없어서,
+	// 이게 없으면 기다림이 끝나도 제출 버튼이 잠긴 채로 남는다.
+	const [, setRetryClockTick] = useState(0);
+	useEffect(() => {
+		if (!generationError?.retryable) return;
+		const delay = generationError.retryNotBefore - Date.now();
+		if (delay <= 0) return;
+		const timer = setTimeout(() => setRetryClockTick((n) => n + 1), delay);
+		return () => clearTimeout(timer);
+	}, [generationError]);
+
 	const handleResume = () => {
 		if (!pendingRestore) return;
 		setStage(pendingRestore.stage);
@@ -307,6 +396,7 @@ export default function CreatePage() {
 		setConfirmingRestart(false);
 		setGenerationResult(null);
 		setGenerationError(null);
+		setLastAttempt(null);
 		setPendingClarification(null);
 		setClarifications([]);
 		setClarifyHistory([]);
@@ -320,8 +410,22 @@ export default function CreatePage() {
 		}
 	};
 
+	/**
+	 * 입력을 고치면 요청이 달라진다. 「입력이 너무 길다」처럼 입력 때문에 막힌
+	 * 실패는 여기서 지워야 다시 만들 수 있다.
+	 *
+	 * 마법사 답변과 되물음·수정 요청 입력이 모두 이 함수를 거친다. 한쪽만
+	 * 연결하면 그쪽 화면에서만 잠금이 풀린다.
+	 */
+	const clearInputBlockedError = () => {
+		setGenerationError((current) =>
+			current && isClearedByInputChange(current.code) ? null : current,
+		);
+	};
+
 	const setAnswer = (id: string, value: string | string[]) => {
 		setAnswers((prev) => ({ ...prev, [id]: value }));
+		clearInputBlockedError();
 	};
 
 	const handleStartRefine = () => {
@@ -371,46 +475,43 @@ export default function CreatePage() {
 		handleGenerate({ clarifications: merged });
 	};
 
-	const handleGenerate = async (options?: {
-		refinement?: RefinementPayload;
-		clarifications?: { question: string; answer: string }[];
-	}) => {
-		const refinement = options?.refinement;
-		// 정제(수정 요청)는 항상 이미 결과가 있는 상태에서만 일어나므로,
-		// 실패해도 미리보기로 되돌리지 않고 결과 화면에 머물게 함.
-		const originStage = generationResult ? "result" : "preview";
-		// setState는 비동기라 방금 합친 값을 인자로 직접 받는다.
-		const sentClarifications = options?.clarifications ?? clarifications;
+	/**
+	 * 한 번의 생성 시도를 실제로 보낸다.
+	 *
+	 * 재시도가 **같은 요청**이어야 하므로, 보낼 본문을 여기서 다시 만들지 않고
+	 * 인자로 받는다. 수정 요청이 실패한 뒤 다시 시도할 때 최초 생성을 새로
+	 * 부르면 사용자가 방금 쓴 수정 요청이 조용히 사라진다.
+	 */
+	const runAttempt = async (attempt: GenerationAttempt) => {
+		// 연속 클릭과 생성 중 중복 요청을 막는다. 한 번이 실제 비용이다.
+		//
+		// **state가 아니라 ref로 막는다.** `isGenerating`은 다시 그려진 뒤에야
+		// true가 되므로, 같은 tick에 두 번 눌리면 둘 다 옛 값을 보고 통과한다.
+		// 실제로 세 번 연속 누르니 요청이 세 번 나갔다.
+		if (inFlightRef.current) return;
+		// 실패가 서 있는 동안에는 **모든 입구**를 같은 규칙으로 막는다. 버튼만
+		// 잠그면 수정 요청 제출처럼 다른 경로가 남고, 카운트다운을 배너 안에만
+		// 두면 그 시간을 그냥 지나쳐 다시 호출된다.
+		if (generationError && !canRetryNow(generationError)) return;
+		inFlightRef.current = true;
+		setLastAttempt(attempt);
 		setIsGenerating(true);
-		setIsRefinementGenerating(Boolean(refinement));
+		setIsRefinementGenerating(attempt.isRefinement);
 		setGenerationError(null);
 		setStage("generating");
 		try {
 			const res = await fetch("/api/generate-skill", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					answers,
-					wantsAdvanced: wantsAdvanced === true,
-					clarifications: sentClarifications.length
-						? sentClarifications
-						: undefined,
-					refinement: refinement
-						? {
-								previousSkillMarkdown: generationResult?.skillMarkdown ?? "",
-								userFeedback: refinement.userFeedback,
-								answeredQuestions: refinement.answeredQuestions,
-							}
-						: undefined,
-				}),
+				body: JSON.stringify(attempt.body),
 			});
 			let data:
-				| (Partial<GenerationResult> & {
-						error?: string;
-						needsMoreInfo?: boolean;
-						clarifyingQuestions?: string[];
-						reviewNotes?: string[];
-				  })
+				| (Partial<GenerationResult> &
+						Partial<GenerationErrorPayload> & {
+							needsMoreInfo?: boolean;
+							clarifyingQuestions?: string[];
+							reviewNotes?: string[];
+						})
 				| null = null;
 			try {
 				data = await res.json();
@@ -418,34 +519,85 @@ export default function CreatePage() {
 				// 응답 본문이 비어있거나 손상된 경우 — 네트워크 문제 등
 			}
 			if (!res.ok || !data) {
-				throw new Error(data?.error ?? "알 수 없는 오류가 발생했어요.");
+				setGenerationError(toErrorState(data));
+				setStage(attempt.originStage);
+				return;
 			}
 			// 모델이 정보가 부족하다며 되물어온 경우 — 실패가 아니라 요구다.
 			if (data.needsMoreInfo && data.clarifyingQuestions?.length) {
 				setPendingClarification({
 					questions: data.clarifyingQuestions,
 					reviewNotes: data.reviewNotes ?? [],
-					originRefinement: refinement ?? null,
+					originRefinement: attempt.refinement,
 				});
 				setStage("clarifying");
 				return;
 			}
 			if (!data.skillMarkdown) {
-				throw new Error("생성 결과를 이해할 수 없었어요. 다시 시도해주세요.");
+				// 200인데 본문이 없다 — 서버가 판정하지 못한 형식 문제다.
+				setGenerationError(toErrorState({ errorCode: "parse_failure" }));
+				setStage(attempt.originStage);
+				return;
 			}
 			setGenerationResult(data as GenerationResult);
 			setStage("result");
-		} catch (error) {
-			setGenerationError(
-				error instanceof Error
-					? error.message
-					: "알 수 없는 오류가 발생했어요.",
-			);
-			setStage(originStage);
+		} catch {
+			// fetch 자체가 실패 — 연결이 끊겼거나 네트워크가 막혔다.
+			setGenerationError(toErrorState(null));
+			setStage(attempt.originStage);
 		} finally {
+			inFlightRef.current = false;
 			setIsGenerating(false);
 		}
 	};
+
+	const handleGenerate = (options?: {
+		refinement?: RefinementPayload;
+		clarifications?: { question: string; answer: string }[];
+	}) => {
+		const refinement = options?.refinement;
+		// setState는 비동기라 방금 합친 값을 인자로 직접 받는다.
+		const sentClarifications = options?.clarifications ?? clarifications;
+		return runAttempt({
+			body: {
+				answers,
+				wantsAdvanced: wantsAdvanced === true,
+				clarifications: sentClarifications.length
+					? sentClarifications
+					: undefined,
+				refinement: refinement
+					? {
+							previousSkillMarkdown: generationResult?.skillMarkdown ?? "",
+							userFeedback: refinement.userFeedback,
+							answeredQuestions: refinement.answeredQuestions,
+						}
+					: undefined,
+			},
+			isRefinement: Boolean(refinement),
+			// 정제(수정 요청)는 항상 이미 결과가 있는 상태에서만 일어나므로,
+			// 실패해도 미리보기로 되돌리지 않고 결과 화면에 머물게 함.
+			originStage: generationResult ? "result" : "preview",
+			refinement: refinement ?? null,
+		});
+	};
+
+	const handleRetry = () => {
+		if (!lastAttempt) return;
+		runAttempt(lastAttempt);
+	};
+
+	/**
+	 * 지금 생성을 부를 수 없는 이유. 부를 수 있으면 undefined다.
+	 *
+	 * 되물음·수정 요청 화면에는 오류 배너가 없어서, 제출을 그냥 막으면 눌러도
+	 * 아무 일이 없는 화면이 된다. 같은 판정을 문구로 함께 내려보낸다.
+	 */
+	const blockedGenerationReason =
+		generationError && !canRetryNow(generationError)
+			? generationError.retryable
+				? "요청이 잠시 몰렸어요. 잠시 뒤에 다시 시도해주세요."
+				: generationError.message
+			: undefined;
 
 	if (stage === "fork") {
 		return (
@@ -527,6 +679,7 @@ export default function CreatePage() {
 					onGenerate={() => handleGenerate()}
 					isGenerating={isGenerating}
 					generationError={generationError}
+					onRetry={handleRetry}
 					onReturnToResult={
 						generationResult ? () => setStage("result") : undefined
 					}
@@ -564,6 +717,7 @@ export default function CreatePage() {
 							audience={answers.audience}
 							isRegenerating={isGenerating}
 							generationError={generationError}
+							onRetry={handleRetry}
 							onRegenerate={() => handleGenerate()}
 							onStartRefine={handleStartRefine}
 							onEditAnswers={() => setStage("preview")}
@@ -632,6 +786,8 @@ export default function CreatePage() {
 							submitLabel="이 내용으로 만들기"
 							cancelLabel={isDuringRefine ? "그대로 두기" : "답변 고치기"}
 							isSubmitting={isGenerating}
+							blockedReason={blockedGenerationReason}
+							onInputChange={clearInputBlockedError}
 							onCancel={() => {
 								setPendingClarification(null);
 								setStage(isDuringRefine ? "result" : "preview");
@@ -685,6 +841,8 @@ export default function CreatePage() {
 							submitLabel="수정 반영하기"
 							cancelLabel="취소"
 							isSubmitting={isGenerating}
+							blockedReason={blockedGenerationReason}
+							onInputChange={clearInputBlockedError}
 							onCancel={() => setStage("result")}
 							onSubmit={handleRefineSubmit}
 						/>
@@ -902,6 +1060,7 @@ function QuestionStep({
 					value={typeof value === "string" ? value : undefined}
 					onChange={onChange}
 					placeholder={question.placeholder}
+					maxLength={answerMaxLength(question.id)}
 				/>
 			)}
 

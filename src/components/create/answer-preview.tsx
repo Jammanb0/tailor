@@ -3,6 +3,10 @@
 import { gsap } from "gsap";
 import { useLayoutEffect, useRef } from "react";
 import {
+	GenerationErrorBanner,
+	type GenerationErrorState,
+} from "@/components/create/generation-error-banner";
+import {
 	advancedQuestions,
 	languageQuestion,
 	requiredQuestions,
@@ -82,7 +86,8 @@ type AnswerPreviewProps = {
 	onConfirmRestart: () => void;
 	onGenerate: () => void;
 	isGenerating: boolean;
-	generationError: string | null;
+	generationError: GenerationErrorState | null;
+	onRetry: () => void;
 	onReturnToResult?: () => void;
 };
 
@@ -98,6 +103,7 @@ export function AnswerPreview({
 	onGenerate,
 	isGenerating,
 	generationError,
+	onRetry,
 	onReturnToResult,
 }: AnswerPreviewProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -177,11 +183,13 @@ export function AnswerPreview({
 			)}
 
 			{generationError && (
-				<div
-					data-preview-item
-					className="rounded-2xl border border-accent/40 bg-accent/5 px-5 py-4 text-sm text-accent"
-				>
-					{generationError}
+				<div data-preview-item>
+					<GenerationErrorBanner
+						key={generationError.receivedAt}
+						error={generationError}
+						onRetry={onRetry}
+						isBusy={isGenerating}
+					/>
 				</div>
 			)}
 
@@ -207,10 +215,16 @@ export function AnswerPreview({
 					)}
 				</div>
 
+				{/*
+				 * 실패가 서 있는 동안에는 잠근다. 이 버튼이 열려 있으면 429
+				 * 카운트다운이나 「토큰 소진」 판정을 그대로 지나쳐 다시 호출할
+				 * 수 있다 — 배너의 재시도만 막아서는 소용이 없다. 다시 보낼지는
+				 * 배너가 정하고, 입력 때문에 막힌 실패는 답변을 고치면 풀린다.
+				 */}
 				<button
 					type="button"
 					onClick={onGenerate}
-					disabled={isGenerating}
+					disabled={isGenerating || generationError !== null}
 					className="flex items-center gap-1.5 rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
 				>
 					{isGenerating ? "만드는 중..." : "스킬 생성하기"}

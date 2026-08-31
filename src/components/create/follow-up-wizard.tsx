@@ -4,6 +4,10 @@ import { useState } from "react";
 import { StepTransition } from "@/components/create/step-transition";
 import { TextareaField } from "@/components/create/wizard-fields";
 import { WizardProgress } from "@/components/create/wizard-progress";
+import {
+	MAX_FEEDBACK_LENGTH,
+	MAX_FOLLOW_UP_ANSWER_LENGTH,
+} from "@/lib/input-limits";
 
 export type FollowUpAnswer = { question: string; answer: string };
 
@@ -37,6 +41,21 @@ type FollowUpWizardProps = {
 	submitLabel: string;
 	cancelLabel: string;
 	isSubmitting: boolean;
+	/**
+	 * 지금은 생성을 부를 수 없는 상태(실패가 서 있거나 429를 기다리는 중).
+	 *
+	 * 눌러도 아무 일이 없게 두면 사용자는 화면이 멈춘 줄 안다. 버튼을 잠그고
+	 * 이유를 함께 보여준다.
+	 */
+	blockedReason?: string;
+	/**
+	 * 이 화면의 입력이 바뀔 때 부른다.
+	 *
+	 * 답변과 피드백은 이 컴포넌트 안에만 있어서, 부모의 「입력을 고치면 입력
+	 * 때문에 막힌 오류를 지운다」 규칙이 여기까지 닿지 않는다. 그러면 피드백을
+	 * 고쳐도 제출이 계속 잠긴다.
+	 */
+	onInputChange?: () => void;
 	onCancel: () => void;
 	onSubmit: (result: FollowUpResult) => void;
 };
@@ -58,6 +77,8 @@ export function FollowUpWizard({
 	submitLabel,
 	cancelLabel,
 	isSubmitting,
+	blockedReason,
+	onInputChange,
 	onCancel,
 	onSubmit,
 }: FollowUpWizardProps) {
@@ -124,14 +145,16 @@ export function FollowUpWizard({
 						</div>
 						<TextareaField
 							value={answers[step.question]}
-							onChange={(value) =>
-								setAnswers((prev) => ({ ...prev, [step.question]: value }))
-							}
+							onChange={(value) => {
+								setAnswers((prev) => ({ ...prev, [step.question]: value }));
+								onInputChange?.();
+							}}
 							placeholder={
 								requireAnswers
 									? "답변을 적어주세요"
 									: "답변을 적어주세요 (선택)"
 							}
+							maxLength={MAX_FOLLOW_UP_ANSWER_LENGTH}
 						/>
 					</div>
 				) : (
@@ -144,12 +167,25 @@ export function FollowUpWizard({
 						</div>
 						<TextareaField
 							value={feedback}
-							onChange={setFeedback}
+							onChange={(value) => {
+								setFeedback(value);
+								onInputChange?.();
+							}}
 							placeholder={feedbackPlaceholder}
+							maxLength={MAX_FEEDBACK_LENGTH}
 						/>
 					</div>
 				)}
 			</StepTransition>
+
+			{blockedReason && isLastStep && (
+				<p
+					role="alert"
+					className="mt-6 rounded-2xl border border-accent/40 bg-accent/5 px-5 py-4 text-accent text-sm"
+				>
+					{blockedReason}
+				</p>
+			)}
 
 			<div className="mt-6 flex justify-between">
 				<button
@@ -162,7 +198,11 @@ export function FollowUpWizard({
 				<button
 					type="button"
 					onClick={handleNext}
-					disabled={isSubmitting || !isCurrentAnswerFilled}
+					disabled={
+						isSubmitting ||
+						!isCurrentAnswerFilled ||
+						(isLastStep && blockedReason !== undefined)
+					}
 					className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
 				>
 					{isLastStep ? submitLabel : "다음"}

@@ -1,6 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import {
+	GenerationErrorBanner,
+	type GenerationErrorState,
+} from "@/components/create/generation-error-banner";
 
 export type ReferencedSource = {
 	name: string;
@@ -26,7 +30,8 @@ type SkillResultProps = {
 	result: GenerationResult;
 	audience: string | string[] | undefined;
 	isRegenerating: boolean;
-	generationError: string | null;
+	generationError: GenerationErrorState | null;
+	onRetry: () => void;
 	onRegenerate: () => void;
 	onStartRefine: () => void;
 	onEditAnswers: () => void;
@@ -129,6 +134,7 @@ export function SkillResult({
 	audience,
 	isRegenerating,
 	generationError,
+	onRetry,
 	onRegenerate,
 	onStartRefine,
 	onEditAnswers,
@@ -330,17 +336,25 @@ export function SkillResult({
 			</div>
 
 			{generationError && (
-				<div className="rounded-2xl border border-accent/40 bg-accent/5 px-5 py-4 text-accent text-sm">
-					{generationError}
-				</div>
+				<GenerationErrorBanner
+					key={generationError.receivedAt}
+					error={generationError}
+					onRetry={onRetry}
+					isBusy={isRegenerating}
+				/>
 			)}
 
 			<div className="flex flex-col gap-3">
 				<div className="grid grid-cols-2 gap-3">
+					{/*
+					 * 실패가 서 있는 동안에는 잠근다. 다시 보낼지는 배너가 정한다 —
+					 * 이 버튼이 열려 있으면 429 대기 시간을 그냥 건너뛴다. 다운로드와
+					 * 답변 수정 같은 비생성 기능은 그대로 둔다.
+					 */}
 					<button
 						type="button"
 						onClick={onRegenerate}
-						disabled={isRegenerating}
+						disabled={isRegenerating || generationError !== null}
 						className="w-full rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
 					>
 						{isRegenerating ? "다시 만드는 중..." : "다시 생성하기"}
