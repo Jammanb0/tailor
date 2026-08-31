@@ -59,7 +59,7 @@ different things.**
 
 | | Build here | Continue in your own Claude |
 |---|---|---|
-| Where it runs | Server makes **one** Claude API call | A `claude://` deep link into **your own session** |
+| Where it runs | Server runs **one or two Claude model stages** | A `claude://` deep link into **your own session** |
 | Reference corpus | **Included in the prompt** | **Does not fit in a link** |
 | Attribution | Shown on the result screen | Not carried |
 | Your project files | Not visible | **Claude can read them while asking** |
@@ -93,6 +93,8 @@ Opens at `http://localhost:3000`.
 > ```
 >
 > Keys come from [console.anthropic.com](https://console.anthropic.com).
+> `CORPUS_ROUTING_MODE` in `.env.example` is optional; without it the service
+> uses the default behaviour of sending the whole corpus.
 
 `.env.local` is covered by `.gitignore` so it is never committed, and the key is
 read **only on the server** (`src/app/api/generate-skill/route.ts`). It never
@@ -106,19 +108,42 @@ one returns a message saying the API key is not configured.
 <summary><b>Checks</b></summary>
 
 ```bash
-pnpm lint            # Biome (lint + format)
-npx tsc --noEmit     # type check
-pnpm lint:corpus     # corpus authoring rules (148 patterns / 4 skeletons)
-pnpm check:parser    # regression test for the response tag parser
+pnpm lint                        # Biome (lint + format)
+pnpm exec tsc --noEmit           # type check
+pnpm lint:corpus                 # corpus authoring rules
+pnpm check:parser                # response tag parser regression
+pnpm check:logging               # server log allowlist regression
+pnpm check:upstream-errors       # Anthropic error classification and abort regression
+pnpm check:input-limits          # input length limit regression
+pnpm check:routing               # bundle selection and delivery regression
+pnpm check:routing-production    # production full/routed policy regression
+pnpm check:routing-eval          # routing evaluation preregistration check
+pnpm check:routing-comparison    # full/routed comparison preregistration check
+pnpm check:routing-fallback      # free fallback-safeguard check
+pnpm check:corpus-render         # rendered corpus comparison
 ```
+
+`check:routing`, `check:routing-production`, `check:routing-fallback`, and
+`check:corpus-render` need `pnpm dev` running on port 3000.
+`check:routing-fallback` overwrites the recorded `free-check-results.json` with
+the new run, so inspect the Git diff and restore the original record afterward.
+None of the checks above call a paid model API.
 
 </details>
 
 ## The reference corpus
 
 The generation prompt carries **"good patterns"** distilled ahead of time from
-public skills. Source documents are never re-read at runtime, and generation is
-a single structured API call.
+public skills. Source documents are never re-read at runtime.
+
+`CORPUS_ROUTING_MODE` picks how they go in. The default `full` sends the whole
+corpus through **one Sonnet generation stage**. For a first generation,
+`routed` adds a selection stage in which Claude Haiku 4.5 picks the needed
+pattern bundles, followed by a Sonnet generation stage using only that corpus.
+Network, deadline, 5xx, unclassified request, and selection-processing failures
+fall back to the full corpus. Billing, usage-limit, authentication, and 429
+errors stop before Sonnet is called. Refinements always use `full` regardless
+of the setting.
 
 <div align="center">
 
@@ -183,7 +208,17 @@ first.**
 
 ```
 src/app/                    pages + API routes
-  api/generate-skill/       generation API (route.ts / prompt.ts)
+  api/generate-skill/       generation API
+                            route.ts        validate input, generate, respond
+                            generate.ts     one full generation flow
+                            prompt.ts       prompts and corpus rendering
+                            routing.ts      bundle selection and delivery list
+                            routing-policy.ts / generation-routing.ts
+                                            full/routed decision and safeguards
+                            upstream-error.ts     Anthropic error classification
+                            request-validation.ts input length and shape checks
+                            telemetry.ts    what server logs may contain
+  api/route-preview/        routing preview (dev only, 404 in production)
   api/eval-ab/              evaluation harness (dev only, 404 in production)
   api/corpus-snapshot/      corpus render dump (dev only, 404 in production)
 src/components/create/      wizard, result screen, handoff panel
@@ -202,7 +237,8 @@ docs/experiments/           generation-quality experiments + raw data
 ## Stack
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS · pnpm · Biome
-· GSAP + Framer Motion · Anthropic SDK (Claude Sonnet 5)
+· GSAP + Framer Motion · Anthropic SDK (Claude Sonnet 5 for generation,
+Claude Haiku 4.5 for corpus selection)
 
 ## Attribution
 

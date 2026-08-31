@@ -57,7 +57,7 @@ Tailor는 Claude Code를 처음 접하는 사람부터 이미 스킬을 만들�
 
 | | 이 사이트에서 만들기 | 내 Claude로 이어서 만들기 |
 |---|---|---|
-| 어디서 만드나 | 서버가 Claude API를 **1회** 호출 | `claude://` 딥링크로 **본인 Claude 세션** |
+| 어디서 만드나 | 서버가 Claude 모델을 **1~2단계**로 처리 | `claude://` 딥링크로 **본인 Claude 세션** |
 | 참고 코퍼스 | **함께 들어갑니다** | 링크에 담기지 않아 **못 넘깁니다** |
 | 출처 표기 | 결과 화면에 표시됩니다 | 붙지 않습니다 |
 | 내 프로젝트 파일 | 볼 수 없습니다 | **보면서 물어볼 수 있습니다** |
@@ -91,6 +91,8 @@ pnpm dev
 > ```
 >
 > 키는 [console.anthropic.com](https://console.anthropic.com)에서 발급받습니다.
+> `.env.example`에 있는 `CORPUS_ROUTING_MODE`는 선택이고, 없으면 전체 코퍼스를
+> 넣는 기본 동작을 씁니다.
 
 `.env.local`은 `.gitignore`에 잡혀 있어 커밋되지 않고, 키는 **서버에서만**
 읽습니다(`src/app/api/generate-skill/route.ts`). 브라우저로 내려가지 않습니다.
@@ -103,19 +105,41 @@ pnpm dev
 <summary><b>검사 명령</b></summary>
 
 ```bash
-pnpm lint            # Biome (lint + format)
-npx tsc --noEmit     # 타입 검사
-pnpm lint:corpus     # 코퍼스 작성 규칙 (패턴 148개 / 골격 4개)
-pnpm check:parser    # 모델 응답 태그 파서 회귀
+pnpm lint                        # Biome (lint + format)
+pnpm exec tsc --noEmit           # 타입 검사
+pnpm lint:corpus                 # 코퍼스 작성 규칙
+pnpm check:parser                # 모델 응답 태그 파서 회귀
+pnpm check:logging               # 서버 로그 허용 목록 회귀
+pnpm check:upstream-errors       # Anthropic 오류 분류·중단 회귀
+pnpm check:input-limits          # 입력 길이 상한 회귀
+pnpm check:routing               # 묶음 선택·전달 목록 회귀
+pnpm check:routing-production    # 프로덕션 full·routed 정책 회귀
+pnpm check:routing-eval          # 라우팅 평가 사전등록 검사
+pnpm check:routing-comparison    # full·routed 비교 사전등록 검사
+pnpm check:routing-fallback      # 폴백 안전장치 무비용 검사
+pnpm check:corpus-render         # 코퍼스 렌더 결과 대조
 ```
+
+`check:routing`, `check:routing-production`, `check:routing-fallback`,
+`check:corpus-render`는 `pnpm dev`가 3000 포트에 떠 있어야 합니다.
+`check:routing-fallback`은 기록된 `free-check-results.json`을 새 실행 결과로
+덮어쓰므로, 검사 뒤 Git diff를 확인하고 원래 기록으로 되돌려야 합니다. 위 검사는
+전부 API 비용이 들지 않습니다.
 
 </details>
 
 ## 참고 코퍼스
 
 생성 프롬프트에는 공개 스킬에서 미리 정리해 둔 **"좋은 패턴"** 이 함께
-주입됩니다. 원문을 실행 중에 다시 읽지 않고, 생성은 구조화된 API 호출 1회로
-끝납니다.
+주입됩니다. 원문을 실행 중에 다시 읽지 않습니다.
+
+넣는 방식은 `CORPUS_ROUTING_MODE`로 고릅니다. 기본값 `full`은 코퍼스를 통째로
+넣어 Sonnet 생성 **한 단계**로 처리합니다. `routed`는 최초 생성에 한해 저비용
+모델(Claude Haiku 4.5)이 필요한 패턴 묶음을 먼저 고르고, Sonnet이 선택된
+코퍼스로 생성하는 **두 단계**입니다. 네트워크·deadline·5xx·분류되지 않은 요청
+오류나 선택 후처리 실패는 전체 주입으로 돌아갑니다. 결제·사용량 상한·인증·429
+오류는 Sonnet을 부르지 않고 중단합니다. 수정 요청은 설정과 무관하게 항상
+`full`입니다.
 
 <div align="center">
 
@@ -176,7 +200,17 @@ pnpm check:parser    # 모델 응답 태그 파서 회귀
 
 ```
 src/app/                    페이지 + API 라우트
-  api/generate-skill/       생성 API (route.ts / prompt.ts)
+  api/generate-skill/       생성 API
+                            route.ts        입력 검사 → 생성 → 응답
+                            generate.ts     생성 한 번의 전체 흐름
+                            prompt.ts       프롬프트와 코퍼스 렌더
+                            routing.ts      패턴 묶음 선택과 전달 목록
+                            routing-policy.ts / generation-routing.ts
+                                            full·routed 판정과 안전장치
+                            upstream-error.ts     Anthropic 오류 분류
+                            request-validation.ts 입력 길이·형식 검사
+                            telemetry.ts    서버 로그로 나가는 값
+  api/route-preview/        라우팅 미리보기 (개발 전용, 배포 환경에서는 404)
   api/eval-ab/              실험용 평가 하네스 (개발 전용, 배포 환경에서는 404)
   api/corpus-snapshot/      코퍼스 렌더 덤프 (개발 전용, 배포 환경에서는 404)
 src/components/create/      마법사 · 결과 화면 · 이관 패널
@@ -195,7 +229,8 @@ docs/experiments/           생성 품질 실험 기록 + 원자료
 ## 기술 스택
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS · pnpm · Biome
-· GSAP + Framer Motion · Anthropic SDK (Claude Sonnet 5)
+· GSAP + Framer Motion · Anthropic SDK (생성 Claude Sonnet 5,
+코퍼스 선택 Claude Haiku 4.5)
 
 ## 출처
 
