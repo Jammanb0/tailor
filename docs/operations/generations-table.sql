@@ -156,6 +156,16 @@ grant select, insert, update on table public.generations to service_role;
 create schema if not exists private;
 revoke all on schema private from anon, authenticated;
 
+-- 사전등록 문서의 「표본 제외용 확인 요청 기록」을 DB에 반영한다.
+-- 3단계에서 기록한 operation_id로 아래 예시를 바꿔 판정 전에 실행한다.
+-- 문서에만 적고 이 갱신을 하지 않으면 v_observation_target에서 빠지지 않는다.
+--
+-- update public.generations
+-- set is_smoke = true
+-- where operation_id in (
+--   '00000000-0000-0000-0000-000000000000'::uuid
+-- );
+
 -- 대상 100건. 이후 질의는 전부 이 집합 위에서 센다.
 --
 -- 입력 검사에서 막힌 요청은 pending insert 전에 끝나므로 애초에 행이 없다.
@@ -180,9 +190,10 @@ limit 100;
 -- full로 배포했다면 캐시가 맞았을 요청의 비율이다. delivered_mode를 보지 않는다:
 -- 그 세계에서는 검사를 통과한 create와 refine이 전부 같은 full 접두사를 보낸다.
 --
--- **선행 요청에서 smoke를 빼지 않는다.** 대상 100건에서는 smoke를 빼는 게 맞지만,
--- 직전 smoke 요청도 full 세계에서는 캐시를 데웠을 것이다. 빼면 사전등록의
--- 정의와 어긋나고 p̂이 실제보다 낮게 나온다 — routed를 유지하는 쪽으로 기운다.
+-- **선행 요청에서 smoke와 제작자의 확인 요청을 빼지 않는다.** 대상 100건에서는
+-- 빼는 게 맞지만, 직전 확인 요청도 full 세계에서는 캐시를 데웠을 것이다. 빼면
+-- 사전등록의 정의와 어긋나고 p̂이 실제보다 낮게 나온다 — routed를 유지하는
+-- 쪽으로 기운다.
 with target as (
   select operation_id, started_at from private.v_observation_target
 )

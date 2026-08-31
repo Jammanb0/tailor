@@ -96,9 +96,15 @@ Opens at `http://localhost:3000`.
 > `CORPUS_ROUTING_MODE` in `.env.example` is optional; without it the service
 > uses the default behaviour of sending the whole corpus.
 
-`.env.local` is covered by `.gitignore` so it is never committed, and the key is
-read **only on the server** (`src/app/api/generate-skill/route.ts`). It never
-reaches the browser.
+Set `SUPABASE_URL` and the server-only `SUPABASE_SECRET_KEY` only when you want
+operational telemetry. Generation still works without them; persistence is
+skipped fail-open. The table definition lives in
+`docs/operations/generations-table.sql`.
+
+`.env.local` is covered by `.gitignore` so it is never committed. The Anthropic
+key is read from `src/app/api/generate-skill/route.ts`, and the Supabase key from
+`src/app/api/generate-skill/observation-store.ts`; both stay **server-only** and
+never reach the browser.
 
 Without a key, **the glossary and gallery still work normally** — both are
 static pages that make no AI calls. Trying to generate from `/create` without
@@ -115,6 +121,7 @@ pnpm lint:corpus                 # corpus authoring rules
 pnpm count:audit                 # audit coverage report and document mapping check
 pnpm check:parser                # response tag parser regression
 pnpm check:logging               # server log allowlist regression
+pnpm check:observation           # Supabase telemetry and persistence regression
 pnpm check:upstream-errors       # Anthropic error classification and abort regression
 pnpm check:input-limits          # input length limit regression
 pnpm check:routing               # bundle selection and delivery regression
@@ -220,6 +227,8 @@ src/app/                    pages + API routes
                             upstream-error.ts     Anthropic error classification
                             request-validation.ts input length and shape checks
                             telemetry.ts    what server logs may contain
+                            observation.ts / observation-store.ts
+                                            allowed operational telemetry and Supabase persistence
   api/route-preview/        routing preview (dev only, 404 in production)
   api/eval-ab/              evaluation harness (dev only, 404 in production)
   api/corpus-snapshot/      corpus render dump (dev only, 404 in production)
@@ -232,9 +241,10 @@ src/data/
 src/lib/
   generation-errors.ts      shared error codes, messages, and retry policy
   input-limits.ts           shared input length limits
-tools/                      corpus lint/render/audit and parser/log/error/input/routing checks
+tools/                      corpus lint/render/audit and parser/log/error/input/routing/telemetry checks
 docs/corpus/                source audit records
 docs/experiments/           generation-quality experiments + raw data
+docs/operations/            operational telemetry schema and analysis SQL
 ```
 
 </details>
@@ -243,7 +253,7 @@ docs/experiments/           generation-quality experiments + raw data
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS · pnpm · Biome
 · GSAP + Framer Motion · Anthropic SDK (Claude Sonnet 5 for generation,
-Claude Haiku 4.5 for corpus selection)
+Claude Haiku 4.5 for corpus selection) · Supabase REST (operational telemetry)
 
 ## Attribution
 

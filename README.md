@@ -94,8 +94,15 @@ pnpm dev
 > `.env.example`에 있는 `CORPUS_ROUTING_MODE`는 선택이고, 없으면 전체 코퍼스를
 > 넣는 기본 동작을 씁니다.
 
-`.env.local`은 `.gitignore`에 잡혀 있어 커밋되지 않고, 키는 **서버에서만**
-읽습니다(`src/app/api/generate-skill/route.ts`). 브라우저로 내려가지 않습니다.
+운영 계측을 쓸 때만 `SUPABASE_URL`과 서버 전용 `SUPABASE_SECRET_KEY`를
+설정합니다. 두 값이 없어도 스킬 생성은 그대로 동작하며 계측 저장만
+건너뜁니다(fail-open). 표 정의는 `docs/operations/generations-table.sql`에
+있습니다.
+
+`.env.local`은 `.gitignore`에 잡혀 있어 커밋되지 않습니다. Anthropic 키는
+`src/app/api/generate-skill/route.ts`, Supabase 키는
+`src/app/api/generate-skill/observation-store.ts`에서 **서버에서만** 읽으며
+브라우저로 내려가지 않습니다.
 
 키가 없어도 **용어 사전과 갤러리는 그대로 동작합니다.** 둘 다 AI를 호출하지
 않는 정적 페이지예요. 키 없이 `/create`에서 생성을 시도하면 "API 키가 설정되어
@@ -112,6 +119,7 @@ pnpm lint:corpus                 # 코퍼스 작성 규칙
 pnpm count:audit                 # 감사 반영률 보고·문서 매핑 검사
 pnpm check:parser                # 모델 응답 태그 파서 회귀
 pnpm check:logging               # 서버 로그 허용 목록 회귀
+pnpm check:observation           # Supabase 계측·저장 경로 회귀
 pnpm check:upstream-errors       # Anthropic 오류 분류·중단 회귀
 pnpm check:input-limits          # 입력 길이 상한 회귀
 pnpm check:routing               # 묶음 선택·전달 목록 회귀
@@ -212,6 +220,8 @@ src/app/                    페이지 + API 라우트
                             upstream-error.ts     Anthropic 오류 분류
                             request-validation.ts 입력 길이·형식 검사
                             telemetry.ts    서버 로그로 나가는 값
+                            observation.ts / observation-store.ts
+                                            허용된 운영 계측 값과 Supabase 저장
   api/route-preview/        라우팅 미리보기 (개발 전용, 배포 환경에서는 404)
   api/eval-ab/              실험용 평가 하네스 (개발 전용, 배포 환경에서는 404)
   api/corpus-snapshot/      코퍼스 렌더 덤프 (개발 전용, 배포 환경에서는 404)
@@ -224,9 +234,10 @@ src/data/
 src/lib/
   generation-errors.ts      오류 코드·문구·재시도 정책 (서버·클라이언트 공용)
   input-limits.ts           입력 길이 상한 (서버·클라이언트 공용)
-tools/                      코퍼스 lint·렌더·감사와 파서·로그·오류·입력·라우팅 검사
+tools/                      코퍼스 lint·렌더·감사와 파서·로그·오류·입력·라우팅·계측 검사
 docs/corpus/                원문 감사 기록
 docs/experiments/           생성 품질 실험 기록 + 원자료
+docs/operations/            운영 계측 표 정의와 판정 SQL
 ```
 
 </details>
@@ -235,7 +246,7 @@ docs/experiments/           생성 품질 실험 기록 + 원자료
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS · pnpm · Biome
 · GSAP + Framer Motion · Anthropic SDK (생성 Claude Sonnet 5,
-코퍼스 선택 Claude Haiku 4.5)
+코퍼스 선택 Claude Haiku 4.5) · Supabase REST (운영 계측)
 
 ## 출처
 
