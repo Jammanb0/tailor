@@ -265,7 +265,9 @@ async function runWithStub({ selection, generation }) {
 			configuredMode: "routed",
 		}),
 	);
-	return { ...stub, outcome: result, lines };
+	// runGeneration은 응답(outcome)과 관측값(observation)을 따로 돌려준다.
+	// 이 검사가 보는 것은 응답 쪽이다.
+	return { ...stub, outcome: result.outcome, lines };
 }
 
 await check("중단 대상 오류에서는 Sonnet을 부르지 않는다", async () => {
@@ -470,7 +472,7 @@ await check("선택 후처리 오류는 업스트림 장애와 따로 기록한�
 	);
 	// 우리 오류여도 사용자 요청은 full로 이어 간다.
 	equal(stub.calls.length, 2, "full 폴백이 깨졌습니다");
-	equal(result.status, 200);
+	equal(result.outcome.status, 200);
 	const errorLines = lines.filter((line) =>
 		line.includes("generate-skill-error"),
 	);

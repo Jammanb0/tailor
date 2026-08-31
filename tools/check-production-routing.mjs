@@ -198,7 +198,9 @@ await check("프로덕션 라우트가 공용 정책·계측·출처 방어를 �
 		"process.env.CORPUS_ROUTING_MODE",
 		"prepareGenerationCorpus({",
 		"buildCorpusSystemBlock({",
-		"logRouting(preparedCorpus.routing)",
+		// operationId를 함께 싣게 되면서 인자가 객체 펼침으로 바뀌었다. 확인해야
+		// 할 것은 「라우팅 계측이 실제 선택 결과를 받는가」이므로 그 부분만 본다.
+		"logRouting({ ...preparedCorpus.routing",
 		"preparedCorpus.deliveredPatternIds",
 		// 선택이 중단 대상 오류로 죽으면 생성 호출로 넘어가지 않는다.
 		"preparedCorpus.selectionStop",
@@ -206,6 +208,11 @@ await check("프로덕션 라우트가 공용 정책·계측·출처 방어를 �
 		"preparedCorpus.selectionError",
 		"preparedCorpus.selectionProcessingError",
 		'"selection-processing"',
+		// 운영 관찰 계측. 배선이 빠지면 요청은 정상인데 표만 비므로, 프로덕션
+		// 경로를 보는 이 검사에서 함께 확인한다. 저장의 세부는
+		// `pnpm check:observation`이 본다.
+		"savePendingObservation(",
+		"saveFinalObservation({",
 	]) {
 		ok(source.includes(fragment), `프로덕션 연결 누락: ${fragment}`);
 	}

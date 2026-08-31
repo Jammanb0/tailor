@@ -29,9 +29,26 @@ import {
 	UPSTREAM_ERROR_CATEGORIES,
 } from "./upstream-error";
 
+/**
+ * 모든 이벤트에 붙는 요청 식별자.
+ *
+ * Vercel 로그와 Supabase 행을 맞추는 값이다. 우리가 만든 uuid라 요청 내용이
+ * 섞이지 않는다. 형태가 어긋나면 버린다 — 밖에서 들어온 값이 실려 나가지
+ * 않게 하려는 것이다.
+ */
+const OPERATION_ID_SHAPE =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function pickOperationId(value: string | null | undefined): string | null {
+	return typeof value === "string" && OPERATION_ID_SHAPE.test(value)
+		? value
+		: null;
+}
+
 /** 성공 계측 이벤트의 최상위 필드. 여기 없는 것은 로그에 나가지 않는다. */
 export const GENERATION_LOG_FIELDS = [
 	"event",
+	"operationId",
 	"kind",
 	"corpusMode",
 	"model",
@@ -43,6 +60,7 @@ export const GENERATION_LOG_FIELDS = [
 /** 선택 계측 이벤트의 최상위 필드. */
 export const ROUTING_LOG_FIELDS = [
 	"event",
+	"operationId",
 	"model",
 	"ms",
 	"status",
@@ -60,6 +78,7 @@ export const ROUTING_LOG_FIELDS = [
  */
 export const ERROR_LOG_FIELDS = [
 	"event",
+	"operationId",
 	"stage",
 	"errorName",
 	"status",
@@ -68,6 +87,47 @@ export const ERROR_LOG_FIELDS = [
 	"retryAfterSeconds",
 	"requestId",
 ] as const;
+
+/**
+ * 계측 저장이 실패했을 때의 최상위 필드.
+ *
+ * Supabase 응답 본문과 오류 message는 담지 않는다. 원인을 가리는 데 필요한
+ * 것은 어느 단계에서 왜 실패했고 어느 요청이었는가다.
+ *
+ * `kind`·`configuredMode`·`isSmoke`가 함께 있어야 pending insert가 실패해
+ * **표에 행이 아예 없는** 요청도 첫 100건에 속하는지 사후에 복원할 수 있다.
+ */
+export const PERSISTENCE_ERROR_LOG_FIELDS = [
+	"event",
+	"stage",
+	"reason",
+	"status",
+	"operationId",
+	"startedAt",
+	"kind",
+	"configuredMode",
+	"deploymentId",
+	"isSmoke",
+] as const;
+
+/** 저장이 실패할 수 있는 두 자리. */
+export const PERSISTENCE_STAGES = ["pending-insert", "final-update"] as const;
+export type PersistenceStage = (typeof PERSISTENCE_STAGES)[number];
+
+/**
+ * 저장이 실패한 까닭.
+ *
+ * `not_configured`는 환경변수가 없어 저장을 아예 시도하지 않은 경우다. 오류는
+ * 아니지만 조용히 넘어가면 배포에서 계측이 통째로 비는 것을 100건을 다 센
+ * 다음에야 알게 된다.
+ */
+export const PERSISTENCE_FAILURE_REASONS = [
+	"not_configured",
+	"request_failed",
+	"http_error",
+] as const;
+export type PersistenceFailureReason =
+	(typeof PERSISTENCE_FAILURE_REASONS)[number];
 
 /**
  * 실패가 난 자리.
@@ -153,6 +213,7 @@ export function pickUsage(usage: Anthropic.Usage | undefined | null): UsageLog {
 
 /** 생성이 성공했을 때 남기는 한 줄. */
 export function buildGenerationLog(input: {
+	operationId?: string | null;
 	kind: "create" | "refine";
 	corpusMode: CorpusRoutingMode;
 	model: string;
@@ -162,6 +223,7 @@ export function buildGenerationLog(input: {
 }) {
 	return {
 		event: "generate-skill" as const,
+		operationId: pickOperationId(input.operationId),
 		kind: input.kind,
 		corpusMode: input.corpusMode,
 		model: input.model,
@@ -180,6 +242,7 @@ function pickIds<T extends string>(
 
 /** 선택 호출과 전체 전환 판정을 원문 없이 남기는 한 줄. */
 export function buildRoutingLog(input: {
+	operationId?: string | null;
 	model: string;
 	ms: number;
 	usage: Anthropic.Usage | undefined | null;
@@ -187,6 +250,7 @@ export function buildRoutingLog(input: {
 }) {
 	return {
 		event: "generate-skill-routing" as const,
+		operationId: pickOperationId(input.operationId),
 		model: input.model,
 		ms: toCount(input.ms),
 		status: input.decision.status,
@@ -207,11 +271,13 @@ export function buildRoutingLog(input: {
  * 태그를 안 쓴 경우는 원인이 다르므로 둘을 가를 수 있게 따로 센다.
  */
 export function buildParseFailureLog(input: {
+	operationId?: string | null;
 	text: string;
 	stopReason: string | null;
 }) {
 	return {
 		event: "generate-skill-parse-failure" as const,
+		operationId: pickOperationId(input.operationId),
 		textLength: input.text.length,
 		hasOpenTag: /^<skill_md>/m.test(input.text),
 		hasCloseTag: /^<\/skill_md>/m.test(input.text),
@@ -286,6 +352,7 @@ function pickKnown(value: string | null, allowed: readonly string[]) {
 export function buildErrorLog(
 	error: unknown,
 	stage: ErrorStage = "generation",
+	operationId?: string | null,
 ) {
 	// SDK의 오류 클래스는 `name`을 세팅하지 않아 전부 "Error"로 나온다. 종류를
 	// 가리는 값은 생성자 이름이다. 빌드가 이름을 뭉개면 허용 목록에서 걸러져
@@ -309,6 +376,7 @@ export function buildErrorLog(
 	const classification = isProcessing ? null : classifyUpstreamError(error);
 	return {
 		event: "generate-skill-error" as const,
+		operationId: pickOperationId(operationId),
 		stage: stageName,
 		errorName: pickKnown(name, KNOWN_ERROR_NAMES) ?? "other",
 		status: readNumber(error, "status"),
@@ -322,20 +390,60 @@ export function buildErrorLog(
 	};
 }
 
+/**
+ * 계측 저장이 실패했을 때 남기는 한 줄.
+ *
+ * Supabase 응답 본문을 담지 않는다. 우리가 만들지 않은 문자열이라 무엇이
+ * 들어올지 정하지 못한다. HTTP 상태 코드로 충분하다.
+ *
+ * **이 로그가 곧 유실은 아니다.** 요청이 타임아웃돼도 Supabase 쪽에서는 저장이
+ * 이미 끝났을 수 있다. 유실을 판정할 때는 이 로그의 operationId로 실제 행이
+ * 있는지 대조한다 — 그 절차는 사전등록 문서에 있다.
+ */
+export function buildPersistenceErrorLog(input: {
+	stage: PersistenceStage;
+	reason: PersistenceFailureReason;
+	status?: number | null;
+	operationId?: string | null;
+	startedAt?: string | null;
+	kind?: "create" | "refine" | null;
+	configuredMode?: CorpusRoutingMode | null;
+	deploymentId?: string | null;
+	isSmoke?: boolean;
+}) {
+	return {
+		event: "generate-skill-persistence-error" as const,
+		stage: pickKnown(input.stage, PERSISTENCE_STAGES) ?? "final-update",
+		reason:
+			pickKnown(input.reason, PERSISTENCE_FAILURE_REASONS) ?? "request_failed",
+		status: typeof input.status === "number" ? input.status : null,
+		operationId: pickOperationId(input.operationId),
+		// 우리가 만든 ISO 문자열이지만 형태로 한 번 거른다.
+		startedAt:
+			typeof input.startedAt === "string" &&
+			!Number.isNaN(Date.parse(input.startedAt))
+				? input.startedAt
+				: null,
+		kind: pickKnown(input.kind ?? null, ["create", "refine"]),
+		configuredMode: pickKnown(input.configuredMode ?? null, ["full", "routed"]),
+		deploymentId:
+			typeof input.deploymentId === "string" &&
+			/^[A-Za-z0-9_-]{1,64}$/.test(input.deploymentId)
+				? input.deploymentId
+				: null,
+		isSmoke: input.isSmoke === true,
+	};
+}
+
 // ── 여기서만 console을 쓴다 ──────────────────────────────────────────
 //
 // route.ts는 console을 직접 부르지 않는다. 부르는 자리를 한 곳에 모아야
 // "무엇이 로그로 나가는가"를 파일 하나만 읽고 판정할 수 있다. 검사도 route.ts에
 // console이 0개인지만 세면 되어, 호출 인자를 정규식으로 뜯어볼 필요가 없다.
 
-export function logGeneration(input: {
-	kind: "create" | "refine";
-	corpusMode: CorpusRoutingMode;
-	model: string;
-	ms: number;
-	stopReason: string | null;
-	usage: Anthropic.Usage | undefined | null;
-}): void {
+export function logGeneration(
+	input: Parameters<typeof buildGenerationLog>[0],
+): void {
 	console.log(JSON.stringify(buildGenerationLog(input)));
 }
 
@@ -343,16 +451,29 @@ export function logRouting(input: Parameters<typeof buildRoutingLog>[0]): void {
 	console.log(JSON.stringify(buildRoutingLog(input)));
 }
 
-export function logParseFailure(input: {
-	text: string;
-	stopReason: string | null;
-}): void {
+export function logParseFailure(
+	input: Parameters<typeof buildParseFailureLog>[0],
+): void {
 	console.error(JSON.stringify(buildParseFailureLog(input)));
 }
 
 export function logRequestFailure(
 	error: unknown,
 	stage: ErrorStage = "generation",
+	operationId?: string | null,
 ): void {
-	console.error(JSON.stringify(buildErrorLog(error, stage)));
+	console.error(JSON.stringify(buildErrorLog(error, stage, operationId)));
+}
+
+/**
+ * 계측 저장 실패를 남긴다.
+ *
+ * 저장 모듈이 console을 직접 부르지 않고 이 함수를 거친다. console을 부르는
+ * 자리를 telemetry.ts 안에만 두어야 「무엇이 로그로 나가는가」를 파일 하나만
+ * 읽고 판정할 수 있다.
+ */
+export function logPersistenceFailure(
+	input: Parameters<typeof buildPersistenceErrorLog>[0],
+): void {
+	console.error(JSON.stringify(buildPersistenceErrorLog(input)));
 }
