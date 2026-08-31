@@ -106,8 +106,10 @@ pnpm dev
 
 ```bash
 pnpm lint                        # Biome (lint + format)
+pnpm build                       # 프로덕션 빌드
 pnpm exec tsc --noEmit           # 타입 검사
 pnpm lint:corpus                 # 코퍼스 작성 규칙
+pnpm count:audit                 # 감사 반영률 보고·문서 매핑 검사
 pnpm check:parser                # 모델 응답 태그 파서 회귀
 pnpm check:logging               # 서버 로그 허용 목록 회귀
 pnpm check:upstream-errors       # Anthropic 오류 분류·중단 회귀
@@ -219,7 +221,10 @@ src/data/
   gallery.ts                갤러리 데이터
   glossary.ts               용어 사전 데이터
   wizard-questions.ts       마법사 질문 정의
-tools/                      코퍼스 lint · 렌더 대조 · 감사 반영률 · 파서 회귀
+src/lib/
+  generation-errors.ts      오류 코드·문구·재시도 정책 (서버·클라이언트 공용)
+  input-limits.ts           입력 길이 상한 (서버·클라이언트 공용)
+tools/                      코퍼스 lint·렌더·감사와 파서·로그·오류·입력·라우팅 검사
 docs/corpus/                원문 감사 기록
 docs/experiments/           생성 품질 실험 기록 + 원자료
 ```

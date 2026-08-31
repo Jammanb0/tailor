@@ -109,8 +109,10 @@ one returns a message saying the API key is not configured.
 
 ```bash
 pnpm lint                        # Biome (lint + format)
+pnpm build                       # production build
 pnpm exec tsc --noEmit           # type check
 pnpm lint:corpus                 # corpus authoring rules
+pnpm count:audit                 # audit coverage report and document mapping check
 pnpm check:parser                # response tag parser regression
 pnpm check:logging               # server log allowlist regression
 pnpm check:upstream-errors       # Anthropic error classification and abort regression
@@ -227,7 +229,10 @@ src/data/
   gallery.ts                gallery data
   glossary.ts               glossary data
   wizard-questions.ts       wizard question definitions
-tools/                      corpus lint, render diff, audit coverage, parser regression
+src/lib/
+  generation-errors.ts      shared error codes, messages, and retry policy
+  input-limits.ts           shared input length limits
+tools/                      corpus lint/render/audit and parser/log/error/input/routing checks
 docs/corpus/                source audit records
 docs/experiments/           generation-quality experiments + raw data
 ```
