@@ -1,6 +1,6 @@
 // 서버 로그 회귀 시험 — 남기면 안 되는 것이 로그로 새지 않는지 본다.
 //
-// 사용: node --experimental-strip-types --no-warnings tools/check-logging.mjs
+// 사용: node --experimental-strip-types --no-warnings --import ./tools/alias-loader.mjs tools/check-logging.mjs
 //       (pnpm check:logging)
 //
 // 왜 있나: 2026-08-28까지 `/api/generate-skill`은 파싱이 깨졌을 때 **모델이 만든
@@ -20,7 +20,8 @@
 // 통째로 흡수돼 통과했다. 그래서 호출을 telemetry.ts 한 곳으로 모으고, 검사는
 // 인자를 파싱하는 대신 **발생 횟수만 센다.** 셀 수 있는 것으로 판정한다.
 //
-// telemetry.ts는 `@/` 별칭을 쓰지 않고 값 import도 없어서 그대로 불러올 수 있다.
+// telemetry.ts는 오류 분류를 upstream-error.ts에서 가져온다. 확장자 없는 상대
+// 경로라 node가 그대로는 못 찾으므로 tools/alias-loader.mjs를 함께 등록한다.
 // 소스를 뽑아 돌리는 check-tag-parser.mjs 방식은 여기선 필요 없다.
 
 import { readFileSync } from "node:fs";
@@ -32,16 +33,21 @@ import {
 	buildGenerationLog,
 	buildParseFailureLog,
 	buildRoutingLog,
+	ERROR_LOG_CATEGORIES,
+	ERROR_LOG_FIELDS,
+	ERROR_STAGES,
 	GENERATION_LOG_FIELDS,
 	KNOWN_ERROR_NAMES,
 	pickUsage,
 	ROUTING_LOG_FIELDS,
+	SELECTION_PROCESSING_CATEGORY,
 	USAGE_LOG_FIELDS,
 } from "../src/app/api/generate-skill/telemetry.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const API_DIR = join(HERE, "..", "src", "app", "api", "generate-skill");
 const ROUTE = join(API_DIR, "route.ts");
+const GENERATE = join(API_DIR, "generate.ts");
 const TELEMETRY = join(API_DIR, "telemetry.ts");
 
 // 새면 눈에 띄도록 실제 자료 대신 표식을 넣는다. 로그 어디에도 이 글자가
@@ -192,6 +198,93 @@ check("실제 APIError에서 진단값을 읽는다", () => {
 	}
 });
 
+check("실패 로그는 허용된 최상위 필드만 낸다", () => {
+	const log = buildErrorLog(
+		APIError.generate(
+			429,
+			{
+				type: "error",
+				error: {
+					type: "rate_limit_error",
+					message: SECRET,
+					details: { error_code: `enforced_spend_limit_reached ${SECRET}` },
+				},
+			},
+			undefined,
+			new Headers({ "retry-after": `13 ${SECRET}` }),
+		),
+		"selection",
+	);
+	if (!sameMembers(Object.keys(log), [...ERROR_LOG_FIELDS])) {
+		throw new Error(`필드가 다릅니다: ${Object.keys(log).join(", ")}`);
+	}
+	if (JSON.stringify(log).includes(SECRET)) {
+		throw new Error("허용 목록 밖의 값이 딸려 나왔습니다");
+	}
+	// 형태가 어긋난 retry-after는 버린다. 지어낸 숫자로 버튼을 잠그지 않는다.
+	if (log.retryAfterSeconds !== null) {
+		throw new Error(`retryAfterSeconds가 ${log.retryAfterSeconds}입니다`);
+	}
+	// error_code도 값을 그대로 흘리지 않는다 — 아는 값과 정확히 같을 때만 센다.
+	if (log.category !== "rate_limited") {
+		throw new Error(`category가 ${log.category}입니다`);
+	}
+});
+
+// ── 우리 코드의 오류를 남의 장애로 적지 않는가 ───────────────────────
+//
+// 전달 목록·렌더에서 난 오류는 상태 코드가 없다. 그대로 업스트림 분류에
+// 태우면 `upstream_unavailable`이 되어, 우리 렌더 결함이 Anthropic 장애나
+// 네트워크 문제로 집계된다. 라우팅 로그에서는 둘 다 F1이라 구분이 안 된다.
+check("선택 후처리 오류는 업스트림 장애로 적지 않는다", () => {
+	const ours = buildErrorLog(
+		new TypeError("cannot read patternIds"),
+		"selection-processing",
+	);
+	if (ours.category !== SELECTION_PROCESSING_CATEGORY) {
+		throw new Error(`category가 ${ours.category}입니다`);
+	}
+	if (ours.stage !== "selection-processing") {
+		throw new Error(`stage가 ${ours.stage}입니다`);
+	}
+	if (ours.retryAfterSeconds !== null) {
+		throw new Error("우리 오류에 재시도 대기 시간이 붙었습니다");
+	}
+	// 같은 오류라도 선택 호출 단계였다면 업스트림 분류를 그대로 쓴다.
+	const upstream = buildErrorLog(new TypeError("x"), "selection");
+	if (upstream.category !== "upstream_unavailable") {
+		throw new Error(`업스트림 분류가 바뀌었습니다: ${upstream.category}`);
+	}
+});
+
+check("category는 허용 목록 밖으로 나가지 않는다", () => {
+	const allowed = [...ERROR_LOG_CATEGORIES, null];
+	for (const stage of [...ERROR_STAGES, SECRET]) {
+		for (const one of [
+			null,
+			undefined,
+			"그냥 문자열",
+			42,
+			new Error("x"),
+			APIError.generate(429, {}, undefined, new Headers()),
+		]) {
+			const { category } = buildErrorLog(one, stage);
+			if (!allowed.includes(category)) {
+				throw new Error(`허용 목록 밖의 category: ${category}`);
+			}
+		}
+	}
+});
+
+check("단계 이름은 아는 값만 남긴다", () => {
+	if (buildErrorLog(new Error("x"), SECRET).stage !== "generation") {
+		throw new Error("모르는 단계 이름이 그대로 나갔습니다");
+	}
+	if (buildErrorLog(new Error("x")).stage !== "generation") {
+		throw new Error("기본 단계가 틀립니다");
+	}
+});
+
 // ── 키만이 아니라 값도 허용 목록으로 거르는가 ────────────────────────
 check("임의 문자열이 담긴 필드는 흘리지 않는다", () => {
 	const log = buildErrorLog(
@@ -255,6 +348,11 @@ const countConsole = (path) =>
 
 check("route.ts는 console을 직접 부르지 않는다", () => {
 	const found = countConsole(ROUTE);
+	if (found !== 0) throw new Error(`console이 ${found}군데 있습니다`);
+});
+
+check("generate.ts도 console을 직접 부르지 않는다", () => {
+	const found = countConsole(GENERATE);
 	if (found !== 0) throw new Error(`console이 ${found}군데 있습니다`);
 });
 

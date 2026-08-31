@@ -187,17 +187,36 @@ await check("full→routed→full 양방향 정책이 결정적이다", () => {
 });
 
 await check("프로덕션 라우트가 공용 정책·계측·출처 방어를 사용한다", () => {
-	const source = readFileSync(
-		join(ROOT, "src/app/api/generate-skill/route.ts"),
-		"utf8",
-	);
+	// 흐름은 generate.ts로 옮겼고 라우트는 그것을 부르기만 한다. 두 파일을
+	// 함께 읽어야 「프로덕션 경로가 무엇을 쓰는가」를 그대로 확인할 수 있다.
+	const source = ["route.ts", "generate.ts"]
+		.map((name) =>
+			readFileSync(join(ROOT, "src/app/api/generate-skill", name), "utf8"),
+		)
+		.join("\n");
 	for (const fragment of [
 		"process.env.CORPUS_ROUTING_MODE",
 		"prepareGenerationCorpus({",
 		"buildCorpusSystemBlock({",
 		"logRouting(preparedCorpus.routing)",
 		"preparedCorpus.deliveredPatternIds",
+		// 선택이 중단 대상 오류로 죽으면 생성 호출로 넘어가지 않는다.
+		"preparedCorpus.selectionStop",
+		// 선택 호출의 실패와 우리 코드의 후처리 실패를 따로 남긴다.
+		"preparedCorpus.selectionError",
+		"preparedCorpus.selectionProcessingError",
+		'"selection-processing"',
 	]) {
+		ok(source.includes(fragment), `프로덕션 연결 누락: ${fragment}`);
+	}
+});
+
+await check("라우트는 입력 상한 검사를 거친 요청만 넘긴다", () => {
+	const source = readFileSync(
+		join(ROOT, "src/app/api/generate-skill/route.ts"),
+		"utf8",
+	);
+	for (const fragment of ["readValidatedRequest(request)", "runGeneration({"]) {
 		ok(source.includes(fragment), `프로덕션 연결 누락: ${fragment}`);
 	}
 });

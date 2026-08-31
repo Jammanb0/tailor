@@ -24,6 +24,10 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { SelectionDecision, SelectionFallbackReasonId } from "./routing";
 import type { CorpusRoutingMode } from "./routing-policy";
+import {
+	classifyUpstreamError,
+	UPSTREAM_ERROR_CATEGORIES,
+} from "./upstream-error";
 
 /** 성공 계측 이벤트의 최상위 필드. 여기 없는 것은 로그에 나가지 않는다. */
 export const GENERATION_LOG_FIELDS = [
@@ -46,6 +50,52 @@ export const ROUTING_LOG_FIELDS = [
 	"fallbackReasonIds",
 	"ambiguityIds",
 	"usage",
+] as const;
+
+/**
+ * 실패 계측 이벤트의 최상위 필드.
+ *
+ * `stage`는 Haiku 선택과 Sonnet 생성을 가른다. 둘을 같은 이벤트로 찍으면서
+ * 구분을 안 두면 「선택이 죽은 것」과 「생성이 죽은 것」이 한 통에 섞인다.
+ */
+export const ERROR_LOG_FIELDS = [
+	"event",
+	"stage",
+	"errorName",
+	"status",
+	"code",
+	"category",
+	"retryAfterSeconds",
+	"requestId",
+] as const;
+
+/**
+ * 실패가 난 자리.
+ *
+ * `selection`은 Haiku 호출 자체, `selection-processing`은 그 뒤 전달 목록·
+ * 렌더에서 난 우리 코드의 오류, `generation`은 Sonnet 호출이다. 앞의 둘은
+ * 라우팅 로그에서 똑같이 F1로 보이지만 고칠 곳이 다르다.
+ */
+export const ERROR_STAGES = [
+	"selection",
+	"selection-processing",
+	"generation",
+] as const;
+export type ErrorStage = (typeof ERROR_STAGES)[number];
+
+/**
+ * 우리 코드가 만든 선택 후처리 오류의 category.
+ *
+ * 업스트림 분류에 넣지 않는다. 상태 코드가 없는 평범한 `Error`는
+ * `upstream_unavailable`로 떨어지는데, 그러면 렌더 결함이 Anthropic 장애나
+ * 네트워크 문제로 집계된다.
+ */
+export const SELECTION_PROCESSING_CATEGORY = "selection_processing_error";
+
+/** 실패 로그의 category에 나갈 수 있는 값 전부. */
+export const ERROR_LOG_CATEGORIES = [
+	...UPSTREAM_ERROR_CATEGORIES,
+	SELECTION_PROCESSING_CATEGORY,
 ] as const;
 
 export const FALLBACK_REASON_IDS = [
@@ -194,6 +244,9 @@ export const KNOWN_ERROR_NAMES = [
 	"InternalServerError",
 	"Error",
 	"TypeError",
+	// 선택 deadline이 만드는 중단. 우리가 던지는 값이라 종류를 안다.
+	"DOMException",
+	"AbortError",
 ] as const;
 
 /**
@@ -230,7 +283,10 @@ function pickKnown(value: string | null, allowed: readonly string[]) {
  * 나머지 문자열 필드도 값을 그대로 쓰지 않는다. 이름과 종류는 아는 목록에
  * 있을 때만 적고, request id는 형태가 맞을 때만 적는다.
  */
-export function buildErrorLog(error: unknown) {
+export function buildErrorLog(
+	error: unknown,
+	stage: ErrorStage = "generation",
+) {
 	// SDK의 오류 클래스는 `name`을 세팅하지 않아 전부 "Error"로 나온다. 종류를
 	// 가리는 값은 생성자 이름이다. 빌드가 이름을 뭉개면 허용 목록에서 걸러져
 	// "other"가 되는데, 덜 알려주는 쪽이라 안전한 방향으로 무너진다.
@@ -244,11 +300,23 @@ export function buildErrorLog(error: unknown) {
 	// `request_id`는 SDK 밖에서 온 오류를 위한 대비다.
 	const requestId =
 		readString(error, "requestID") ?? readString(error, "request_id");
+	const stageName = ERROR_STAGES.includes(stage) ? stage : "generation";
+	// 우리 코드가 만든 오류는 업스트림 분류에 태우지 않는다. 태우면 상태
+	// 코드가 없다는 이유만으로 「일시 장애」가 되어 원인이 뒤바뀐다.
+	const isProcessing = stageName === "selection-processing";
+	// 분류 결과는 코드가 정한 고정 집합이라 그대로 남겨도 된다. 그 판정에
+	// 쓰인 오류 message는 upstream-error.ts 밖으로 나오지 않는다.
+	const classification = isProcessing ? null : classifyUpstreamError(error);
 	return {
 		event: "generate-skill-error" as const,
+		stage: stageName,
 		errorName: pickKnown(name, KNOWN_ERROR_NAMES) ?? "other",
 		status: readNumber(error, "status"),
 		code: pickKnown(readString(error, "type"), KNOWN_ERROR_TYPES),
+		category: isProcessing
+			? SELECTION_PROCESSING_CATEGORY
+			: pickKnown(classification?.category ?? null, UPSTREAM_ERROR_CATEGORIES),
+		retryAfterSeconds: classification?.retryAfterSeconds ?? null,
 		requestId:
 			requestId !== null && REQUEST_ID_SHAPE.test(requestId) ? requestId : null,
 	};
@@ -282,6 +350,9 @@ export function logParseFailure(input: {
 	console.error(JSON.stringify(buildParseFailureLog(input)));
 }
 
-export function logRequestFailure(error: unknown): void {
-	console.error(JSON.stringify(buildErrorLog(error)));
+export function logRequestFailure(
+	error: unknown,
+	stage: ErrorStage = "generation",
+): void {
+	console.error(JSON.stringify(buildErrorLog(error, stage)));
 }

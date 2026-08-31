@@ -33,6 +33,15 @@ const SELECTION_MAX_TOKENS = 512;
 /** 선택이 이 시간 안에 끝나지 않으면 전체 코퍼스로 전환한다. */
 export const SELECTION_DEADLINE_MS = 10_000;
 
+/**
+ * 선택 호출의 SDK 자동 재시도 횟수.
+ *
+ * 0이다. 생성 호출(Sonnet)의 재시도 정책은 건드리지 않는다 — 그쪽은 한 번
+ * 실패하면 사용자가 몇십 초를 버린 뒤라, SDK가 알아서 한 번 더 시도하는 편이
+ * 낫다.
+ */
+export const SELECTION_MAX_RETRIES = 0;
+
 export const onlineBundles = patternBundles.filter(
 	(bundle) => bundle.delivery === "online",
 );
@@ -425,6 +434,10 @@ export async function runSelectionWithDeadline(
  * 카드에 캐시를 걸지 않았다. 조합 반복률을 재기 전에 캐시를 켜면 다시 읽히지
  * 않는 블록에 1.25배를 내게 될 수 있다(design.md 「캐시는 반복되는 부분에만
  * 건다」). 반복률을 잰 뒤에 정한다.
+ *
+ * SDK 자동 재시도는 끈다. 기본값 2는 10초 deadline과 경쟁한다 — 긴
+ * retry-after를 만난 429가 재시도에 시간을 다 쓰고 F2(시간 초과)로 기록되면,
+ * 실제 원인이 429였다는 사실이 로그에서 사라진다. 오류 분류는 앱이 직접 한다.
  */
 export async function selectBundles(
 	client: Anthropic,
@@ -447,7 +460,9 @@ export async function selectBundles(
 				},
 			],
 		},
-		options?.signal ? { signal: options.signal } : undefined,
+		options?.signal
+			? { signal: options.signal, maxRetries: SELECTION_MAX_RETRIES }
+			: { maxRetries: SELECTION_MAX_RETRIES },
 	);
 	const rawText = response.content
 		.filter((block) => block.type === "text")
