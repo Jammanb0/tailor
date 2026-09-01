@@ -95,9 +95,17 @@ smoke를 도는 동안 그 배포에 들어온 실제 사용자 요청까지 전
 
 | `operation_id` | `started_at` | 제외 사유 |
 |---|---|---|
-| 3단계에서 기록 | 3단계에서 기록 | synthetic smoke 또는 별도 동작 확인 |
+| `39e3cf73-3e07-4b4d-93ff-2ba72f6e8a1f` | 2026-09-01 15:16:27+00 | 1차 배포 동작 확인 (`configured_mode=full`, `NOTES.md` 참조) |
+| `0c0203b0-ca69-4acb-8688-d297a7f335aa` | 2026-09-01 15:17:24+00 | 위와 같음 |
+| `02290ad0-a787-4568-82d8-a86622d69a2c` | 2026-09-01 15:18:03+00 | 위와 같음 (정제) |
+| `7bba112e-768d-4fa9-922e-da96d986b222` | 2026-09-01 15:27:59+00 | synthetic smoke (create) |
+| `4798e3c3-51ac-4b5a-a172-7843012c758f` | 2026-09-01 15:32:17+00 | synthetic smoke (refine) |
 
-Smoke 종료 시각: 3단계에서 기록
+Smoke 종료 시각: **2026-09-01 15:38:15.740783+00**
+
+통과 조건 일곱 개를 모두 확인하고 위 다섯 건에 `is_smoke=true`를 반영한 시각이다.
+같은 값을 `private.v_observation_target`의 `started_at` 하한에 넣었다. 실행 기록은
+`NOTES.md`에 있다.
 
 기록한 요청은 판정 전에 `docs/operations/generations-table.sql`의 갱신 예시로
 `is_smoke=true`를 반영한다. 그래야 `v_observation_target`이 이 목록을 실제
