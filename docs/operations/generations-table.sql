@@ -173,6 +173,10 @@ revoke all on schema private from anon, authenticated;
 --
 -- 정렬에 operation_id를 더한 이유는 동시 요청의 started_at이 같을 수 있기
 -- 때문이다. 그러면 100번째가 실행할 때마다 달라져 판정이 흔들린다.
+--
+-- started_at 하한은 임시값이다. 실제 값과 적용 시점은
+-- docs/experiments/data/2026-08-31-routed-operations/PRE-REGISTRATION.md의
+-- 「synthetic smoke 절차」 → 「기록」 4번을 따른다.
 create or replace view private.v_observation_target
 with (security_invoker = true) as
 select *
