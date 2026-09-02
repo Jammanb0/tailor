@@ -174,10 +174,15 @@ revoke all on schema private from anon, authenticated;
 -- 정렬에 operation_id를 더한 이유는 동시 요청의 started_at이 같을 수 있기
 -- 때문이다. 그러면 100번째가 실행할 때마다 달라져 판정이 흔들린다.
 --
--- started_at 하한은 2026-09-01 synthetic smoke를 마친 시각이며 실제 뷰에
--- 적용한 값이다. 정한 근거와 절차는
+-- started_at 하한은 실제 뷰에 적용한 값이다. 처음에는 2026-09-01 synthetic
+-- smoke를 마친 시각(2026-09-01 15:38:15.740783+00)이었고, 정한 근거와 절차는
 -- docs/experiments/data/2026-08-31-routed-operations/PRE-REGISTRATION.md의
 -- 「synthetic smoke 절차」 → 「기록」 4번에 있다.
+--
+-- 2026-09-02에 하한을 옮겼다. `<filename>` 파서 수정(`ba0ed05`)이 프로덕션
+-- 생성 경로를 바꿨고, 사전등록이 「생성 경로를 바꾸면 그 시점부터 100건을 다시
+-- 센다」고 정해 두었기 때문이다. 옮긴 시점의 대상은 0건이라 버린 표본은 없다.
+-- 경위는 위 폴더의 NOTES.md 「관찰 기준 시각 이동」에 있다.
 create or replace view private.v_observation_target
 with (security_invoker = true) as
 select *
@@ -185,7 +190,7 @@ from public.generations
 where kind = 'create'
   and configured_mode = 'routed'
   and is_smoke = false
-  and started_at >= timestamptz '2026-09-01 15:38:15.740783+00'
+  and started_at >= timestamptz '2026-09-02 12:41:23+00'
 order by started_at, operation_id
 limit 100;
 
