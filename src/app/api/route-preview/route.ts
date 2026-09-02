@@ -25,6 +25,7 @@ import {
 	buildRoutedCorpusSection,
 	buildUserContent,
 	CORPUS_SECTION,
+	extractFilename,
 	extractListTag,
 	extractTag,
 	MAX_CLARIFYING_QUESTIONS,
@@ -326,8 +327,7 @@ export async function POST(request: Request) {
 				clarifyingQuestions,
 				needsMoreInfo:
 					!extractTag(rawText, "skill_md") && clarifyingQuestions.length > 0,
-				suggestedFilename:
-					extractTag(rawText, "filename")?.trim() || "my-skill",
+				suggestedFilename: extractFilename(rawText),
 			};
 		} catch (error) {
 			console.error(`${mode} evaluation generation failed`, error);

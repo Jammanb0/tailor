@@ -249,6 +249,26 @@ export function extractListTag(text: string, tag: string): string[] {
 		.filter((line) => !TAG_ONLY_LINE.test(line));
 }
 
+// 파일명은 한 줄이다.
+//
+// 폴더 이름 자리에 들어가는 값이라 여러 줄이 오면 설치 안내가 통째로 흐트러진다.
+// 그렇게 되는 길이 둘이다 — 모델이 닫는 태그 안에 설명을 덧붙인 경우와,
+// `<filename>` 뒤에 줄 머리의 다른 최상위 태그가 하나도 없어 되돌림 경로가 남은
+// 글을 전부 가져오는 경우다. 뒤엣것은 응답이 끊겼을 때만이 아니라 `<filename>`이
+// 마지막 블록이 되거나 뒤따르는 태그가 빠졌을 때도 생긴다.
+//
+// 그래서 **첫 비어 있지 않은 줄만** 쓴다. kebab-case로 좁히지는 않는다 — 파일명은
+// 사용자가 요청한 SKILL.md 언어를 따르므로 한글일 수 있고, normalizeId의 정규식을
+// 태우면 멀쩡한 이름이 빈 문자열이 된다.
+//
+// 프로덕션 생성 경로와 개발용 route-preview가 함께 쓴다. 같은 식을 양쪽에 복사해
+// 두면 한쪽만 고쳤을 때 실험 도구와 프로덕션의 동작이 갈린다.
+export function extractFilename(text: string): string {
+	const block = extractTag(text, "filename") ?? "";
+	const first = block.split("\n").find((line) => line.trim());
+	return first?.trim() || "my-skill";
+}
+
 // 모델이 id를 어떻게 감싸 보고하든 순수 id만 남긴다.
 // 코퍼스를 `- [id] (role) summary` 형태로 렌더하다 보니, 모델에 따라
 // 대괄호를 그대로 달거나(`[verify-before-done]`) 뒤에 설명을 붙여

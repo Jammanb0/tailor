@@ -27,6 +27,7 @@ import type { GenerationObservation } from "./observation";
 import {
 	buildUserContent,
 	extractArchetypeId,
+	extractFilename,
 	extractListTag,
 	extractTag,
 	extractUsedPatternIds,
@@ -341,7 +342,7 @@ export async function runGeneration(input: {
 		});
 	}
 
-	const filename = extractTag(text, "filename")?.trim() || "my-skill";
+	const filename = extractFilename(text);
 
 	// 이번 생성에 AI가 실제로 참고했다고 보고한 것만 출처로 표기(정직).
 	const archetypeId = extractArchetypeId(text);

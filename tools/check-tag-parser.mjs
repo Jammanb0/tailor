@@ -73,20 +73,23 @@ if (!tagOnly) throw new Error("prompt.ts에 TAG_ONLY_LINE이 없습니다");
 const topLevel = src.match(/const TOP_LEVEL_TAGS =[\s\S]*?;/)?.[0];
 if (!topLevel) throw new Error("prompt.ts에 TOP_LEVEL_TAGS가 없습니다");
 
-const { extractTag, extractListTag } = new Function(
+const { extractTag, extractListTag, extractFilename } = new Function(
 	[
 		stripSig(grab("extractTag")),
 		topLevel,
 		stripSig(grab("extractUnclosedTag")),
 		tagOnly,
 		stripSig(grab("extractListTag")),
-		"return { extractTag, extractListTag };",
+		stripSig(grab("extractFilename")),
+		"return { extractTag, extractListTag, extractFilename };",
 	].join("\n"),
 )();
 
 const failures = [];
+let passed = 0;
 const check = (name, actual, expected) => {
 	const ok = JSON.stringify(actual) === JSON.stringify(expected);
+	if (ok) passed += 1;
 	console.log(`${ok ? "OK  " : "FAIL"} ${name}`);
 	if (!ok) {
 		failures.push(name);
@@ -191,9 +194,55 @@ check(
 	null,
 );
 
+// ⑧ 파일명은 한 줄이다.
+//
+// 폴더 이름 자리에 들어가는 값이라 여러 줄이 그대로 나가면 설치 안내가
+// 흐트러진다. 아래 두 경로로 그렇게 된다.
+
+// ⑧-1 닫힌 태그 안에 설명이 딸려 온 경우. 종전에는 trim만 해서 둘째 줄이
+// 그대로 따라 나갔다.
+const filenameWithExtra = `<skill_md>
+# 제목
+</skill_md>
+<filename>
+monthly-sales
+(확장자는 빼고 적었습니다)
+</filename>`;
+
+check(
+	"닫힌 filename에 설명이 딸려 와도 첫 줄만 쓴다",
+	extractFilename(filenameWithExtra),
+	"monthly-sales",
+);
+
+// ⑧-2 마지막에 안 닫힌 경우. <filename> 뒤에 줄 머리의 최상위 태그가 하나도
+// 없으면 되돌림 경로가 남은 글을 전부 가져온다. 응답이 중간에 끊겼을 때만이
+// 아니라 <filename>이 마지막 블록이 되거나 뒤따르는 태그가 빠졌을 때도 생긴다.
+const filenameUnclosedLast = `<skill_md>
+# 제목
+</skill_md>
+<filename>
+monthly-sales
+
+이 이름으로 폴더를 만들어 주세요.`;
+
+check(
+	"마지막에 안 닫힌 filename도 첫 줄만 쓴다",
+	extractFilename(filenameUnclosedLast),
+	"monthly-sales",
+);
+
+// ⑧-3 쓸 줄이 하나도 없으면 기본값이다. 부르는 쪽이 각자 기본값을 들고 있지
+// 않도록 여기서 떨어뜨린다.
+check(
+	"filename 블록이 없으면 기본값으로 떨어진다",
+	extractFilename("<skill_md>\n# 제목\n</skill_md>"),
+	"my-skill",
+);
+
 console.log("");
 if (failures.length) {
 	console.error(`실패 ${failures.length}건: ${failures.join(", ")}`);
 	process.exit(1);
 }
-console.log("OK  태그 파서 7건 통과");
+console.log(`OK  태그 파서 ${passed}건 통과`);
