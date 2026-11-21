@@ -96,15 +96,9 @@ Opens at `http://localhost:3000`.
 > `CORPUS_ROUTING_MODE` in `.env.example` is optional; without it the service
 > uses the default behaviour of sending the whole corpus.
 
-Set `SUPABASE_URL` and the server-only `SUPABASE_SECRET_KEY` only when you want
-operational telemetry. Generation still works without them; persistence is
-skipped fail-open. The table definition lives in
-`docs/operations/generations-table.sql`.
-
 `.env.local` is covered by `.gitignore` so it is never committed. The Anthropic
-key is read from `src/app/api/generate-skill/route.ts`, and the Supabase key from
-`src/app/api/generate-skill/observation-store.ts`; both stay **server-only** and
-never reach the browser.
+key is read from `src/app/api/generate-skill/route.ts`; it stays **server-only**
+and never reaches the browser.
 
 Without a key, **the glossary and gallery still work normally** — both are
 static pages that make no AI calls. Trying to generate from `/create` without
@@ -121,7 +115,7 @@ pnpm lint:corpus                 # corpus authoring rules
 pnpm count:audit                 # audit coverage report and document mapping check
 pnpm check:parser                # response tag parser regression
 pnpm check:logging               # server log allowlist regression
-pnpm check:observation           # Supabase telemetry and persistence regression
+pnpm check:observation           # generation observation and response separation regression
 pnpm check:upstream-errors       # Anthropic error classification and abort regression
 pnpm check:input-limits          # input length limit regression
 pnpm check:routing               # bundle selection and delivery regression
@@ -153,6 +147,14 @@ Network, deadline, 5xx, unclassified request, and selection-processing failures
 fall back to the full corpus. Billing, usage-limit, authentication, and 429
 errors stop before Sonnet is called. Refinements always use `full` regardless
 of the setting.
+
+The deployed service runs `routed` (since 2026-09-01). In a blind comparison
+of the same scenarios generated both ways, no quality axis dropped, and one
+generation costs about $0.07, against about $0.19 for `full` when its cache
+misses. `full` only gets cheaper when requests keep arriving within five
+minutes of each other so the cache hits; if traffic grows to that level,
+switching to `full` is worth reconsidering. The evidence is in
+`docs/experiments/data/2026-08-31-routed-operations/NOTES.md`.
 
 <div align="center">
 
@@ -227,8 +229,7 @@ src/app/                    pages + API routes
                             upstream-error.ts     Anthropic error classification
                             request-validation.ts input length and shape checks
                             telemetry.ts    what server logs may contain
-                            observation.ts / observation-store.ts
-                                            allowed operational telemetry and Supabase persistence
+                            observation.ts  generation observation kept apart from the response
   api/route-preview/        routing preview (dev only, 404 in production)
   api/eval-ab/              evaluation harness (dev only, 404 in production)
   api/corpus-snapshot/      corpus render dump (dev only, 404 in production)
@@ -244,16 +245,20 @@ src/lib/
 tools/                      corpus lint/render/audit and parser/log/error/input/routing/telemetry checks
 docs/corpus/                source audit records
 docs/experiments/           generation-quality experiments + raw data
-docs/operations/            operational telemetry schema and analysis SQL
+docs/operations/            operational telemetry schema and analysis SQL (storage ended 2026-11-22, kept as a record)
 ```
 
 </details>
+
+## Project status
+
+First deployed on 2026-08-22; development wrapped up on 2026-11-22.
 
 ## Stack
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS · pnpm · Biome
 · GSAP + Framer Motion · Anthropic SDK (Claude Sonnet 5 for generation,
-Claude Haiku 4.5 for corpus selection) · Supabase REST (operational telemetry)
+Claude Haiku 4.5 for corpus selection)
 
 ## Attribution
 
