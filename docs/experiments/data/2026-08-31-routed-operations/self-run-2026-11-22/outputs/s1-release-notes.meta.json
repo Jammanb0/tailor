@@ -1,0 +1,63 @@
+{
+  "id": "s1-release-notes",
+  "startedAt": "2026-11-21T18:36:58.986Z",
+  "clientMs": 38347,
+  "httpStatus": 200,
+  "suggestedFilename": "release-notes-from-commits",
+  "clarifyingQuestions": [
+    "커밋 메시지 컨벤션이 Conventional Commits(`feat:`, `fix:` 형식)와 다르다면 어떤 형식을 쓰시는지 알려주시면 분류 기준을 더 정확히 맞출 수 있습니다"
+  ],
+  "reviewNotes": [
+    "description을 \"Use when...\" 형태로 구체적 트리거 조건 중심으로 작성했습니다 (release-notes 준비 시점, 어떤 종류의 요청에서 호출되는지 명시)",
+    "\"언제 쓰나\"에 쓰지 말아야 할 경우(내부용 체인지로그, 태그 미존재 시)를 구분해 넣었습니다",
+    "절차를 git 명령어 포함 단계별로 구체화하고, 각 단계에 실제로 실행 가능한 지시를 담았습니다",
+    "\"사용자가 체감할 수 없는 변경은 제외\"라는 기준을 명확히 넣어, 커밋을 무조건 다 옮기지 않도록 했습니다",
+    "나쁜 예/좋은 예 쌍으로 말투 변환 기준을 구체적으로 제시했습니다",
+    "완료 전 확인 섹션에 \"사용자 확인을 받는다\"는 조건을 넣어, 초안이지 최종본이 아님을 명시했습니다",
+    "커밋이 많은 저장소를 고려해 사소한 커밋을 먼저 거르는 지침을 추가했습니다"
+  ],
+  "referencedSources": [
+    {
+      "name": "writing-skills (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "doc-coauthoring (Anthropic skills)",
+      "author": "Anthropic",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+      "license": "확인되지 않음",
+      "self": false,
+      "adapted": true
+    }
+  ],
+  "structureSources": [
+    {
+      "name": "brainstorming (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "writing-plans (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "doc-coauthoring (Anthropic skills)",
+      "author": "Anthropic",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+      "license": "확인되지 않음",
+      "self": false,
+      "adapted": false
+    }
+  ]
+}

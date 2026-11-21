@@ -1,0 +1,62 @@
+{
+  "id": "s4-a11y-component",
+  "startedAt": "2026-11-21T18:38:52.011Z",
+  "clientMs": 35047,
+  "httpStatus": 200,
+  "suggestedFilename": "react-a11y-fix",
+  "clarifyingQuestions": [
+    "포커스 표시나 색상 대비를 자동으로 고칠 수 있는 기준값(예: WCAG 대비 비율)을 쓰시나요, 아니면 \"눈에 보이기만 하면\" 정도로 판단하면 될까요?"
+  ],
+  "reviewNotes": [
+    "트리거 조건(description)에 \"방금 만든 컴포넌트\", \"접근성 점검 요청\" 두 상황을 구체적 증상(키보드 조작 불가, 레이블 누락, 포커스 미표시)과 함께 넣었습니다.",
+    "사용자가 구분한 \"알아서 해도 되는 것 / 확인이 필요한 것\" 기준을 본문에서 명확히 두 목록으로 나누고, 각각 예시를 붙였습니다.",
+    "점검 항목마다 \"무엇을 보는지\"와 \"발견 시 처리 기준\"을 묶어서, 실행 가능한 지시문이 되도록 작성했습니다.",
+    "매번 다른 파일/코드를 다룬다는 점을 고려해 보고 형식을 틀로 고정하되 내용은 상황에 맞춰 채우도록 했습니다.",
+    "작업 범위가 \"점검 → 작은 수정 → 구조/디자인 변경은 질문\"으로 성격이 다른 세 갈래라 reference 골격(선택지 제공 + 적용 조건)에 가깝다고 판단해 채택했습니다.",
+    "작업 성격상 돌려볼 테스트나 수치가 없어 \"완료 전 확인\"은 체크리스트 형태로, \"빠른 참조\"는 생략하고 \"흔한 실수\" 표로 대체했습니다."
+  ],
+  "referencedSources": [
+    {
+      "name": "requesting-code-review (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/requesting-code-review",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "writing-skills (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    }
+  ],
+  "structureSources": [
+    {
+      "name": "theme-factory (Anthropic skills)",
+      "author": "Anthropic",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+      "license": "Apache-2.0",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "frontend-design (Anthropic skills)",
+      "author": "Anthropic",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+      "license": "Apache-2.0",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "tone-of-voice (Claude Code skill)",
+      "author": "entpnomad",
+      "url": "https://github.com/entpnomad/tone-of-voice",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    }
+  ]
+}

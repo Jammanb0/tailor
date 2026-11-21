@@ -1,0 +1,182 @@
+{
+  "prices": {
+    "sonnet": {
+      "input": 2,
+      "output": 10
+    },
+    "haiku": {
+      "input": 1,
+      "output": 5
+    },
+    "cacheWrite": 1.25,
+    "cacheRead": 0.1
+  },
+  "count": 5,
+  "fallbackCount": 0,
+  "f7Count": 0,
+  "errorCount": 0,
+  "needsMoreInfoCount": 0,
+  "totalUsd": 0.363239,
+  "meanUsd": 0.072648,
+  "medianClientMs": 38347,
+  "maxClientMs": 43818,
+  "medianSelectionMs": 1123,
+  "maxSelectionMs": 1393,
+  "rows": [
+    {
+      "id": "s1-release-notes",
+      "operationId": "89e1bdbb-4cc3-488d-a1bf-d517eda7a089",
+      "httpStatus": 200,
+      "outcome": "success",
+      "selectionStatus": "success",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [],
+      "deliveredMode": "routed",
+      "selectionMs": 1123,
+      "generationMs": 36883,
+      "clientMs": 38347,
+      "stopReason": "end_turn",
+      "selectionUsage": {
+        "input_tokens": 3845,
+        "output_tokens": 36,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "generationUsage": {
+        "input_tokens": 19455,
+        "output_tokens": 3338,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "selectionUsd": 0.004025,
+      "generationUsd": 0.07229,
+      "totalUsd": 0.076315,
+      "otherEvents": []
+    },
+    {
+      "id": "s2-db-migration-review",
+      "operationId": "07ae5484-5a13-42f9-a87c-16d351238e80",
+      "httpStatus": 200,
+      "outcome": "success",
+      "selectionStatus": "success",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [],
+      "deliveredMode": "routed",
+      "selectionMs": 1393,
+      "generationMs": 42334,
+      "clientMs": 43818,
+      "stopReason": "end_turn",
+      "selectionUsage": {
+        "input_tokens": 4330,
+        "output_tokens": 74,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "generationUsage": {
+        "input_tokens": 19826,
+        "output_tokens": 3879,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "selectionUsd": 0.0047,
+      "generationUsd": 0.078442,
+      "totalUsd": 0.083142,
+      "otherEvents": []
+    },
+    {
+      "id": "s3-paper-notes-en",
+      "operationId": "5234e4b4-f73f-4053-b6a1-acbdb590b858",
+      "httpStatus": 200,
+      "outcome": "success",
+      "selectionStatus": "success",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [],
+      "deliveredMode": "routed",
+      "selectionMs": 1057,
+      "generationMs": 21456,
+      "clientMs": 22539,
+      "stopReason": "end_turn",
+      "selectionUsage": {
+        "input_tokens": 3858,
+        "output_tokens": 32,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "generationUsage": {
+        "input_tokens": 15278,
+        "output_tokens": 1803,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "selectionUsd": 0.004018,
+      "generationUsd": 0.048586,
+      "totalUsd": 0.052604,
+      "otherEvents": []
+    },
+    {
+      "id": "s4-a11y-component",
+      "operationId": "b23abfbb-55f5-4083-87e9-71940d79e649",
+      "httpStatus": 200,
+      "outcome": "success",
+      "selectionStatus": "success",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [],
+      "deliveredMode": "routed",
+      "selectionMs": 1041,
+      "generationMs": 33983,
+      "clientMs": 35047,
+      "stopReason": "end_turn",
+      "selectionUsage": {
+        "input_tokens": 4226,
+        "output_tokens": 47,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "generationUsage": {
+        "input_tokens": 19805,
+        "output_tokens": 3132,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "selectionUsd": 0.004461,
+      "generationUsd": 0.07093,
+      "totalUsd": 0.075391,
+      "otherEvents": []
+    },
+    {
+      "id": "s5-secret-check",
+      "operationId": "62d6571d-388a-494b-9ee6-19e6de2ba8ef",
+      "httpStatus": 200,
+      "outcome": "success",
+      "selectionStatus": "success",
+      "fallback": false,
+      "fallbackReasonIds": [],
+      "ambiguityIds": [],
+      "deliveredMode": "routed",
+      "selectionMs": 1145,
+      "generationMs": 38083,
+      "clientMs": 39252,
+      "stopReason": "end_turn",
+      "selectionUsage": {
+        "input_tokens": 3727,
+        "output_tokens": 56,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "generationUsage": {
+        "input_tokens": 19155,
+        "output_tokens": 3347,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+      },
+      "selectionUsd": 0.004007,
+      "generationUsd": 0.07178,
+      "totalUsd": 0.075787,
+      "otherEvents": []
+    }
+  ]
+}

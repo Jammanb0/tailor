@@ -1,0 +1,81 @@
+[
+	{
+		"id": "s1-release-notes",
+		"note": "기본 모드. 개발 문서 작성이지만 과거 시나리오(기획 문서·개발 계획서)와 다른 산출물",
+		"body": {
+			"wantsAdvanced": false,
+			"answers": {
+				"tool": "cli",
+				"situation": "배포할 때마다 지난 태그 이후의 git 커밋 기록을 보고 사용자용 릴리스 노트를 직접 쓰는데, 커밋 메시지가 개발자 말투라 그대로 옮기면 사용자가 못 알아들어요. 커밋 기록을 읽어서 새 기능, 고친 문제, 주의할 변경으로 나누고 사용자가 이해할 말로 바꾼 초안을 만들어 주면 좋겠어요.",
+				"reference": "",
+				"language": "ko"
+			}
+		}
+	},
+	{
+		"id": "s2-db-migration-review",
+		"note": "고급 모드. 사람 확인·명령 실행·팀 공유가 걸린 위험 작업",
+		"body": {
+			"wantsAdvanced": true,
+			"answers": {
+				"tool": "cli",
+				"situation": "PostgreSQL 마이그레이션 파일을 새로 쓰면 적용하기 전에 위험한 부분이 없는지 점검받고 싶어요. 컬럼 삭제나 타입 변경처럼 데이터가 사라질 수 있는 변경, 큰 표에 락이 오래 걸리는 변경, 되돌리는 마이그레이션이 없는 경우를 찾아서 알려주고, 고칠 방법도 제안해 주면 좋겠어요.",
+				"reference": "",
+				"language": "ko",
+				"autonomy": "confirm",
+				"autonomyDetail": "마이그레이션 파일을 읽고 점검하는 건 알아서 해도 되지만, 실제 DB에 마이그레이션을 적용하는 명령은 절대 직접 실행하지 말고 저한테 맡겨 주세요.",
+				"variableInput": "yes",
+				"frequency": "sometimes",
+				"scope": ["read", "exec"],
+				"audience": "team",
+				"constraints": "운영 DB에 접속하지 마세요. 마이그레이션 파일을 직접 고치지 말고 고칠 내용만 제안해 주세요."
+			}
+		}
+	},
+	{
+		"id": "s3-paper-notes-en",
+		"note": "기본 모드·영어 결과물·데스크톱 앱. 개발 밖의 글 정리 작업",
+		"body": {
+			"wantsAdvanced": false,
+			"answers": {
+				"tool": "desktop",
+				"situation": "대학원에서 논문 PDF를 매주 여러 편 읽는데, 읽고 나면 핵심이 뭐였는지 금방 잊어버려요. 논문을 주면 연구 질문, 방법, 주요 결과, 한계, 내 연구와 연결될 만한 점을 정해진 형식의 읽기 노트로 정리해 주면 좋겠어요. 논문에 없는 내용을 지어내지 말고, 결과 수치는 몇 쪽에서 나왔는지 같이 적어 줬으면 해요.",
+				"reference": "",
+				"language": "en"
+			}
+		}
+	},
+	{
+		"id": "s4-a11y-component",
+		"note": "고급 모드. 프론트엔드 접근성 — 디자인 묶음과 겹칠 수 있는지 보는 사례",
+		"body": {
+			"wantsAdvanced": true,
+			"answers": {
+				"tool": "both",
+				"situation": "React 컴포넌트를 만들고 나면 키보드로만 조작할 수 있는지, 스크린리더가 읽을 이름이 붙어 있는지, 포커스가 눈에 보이는지를 자꾸 빼먹어요. 제가 방금 만든 컴포넌트 파일을 보고 접근성 문제를 찾아서 바로 고쳐 주고, 무엇을 왜 고쳤는지 짧게 알려 주면 좋겠어요.",
+				"reference": "",
+				"language": "ko",
+				"autonomy": "mixed",
+				"autonomyDetail": "aria 속성이나 label을 붙이는 작은 수정은 알아서 해도 되지만, 컴포넌트 구조를 바꾸거나 디자인(색, 크기)을 바꿔야 하는 수정은 먼저 물어봐 주세요.",
+				"variableInput": "yes",
+				"frequency": "often",
+				"scope": ["read", "edit"],
+				"audience": "personal",
+				"constraints": ""
+			}
+		}
+	},
+	{
+		"id": "s5-secret-check",
+		"note": "기본 모드·짧은 입력. 실제 사용자처럼 한 줄에 가까운 요청",
+		"body": {
+			"wantsAdvanced": false,
+			"answers": {
+				"tool": "cli",
+				"situation": "커밋하기 전에 API 키나 비밀번호, .env 파일 같은 게 섞여 들어가지 않았는지 확인해 줘",
+				"reference": "",
+				"language": "ko"
+			}
+		}
+	}
+]

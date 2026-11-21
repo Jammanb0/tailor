@@ -1,0 +1,60 @@
+{
+  "id": "s2-db-migration-review",
+  "startedAt": "2026-11-21T18:37:45.649Z",
+  "clientMs": 43818,
+  "httpStatus": 200,
+  "suggestedFilename": "postgres-migration-check",
+  "clarifyingQuestions": [],
+  "reviewNotes": [
+    "요청 핵심 세 가지(데이터 유실, 긴 락, 롤백 누락)를 각각 구체적인 SQL 패턴과 함께 점검 항목으로 명시했습니다.",
+    "\"파일 읽기, 명령 실행\"까지만 허용된다는 점을 반영해 파일 수정 금지, 적용 명령 실행 금지를 본문과 \"하지 말아야 할 것\" 양쪽에 중복 배치해 압박 상황에서도 지켜지도록 했습니다.",
+    "\"고칠 방법은 제안만\" 요구사항을 보고 형식(출력 틀)에 구조적으로 넣어, 산문으로 당부하는 대신 템플릿 자체가 지키게 했습니다.",
+    "description에 트리거 문구(\"마이그레이션 검토해줘\" 등)와 파일 변경 시점을 넣어 호출 조건을 구체화했습니다.",
+    "팀 공유용이라는 점을 고려해 전문용어(락, 백필, CONCURRENTLY, NOT VALID 등)에 짧은 풀이를 괄호로 붙였습니다.",
+    "reference(선택지 제공) 성격과 workflow(단계별 점검) 성격이 섞여 있었으나, 핵심이 \"정해진 절차를 밟아 점검 보고서를 만든다\"는 점이라 workflow 골격을 기본으로 채택했습니다."
+  ],
+  "referencedSources": [
+    {
+      "name": "requesting-code-review (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/requesting-code-review",
+      "license": "MIT",
+      "self": false,
+      "adapted": true
+    },
+    {
+      "name": "writing-skills (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    }
+  ],
+  "structureSources": [
+    {
+      "name": "brainstorming (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/brainstorming",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "writing-plans (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "doc-coauthoring (Anthropic skills)",
+      "author": "Anthropic",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring",
+      "license": "확인되지 않음",
+      "self": false,
+      "adapted": false
+    }
+  ]
+}

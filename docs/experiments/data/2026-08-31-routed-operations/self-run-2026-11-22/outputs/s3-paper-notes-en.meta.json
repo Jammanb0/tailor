@@ -1,0 +1,67 @@
+{
+  "id": "s3-paper-notes-en",
+  "startedAt": "2026-11-21T18:38:29.470Z",
+  "clientMs": 22539,
+  "httpStatus": 200,
+  "suggestedFilename": "paper-reading-notes",
+  "clarifyingQuestions": [],
+  "reviewNotes": [
+    "description에 \"논문 PDF/텍스트 공유 + 요약·노트 요청\"이라는 구체적 트리거 조건을 넣어 3인칭으로 작성했습니다.",
+    "\"지어내지 말 것\", \"페이지 번호 명시\"라는 사용자의 핵심 요구를 본문 전체에 반복 배치하고(구조 틀, 체크리스트, 흔한 실수 표) 특히 결과 항목에는 페이지 인용이 없으면 안 된다는 규칙을 명시했습니다.",
+    "페이지를 못 찾은 경우나 섹션을 채울 수 없는 경우 \"지어내지 말고 명시적으로 모른다고 쓰라\"는 예외 처리를 넣어, 빈칸을 억지로 채우는 실패를 방지했습니다.",
+    "\"내 연구와의 연결점\"은 사용자가 자기 연구를 설명한 적 없으면 추측하지 않고 되묻도록 조건부 분기를 넣었습니다.",
+    "완료 전 체크리스트와 흔한 실수 표로 self-check이 가능하게 구성했습니다."
+  ],
+  "referencedSources": [
+    {
+      "name": "writing-plans (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/writing-plans",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "writing-skills (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/writing-skills",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "verification-before-completion (superpowers)",
+      "author": "Jesse Vincent",
+      "url": "https://github.com/obra/superpowers/tree/main/skills/verification-before-completion",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    }
+  ],
+  "structureSources": [
+    {
+      "name": "theme-factory (Anthropic skills)",
+      "author": "Anthropic",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/theme-factory",
+      "license": "Apache-2.0",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "frontend-design (Anthropic skills)",
+      "author": "Anthropic",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+      "license": "Apache-2.0",
+      "self": false,
+      "adapted": false
+    },
+    {
+      "name": "tone-of-voice (Claude Code skill)",
+      "author": "entpnomad",
+      "url": "https://github.com/entpnomad/tone-of-voice",
+      "license": "MIT",
+      "self": false,
+      "adapted": false
+    }
+  ]
+}
