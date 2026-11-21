@@ -1,5 +1,9 @@
 -- routed 운영 관찰용 계측 표.
 --
+-- **2026-11-22 저장 종료.** 앱은 더 이상 이 표에 쓰지 않는다. 이 파일은 관찰
+-- 기간(2026-09-01~11-22)의 스키마와 판정 정의 기록으로 남긴다. 경위는
+-- docs/experiments/data/2026-08-31-routed-operations/NOTES.md 끝 절에 있다.
+--
 -- 기준 문서: docs/experiments/data/2026-08-31-routed-operations/PRE-REGISTRATION.md
 -- 이 파일은 그 문서의 스키마와 판정 정의를 SQL로 옮긴 것이다. 둘이 어긋나면
 -- 사전등록 문서가 원본이다.

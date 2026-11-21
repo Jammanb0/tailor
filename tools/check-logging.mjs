@@ -32,16 +32,12 @@ import {
 	buildErrorLog,
 	buildGenerationLog,
 	buildParseFailureLog,
-	buildPersistenceErrorLog,
 	buildRoutingLog,
 	ERROR_LOG_CATEGORIES,
 	ERROR_LOG_FIELDS,
 	ERROR_STAGES,
 	GENERATION_LOG_FIELDS,
 	KNOWN_ERROR_NAMES,
-	PERSISTENCE_ERROR_LOG_FIELDS,
-	PERSISTENCE_FAILURE_REASONS,
-	PERSISTENCE_STAGES,
 	pickUsage,
 	ROUTING_LOG_FIELDS,
 	SELECTION_PROCESSING_CATEGORY,
@@ -53,7 +49,6 @@ const API_DIR = join(HERE, "..", "src", "app", "api", "generate-skill");
 const ROUTE = join(API_DIR, "route.ts");
 const GENERATE = join(API_DIR, "generate.ts");
 const TELEMETRY = join(API_DIR, "telemetry.ts");
-const STORE = join(API_DIR, "observation-store.ts");
 
 // 새면 눈에 띄도록 실제 자료 대신 표식을 넣는다. 로그 어디에도 이 글자가
 // 나오면 안 된다.
@@ -345,78 +340,9 @@ check("모양이 다른 오류에도 터지지 않는다", () => {
 	}
 });
 
-// ── 계측 저장 실패 로그 ──────────────────────────────────────────────
-//
-// 이 이벤트는 Supabase 응답을 다룬다. 응답 본문이나 오류 message가 실려 나가면
-// 우리가 만들지 않은 문자열이 로그에 들어간다.
-
-check("저장 실패 로그의 필드는 허용 목록뿐이다", () => {
-	const log = buildPersistenceErrorLog({
-		stage: "pending-insert",
-		reason: "http_error",
-		status: 503,
-		operationId: "018f2b6a-1c2d-4e5f-8a9b-0c1d2e3f4a5b",
-		startedAt: "2026-09-01T00:00:00.000Z",
-		kind: "create",
-		configuredMode: "routed",
-		deploymentId: "dpl_abc123",
-		isSmoke: false,
-	});
-	if (!sameMembers(Object.keys(log), [...PERSISTENCE_ERROR_LOG_FIELDS])) {
-		throw new Error(`필드가 다릅니다: ${Object.keys(log).join(", ")}`);
-	}
-});
-
-check("저장 실패 로그는 stage·reason을 허용 목록으로 가둔다", () => {
-	const log = buildPersistenceErrorLog({
-		stage: "made-up-stage",
-		reason: "made-up-reason",
-	});
-	if (!PERSISTENCE_STAGES.includes(log.stage)) {
-		throw new Error(`stage가 새어 나갔습니다: ${log.stage}`);
-	}
-	if (!PERSISTENCE_FAILURE_REASONS.includes(log.reason)) {
-		throw new Error(`reason이 새어 나갔습니다: ${log.reason}`);
-	}
-});
-
-check("저장 실패 로그는 형태가 어긋난 값을 버린다", () => {
-	const log = buildPersistenceErrorLog({
-		stage: "final-update",
-		reason: "request_failed",
-		// uuid가 아닌 값, 날짜가 아닌 값, 목록에 없는 kind, 형태가 어긋난 배포 id.
-		operationId: SECRET,
-		startedAt: SECRET,
-		kind: SECRET,
-		configuredMode: SECRET,
-		deploymentId: `${SECRET} with spaces`,
-	});
-	const text = JSON.stringify(log);
-	if (text.includes(SECRET)) {
-		throw new Error(`표식이 로그에 남았습니다: ${text}`);
-	}
-	for (const key of ["operationId", "startedAt", "kind", "configuredMode"]) {
-		if (log[key] !== null) throw new Error(`${key}가 null이 아닙니다`);
-	}
-});
-
-check("저장 실패 로그에 Supabase 응답 본문 자리가 없다", () => {
-	// status는 숫자만 받는다. 본문을 담을 문자열 필드가 아예 없어야 한다.
-	const log = buildPersistenceErrorLog({
-		stage: "pending-insert",
-		reason: "http_error",
-		status: SECRET,
-	});
-	if (log.status !== null)
-		throw new Error("status가 숫자가 아닌데 통과했습니다");
-	if (JSON.stringify(log).includes(SECRET)) {
-		throw new Error("표식이 로그에 남았습니다");
-	}
-});
-
 // ── operationId 배선 ─────────────────────────────────────────────────
 //
-// Vercel 로그와 Supabase 행을 맞추는 값이다. 우리가 만든 uuid만 실린다.
+// 한 요청의 로그 줄들을 Vercel 로그에서 잇는 값이다. 우리가 만든 uuid만 실린다.
 
 check("네 이벤트 모두 operationId를 싣는다", () => {
 	const id = "018f2b6a-1c2d-4e5f-8a9b-0c1d2e3f4a5b";
@@ -483,20 +409,13 @@ check("generate.ts도 console을 직접 부르지 않는다", () => {
 	if (found !== 0) throw new Error(`console이 ${found}군데 있습니다`);
 });
 
-check("console을 부르는 자리는 telemetry.ts의 다섯뿐이다", () => {
+check("console을 부르는 자리는 telemetry.ts의 넷뿐이다", () => {
 	const found = countConsole(TELEMETRY);
-	// logGeneration · logRouting · logParseFailure · logRequestFailure ·
-	// logPersistenceFailure. 늘리려면 이 숫자를 함께 고쳐야 하고, 그 자리에서
-	// 무엇이 나가는지 다시 보게 된다.
-	if (found !== 5)
-		throw new Error(`console이 5군데가 아니라 ${found}군데입니다`);
-});
-
-check("저장 모듈도 console을 직접 부르지 않는다", () => {
-	// 저장 실패는 telemetry.ts의 logPersistenceFailure를 거쳐야 한다. 여기서
-	// 직접 찍으면 「무엇이 로그로 나가는가」를 두 파일을 읽어야 판정하게 된다.
-	const found = countConsole(STORE);
-	if (found !== 0) throw new Error(`console이 ${found}군데 있습니다`);
+	// logGeneration · logRouting · logParseFailure · logRequestFailure.
+	// 늘리려면 이 숫자를 함께 고쳐야 하고, 그 자리에서 무엇이 나가는지 다시
+	// 보게 된다. (Supabase 저장 실패 로그는 2026-11-22에 저장과 함께 없앴다.)
+	if (found !== 4)
+		throw new Error(`console이 4군데가 아니라 ${found}군데입니다`);
 });
 
 if (failures.length) {

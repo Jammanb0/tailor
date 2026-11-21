@@ -208,11 +208,8 @@ await check("프로덕션 라우트가 공용 정책·계측·출처 방어를 �
 		"preparedCorpus.selectionError",
 		"preparedCorpus.selectionProcessingError",
 		'"selection-processing"',
-		// 운영 관찰 계측. 배선이 빠지면 요청은 정상인데 표만 비므로, 프로덕션
-		// 경로를 보는 이 검사에서 함께 확인한다. 저장의 세부는
-		// `pnpm check:observation`이 본다.
-		"savePendingObservation(",
-		"saveFinalObservation({",
+		// Supabase 운영 계측 저장은 2026-11-22에 끝내 여기서 보던 배선 두 줄을
+		// 뺐다. 관측값 자체는 `pnpm check:observation`이 본다.
 	]) {
 		ok(source.includes(fragment), `프로덕션 연결 누락: ${fragment}`);
 	}
